@@ -11,11 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 
-public class Bucket4JRequestFilter extends GenericFilterBean {
+public class Bucket4JRequestFilter extends OncePerRequestFilter {
 
 	private Bucket4JFilterConfig filterConfig;
 	
@@ -24,10 +25,10 @@ public class Bucket4JRequestFilter extends GenericFilterBean {
     }
 
 	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-			throws IOException, ServletException {
-		HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
         
         Bucket bucket = filterConfig.getBuckets().getProxy(filterConfig.getKeyFilter().key(httpRequest), () -> filterConfig.getConfig());
 
@@ -35,15 +36,12 @@ public class Bucket4JRequestFilter extends GenericFilterBean {
 
         if (probe.isConsumed()) {
             httpResponse.setHeader("X-Rate-Limit-Remaining", "" + probe.getRemainingTokens());
-            filterChain.doFilter(servletRequest, servletResponse);
+            filterChain.doFilter(httpRequest, httpResponse);
         } else {
              httpResponse.setStatus(429);
              httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
              httpResponse.setContentType("application/json");
              httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
         }
-		
 	}
-
-
 }

@@ -6,6 +6,7 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -15,8 +16,14 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JFilterConfig;
@@ -46,7 +53,7 @@ public class Bucket4JAutoConfiguration     {
 
 	
 	@SuppressWarnings("unchecked")
-	public Cache<String, GridBucketState> getJCache(String cacheName) {
+	public Cache<String, GridBucketState> jCache(String cacheName) {
         org.springframework.cache.Cache springCache = cacheManager.getCache(cacheName);
         if(springCache == null) {
         	throw new IllegalStateException("Please provide a cache with the name " + cacheName);
@@ -114,7 +121,7 @@ public class Bucket4JAutoConfiguration     {
 			Bucket4JConfiguration config = properties.getConfigs().get(position);
 			filterCount++;
 			
-			ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(getJCache(config.getCacheName()));
+			ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(jCache(config.getCacheName()));
 			
 			ConfigurationBuilder<?> configBuilder = Bucket4j.configurationBuilder();
 			for (Bucket4JBandWidth bandWidth : config.getBandwidths()) {
@@ -139,12 +146,38 @@ public class Bucket4JAutoConfiguration     {
 	}
 
 
+	@Autowired
+	private BeanFactory beanFactory;
+	
+	
 	private Bucket4JKeyFilter getKeyFilter(Bucket4JConfiguration config) {
 		switch(config.getFilterType()) {
 		case IP:
 			return (request) -> request.getRemoteAddr();
+		case EXPRESSION:
+			String expression = config.getExpression();
+			if(StringUtils.isEmpty(expression)) {
+				throw new IllegalArgumentException("Missing property expression for filter type expression");
+			}
+			ExpressionParser parser = expressionParser();
+			return  (request) -> {
+				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
+				StandardEvaluationContext context = new StandardEvaluationContext(request);
+				context.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
+				Expression expr = parser.parseExpression(config.getExpression()); 
+				final String value = expr.getValue(context, String.class);
+				System.out.println(value);
+				return value;
+			};
+		
 		}
 		return (request) -> "1";
+	}
+
+	@Bean
+	public ExpressionParser expressionParser() {
+		ExpressionParser parser = new SpelExpressionParser();
+		return parser;
 	}
 
 	

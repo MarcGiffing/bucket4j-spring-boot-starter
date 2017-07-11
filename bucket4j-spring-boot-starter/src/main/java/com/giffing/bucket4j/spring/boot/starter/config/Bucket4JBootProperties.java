@@ -21,13 +21,24 @@ public class Bucket4JBootProperties {
 
 		private Bucket4JFilterType filterType = Bucket4JFilterType.DEFAULT;
 		
+		/**
+		 * The cache name. Should be provided or an exception is thrown
+		 */
 		private String cacheName = "buckets";
 		
+		/**
+		 * Url to which the filter should be registered
+		 */
 		private String url = "/*";
 		
 		private int filterOrder = Integer.MIN_VALUE + 1;
 		
 		private List<Bucket4JBandWidth> bandwidths = new ArrayList<>();
+		
+		/**
+		 * SPEL expression to dynamic evaluate filter key 
+		 */
+		private String expression;
 		
 		public Bucket4JConfiguration() {
 			
@@ -71,6 +82,14 @@ public class Bucket4JBootProperties {
 
 		public void setFilterOrder(int filterOrder) {
 			this.filterOrder = filterOrder;
+		}
+
+		public String getExpression() {
+			return expression;
+		}
+
+		public void setExpression(String expression) {
+			this.expression = expression;
 		}
 		
 	}
