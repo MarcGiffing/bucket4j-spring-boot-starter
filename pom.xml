@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 	<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>pom</packaging>
 
 	<name>bucket4j-spring-boot-starter</name>
@@ -34,7 +33,8 @@
 		<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter/</url>
 		<connection>scm:git:git://github.com/MarcGiffing/bucket4j-spring-boot-starter</connection>
 		<developerConnection>scm:git:git@github.com:MarcGiffing/bucket4j-spring-boot-starter</developerConnection>
-	</scm>
+	  <tag>bucket4j-spring-boot-starter-parent-0.0.1</tag>
+  </scm>
 
 
 	<properties>
@@ -48,7 +48,7 @@
 			<dependency>
 				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 				<artifactId>bucket4j-spring-boot-starter</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<version>0.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.vladimir-bukhtoyarov</groupId>
