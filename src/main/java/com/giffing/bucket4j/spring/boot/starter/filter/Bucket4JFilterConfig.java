@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.filter;
 
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JKeyFilter;
-
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.grid.ProxyManager;
 

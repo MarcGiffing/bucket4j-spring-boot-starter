@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JFilterType;
+
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 public class Bucket4JBootProperties {
 
