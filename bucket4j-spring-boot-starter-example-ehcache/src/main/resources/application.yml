@@ -15,7 +15,7 @@ bucket4j:
       url: /*
       bandwidths: 
       -
-        capacity: 5
+        capacity: 10
         time: 10
         unit: seconds  
     - cache-name: buckets
@@ -23,7 +23,7 @@ bucket4j:
       url: /*
       bandwidths: 
       -
-        capacity: 5
+        capacity: 10
         time: 10
         unit: seconds
     - cache-name: buckets
@@ -32,7 +32,7 @@ bucket4j:
       url: /*
       bandwidths: 
       -
-        capacity: 5
+        capacity: 10
         time: 10
         unit: seconds               
           
