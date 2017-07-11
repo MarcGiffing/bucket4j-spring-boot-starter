@@ -28,9 +28,10 @@ bucket4j:
         time: 10
         unit: seconds
     - cache-name: buckets
-      filter-type: expression  # expresion based filter key evaluation
-      expression: getRemoteAddr() # like the ip filter - get the remote address as a key
+      filter-type: expression  # expression based filter key evaluation
+      expression: "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication()?.getName()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
       url: /*
+      filter-order: 0
       bandwidths: 
       -
         capacity: 5
