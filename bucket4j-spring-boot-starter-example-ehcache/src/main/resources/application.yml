@@ -5,34 +5,18 @@ spring:
   cache:
     jcache:
       config: classpath:ehcache.xml
-
 bucket4j:
   rate-limit:
     enabled: true
     configs:
     - cache-name: buckets
-      filter-type: default
-      url: /*
-      bandwidths: 
-      -
-        capacity: 10
-        time: 10
-        unit: seconds  
-    - cache-name: buckets
-      filter-type: ip
-      url: /*
-      bandwidths: 
-      -
-        capacity: 10
-        time: 10
-        unit: seconds
-    - cache-name: buckets
       filter-type: expression
-      expression: getRemoteAddr()
+      expression: "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication()?.getName()?: getRemoteAddr()"
       url: /*
+      filter-order: 0
       bandwidths: 
       -
-        capacity: 10
-        time: 10
-        unit: seconds               
+        capacity: 20
+        time: 1
+        unit: minutes               
           

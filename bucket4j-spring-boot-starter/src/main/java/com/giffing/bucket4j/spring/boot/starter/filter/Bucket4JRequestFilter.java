@@ -30,7 +30,9 @@ public class Bucket4JRequestFilter extends OncePerRequestFilter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
-        Bucket bucket = filterConfig.getBuckets().getProxy(filterConfig.getKeyFilter().key(httpRequest), () -> filterConfig.getConfig());
+        String key = filterConfig.getKeyFilter().key(httpRequest);
+        System.out.println(key + " " + Thread.currentThread().getId());
+		Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
 
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 

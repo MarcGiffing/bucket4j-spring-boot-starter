@@ -161,6 +161,7 @@ public class Bucket4JAutoConfiguration     {
 			}
 			ExpressionParser parser = expressionParser();
 			return  (request) -> {
+				System.out.println(Thread.currentThread().getId());
 				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
 				StandardEvaluationContext context = new StandardEvaluationContext(request);
 				context.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
