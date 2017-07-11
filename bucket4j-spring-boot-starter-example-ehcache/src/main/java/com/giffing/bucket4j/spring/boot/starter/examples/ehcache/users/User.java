@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.user;
+package com.giffing.bucket4j.spring.boot.starter.examples.ehcache.users;
 
 import java.io.Serializable;
 
