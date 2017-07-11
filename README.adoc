@@ -5,7 +5,7 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 
 == Configuration via properties
 
-[source,xml]
+[source,yml]
 ----
 bucket4j:
   rate-limit:
