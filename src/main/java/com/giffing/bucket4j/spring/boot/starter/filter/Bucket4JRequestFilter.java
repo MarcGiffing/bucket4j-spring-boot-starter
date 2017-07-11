@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
@@ -23,7 +22,6 @@ public class Bucket4JRequestFilter extends GenericFilterBean {
     public Bucket4JRequestFilter(Bucket4JFilterConfig filterConfig) {
     	this.filterConfig = filterConfig;
     }
-
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
