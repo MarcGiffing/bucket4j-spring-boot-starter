@@ -20,6 +20,7 @@ import org.springframework.core.annotation.Order;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JFilterConfig;
+import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JKeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JRequestFilter;
 
 import io.github.bucket4j.Bandwidth;
@@ -123,14 +124,7 @@ public class Bucket4JAutoConfiguration     {
 			Bucket4JFilterConfig filterConfig = new Bucket4JFilterConfig();
 			filterConfig.setBuckets(buckets);
 			filterConfig.setConfig(configBuilder.buildConfiguration());
-			switch(config.getFilterType()) {
-			case IP:
-				filterConfig.setKeyFilter( (request) -> request.getRemoteAddr());
-				break;
-			default:
-				filterConfig.setKeyFilter( (request) -> "1");
-				break;
-			}
+			filterConfig.setKeyFilter(getKeyFilter(config));
 			
 			FilterRegistrationBean registration = new FilterRegistrationBean();
 			registration.setName("bucket4JRequestFilter" + position);
@@ -144,45 +138,13 @@ public class Bucket4JAutoConfiguration     {
 	}
 
 
-
-
-//	@Bean
-//	public List<FilterRegistrationBean> xyasu() {
-//		List<FilterRegistrationBean> result = new ArrayList<>();
-//		Integer filterCount = 0;
-//		for ( Bucket4JConfiguration config : properties.getConfigs() ) {
-//			filterCount++;
-//			
-//			ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(getJCache(config.getCacheName()));
-//			
-//			ConfigurationBuilder<?> configBuilder = Bucket4j.configurationBuilder();
-//			for (Bucket4JBandWidth bandWidth : config.getBandwidths()) {
-//				configBuilder = configBuilder.addLimit(Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit())));
-//			};
-//			
-//			Bucket4JFilterConfig filterConfig = new Bucket4JFilterConfig();
-//			filterConfig.setBuckets(buckets);
-//			filterConfig.setConfig(configBuilder.buildConfiguration());
-//			switch(config.getFilterType()) {
-//			case IP:
-//				filterConfig.setKeyFilter( (request) -> request.getRemoteAddr());
-//				break;
-//			default:
-//				filterConfig.setKeyFilter( (request) -> "1");
-//				break;
-//			}
-//			
-//			FilterRegistrationBean registration = new FilterRegistrationBean();
-//	        registration.setFilter(new Bucket4JRequestFilter(filterConfig));
-//	        registration.addUrlPatterns(config.getUrl());
-//	        
-//	        result.add(registration);
-//	        
-//		}
-//		
-//		return result;
-//		
-//	}
+	private Bucket4JKeyFilter getKeyFilter(Bucket4JConfiguration config) {
+		switch(config.getFilterType()) {
+		case IP:
+			return (request) -> request.getRemoteAddr();
+		}
+		return (request) -> "1";
+	}
 
 	
 }
