@@ -31,7 +31,7 @@ import io.github.bucket4j.grid.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCache;
 
 @Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = "enabled", matchIfMissing = true)
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class })
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
@@ -130,6 +130,7 @@ public class Bucket4JAutoConfiguration     {
 			registration.setName("bucket4JRequestFilter" + position);
 	        registration.setFilter(new Bucket4JRequestFilter(filterConfig));
 	        registration.addUrlPatterns(config.getUrl());
+	        registration.setOrder(config.getFilterOrder());
 	        
 	        return registration;
 		}

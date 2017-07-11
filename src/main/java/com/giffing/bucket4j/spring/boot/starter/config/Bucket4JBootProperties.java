@@ -25,6 +25,8 @@ public class Bucket4JBootProperties {
 		
 		private String url = "/*";
 		
+		private int filterOrder = Integer.MIN_VALUE + 1;
+		
 		private List<Bucket4JBandWidth> bandwidths = new ArrayList<>();
 		
 		public Bucket4JConfiguration() {
@@ -61,6 +63,14 @@ public class Bucket4JBootProperties {
 
 		public void setFilterType(Bucket4JFilterType filterType) {
 			this.filterType = filterType;
+		}
+
+		public int getFilterOrder() {
+			return filterOrder;
+		}
+
+		public void setFilterOrder(int filterOrder) {
+			this.filterOrder = filterOrder;
 		}
 		
 	}
