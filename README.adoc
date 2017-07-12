@@ -3,6 +3,54 @@
 
 https://github.com/vladimir-bukhtoyarov/bucket4j
 
+This project provides an integration of bucket4j for limiting the rate of access to REST APIs.
+To limit the access of requests this projects provides predefined filter types which can be reused for simple configurations options.
+
+It autoconfigures servlet filter via property files (next step zuul filters).
+
+== Autoconfiguration:
+
+* Detects the CachManger(JCache) and configures it for bucket4j. You can configure the different CacheManager with https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[spring-boot-starter-cache]
+* Servlet filter registration for limiting the rate
+* Configuration via properties
+** cache name
+** url
+** multiple bandwith (capacity, time unit)
+** predefined filter types
+ 
+
+
+=== Filter types (bad name, should be renamed in the feature)
+
+Filter types are predefined configuration option on how to define the key which should be used to limiting the requests.
+
+==== Default
+
+The default options doesn't differentiates between incoming requests (user, ip, etc). Its a general limiting.
+
+==== IP
+
+The IP filter type limits the access based on the IP address (httpServletRequest.getRemoteAddr()). So each IP address will independently throttled.
+
+==== Expression
+
+The expression based filter type provides the most flexible one but uses the Spring Expression Language (SpEL) which is maybe not the best choice for optimal performance.
+But is provides an easy way to configure the limiting in different environments without writing one line of code.
+
+*Limiting based on IP-Address*:
+[source]
+----
+getRemoteAddress()
+----
+
+
+*Limiting based on Username - If not logged in use IP-Address*:
+[source]
+----
+T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication()?.getName()?: getRemoteAddr()
+----
+ 
+
 == Configuration via properties
 
 [source,yml]
@@ -39,5 +87,5 @@ bucket4j:
         unit: seconds    
 ----
 
-== Configuration with @Bean
+== Configuration via @Bean
 
