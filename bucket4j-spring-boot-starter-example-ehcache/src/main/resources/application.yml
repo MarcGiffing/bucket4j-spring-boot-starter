@@ -11,7 +11,7 @@ bucket4j:
     configs:
     - cache-name: buckets
       filter-type: expression
-      expression: "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication()?.getName()?: getRemoteAddr()"
+      expression: "@securityService.username()?: getRemoteAddr()"
       url: /*
       filter-order: 0
       bandwidths: 

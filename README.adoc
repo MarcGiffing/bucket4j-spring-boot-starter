@@ -47,7 +47,22 @@ getRemoteAddress()
 *Limiting based on Username - If not logged in use IP-Address*:
 [source]
 ----
-T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication()?.getName()?: getRemoteAddr()
+@securityService.username()?: getRemoteAddr()
+----
+[source,java]
+----
+@Service
+public class SecurityService {
+
+	public String username() {
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		if(name == "anonymousUser") {
+			return null;
+		}
+		return name;
+	}
+	
+}
 ----
  
 
@@ -77,7 +92,7 @@ bucket4j:
         unit: seconds
     - cache-name: buckets
       filter-type: expression  # expression based filter key evaluation
-      expression: "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication()?.getName()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
+      expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
       url: /*
       filter-order: 0
       bandwidths: 
