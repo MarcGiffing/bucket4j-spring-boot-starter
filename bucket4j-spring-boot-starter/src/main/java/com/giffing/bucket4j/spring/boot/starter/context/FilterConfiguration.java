@@ -1,21 +1,25 @@
-package com.giffing.bucket4j.spring.boot.starter.filter;
+package com.giffing.bucket4j.spring.boot.starter.context;
 
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.grid.ProxyManager;
 
-public class Bucket4JFilterConfig {
+public class FilterConfiguration {
 
-	private Bucket4JKeyFilter keyFilter;
+	private KeyFilter keyFilter;
 	
 	private ProxyManager<String> buckets;
 	
 	private BucketConfiguration config;
+	
+	private String url;
+	
+	private int order;
 
-	public Bucket4JKeyFilter getKeyFilter() {
+	public KeyFilter getKeyFilter() {
 		return keyFilter;
 	}
 
-	public void setKeyFilter(Bucket4JKeyFilter keyFilter) {
+	public void setKeyFilter(KeyFilter keyFilter) {
 		this.keyFilter = keyFilter;
 	}
 
@@ -33,6 +37,22 @@ public class Bucket4JFilterConfig {
 
 	public void setConfig(BucketConfiguration config) {
 		this.config = config;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 	
 }

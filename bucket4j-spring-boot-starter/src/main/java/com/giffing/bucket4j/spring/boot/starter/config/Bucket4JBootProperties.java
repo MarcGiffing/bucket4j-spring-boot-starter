@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JFilterType;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterType;
 
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 public class Bucket4JBootProperties {
@@ -16,10 +16,9 @@ public class Bucket4JBootProperties {
 	
 	private List<Bucket4JConfiguration> configs = new ArrayList<>();
 	
-	
 	public static class Bucket4JConfiguration {
 
-		private Bucket4JFilterType filterType = Bucket4JFilterType.DEFAULT;
+		private FilterType filterType = FilterType.DEFAULT;
 		
 		/**
 		 * The cache name. Should be provided or an exception is thrown
@@ -68,11 +67,11 @@ public class Bucket4JBootProperties {
 			this.bandwidths = bandwidths;
 		}
 
-		public Bucket4JFilterType getFilterType() {
+		public FilterType getFilterType() {
 			return filterType;
 		}
 
-		public void setFilterType(Bucket4JFilterType filterType) {
+		public void setFilterType(FilterType filterType) {
 			this.filterType = filterType;
 		}
 

@@ -26,9 +26,9 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JFilterConfig;
-import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JKeyFilter;
-import com.giffing.bucket4j.spring.boot.starter.filter.Bucket4JRequestFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
+import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket4j;
@@ -50,26 +50,10 @@ public class Bucket4JAutoConfiguration     {
 	
 	@Autowired
 	private org.springframework.cache.CacheManager cacheManager;
-
 	
-	@SuppressWarnings("unchecked")
-	public Cache<String, GridBucketState> jCache(String cacheName) {
-        org.springframework.cache.Cache springCache = cacheManager.getCache(cacheName);
-        if(springCache == null) {
-        	throw new IllegalStateException("Please provide a cache with the name " + cacheName);
-        }
-		
-        return (Cache<String, GridBucketState>) springCache.getNativeCache();
-    }
-	
+	@Autowired
+	private BeanFactory beanFactory;
 
-	public Bucket4JBootProperties getProperties() {
-		return properties;
-	}
-
-	public void setProperties(Bucket4JBootProperties properties) {
-		this.properties = properties;
-	}
 	
 	@Bean
 	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[0].url")
@@ -113,8 +97,6 @@ public class Bucket4JAutoConfiguration     {
 		return getFilterRegistrationBean(6);
 	}
 	
-	
-
 	private FilterRegistrationBean getFilterRegistrationBean(int position) {
 		Integer filterCount = 0;
 		if(properties.getConfigs().size() >= (position+1)) {
@@ -128,14 +110,14 @@ public class Bucket4JAutoConfiguration     {
 				configBuilder = configBuilder.addLimit(Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit())));
 			};
 			
-			Bucket4JFilterConfig filterConfig = new Bucket4JFilterConfig();
+			FilterConfiguration filterConfig = new FilterConfiguration();
 			filterConfig.setBuckets(buckets);
 			filterConfig.setConfig(configBuilder.buildConfiguration());
 			filterConfig.setKeyFilter(getKeyFilter(config));
 			
 			FilterRegistrationBean registration = new FilterRegistrationBean();
 			registration.setName("bucket4JRequestFilter" + position);
-	        registration.setFilter(new Bucket4JRequestFilter(filterConfig));
+	        registration.setFilter(new ServletRequestFilter(filterConfig));
 	        registration.addUrlPatterns(config.getUrl());
 	        registration.setOrder(config.getFilterOrder());
 	        
@@ -145,12 +127,18 @@ public class Bucket4JAutoConfiguration     {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	public Cache<String, GridBucketState> jCache(String cacheName) {
+        org.springframework.cache.Cache springCache = cacheManager.getCache(cacheName);
+        if(springCache == null) {
+        	throw new IllegalStateException("Please provide a cache with the name " + cacheName);
+        }
+		
+        return (Cache<String, GridBucketState>) springCache.getNativeCache();
+    }
+	
 
-	@Autowired
-	private BeanFactory beanFactory;
-	
-	
-	private Bucket4JKeyFilter getKeyFilter(Bucket4JConfiguration config) {
+	private KeyFilter getKeyFilter(Bucket4JConfiguration config) {
 		switch(config.getFilterType()) {
 		case IP:
 			return (request) -> request.getRemoteAddr();
