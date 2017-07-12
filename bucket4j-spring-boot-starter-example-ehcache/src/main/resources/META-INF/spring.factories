@@ -1,4 +1,0 @@
-# AutoConfigurations
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.giffing.bucket4j.spring.boot.starter.config.Bucket4JAutoConfiguration
-
-

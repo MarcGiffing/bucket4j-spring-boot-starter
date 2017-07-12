@@ -1,0 +1,6 @@
+# AutoConfigurations
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter,\
+com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul
+
+
