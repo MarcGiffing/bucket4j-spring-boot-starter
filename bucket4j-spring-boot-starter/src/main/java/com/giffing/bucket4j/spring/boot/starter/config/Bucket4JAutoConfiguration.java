@@ -160,14 +160,12 @@ public class Bucket4JAutoConfiguration     {
 				throw new IllegalArgumentException("Missing property expression for filter type expression");
 			}
 			ExpressionParser parser = expressionParser();
+			StandardEvaluationContext context = new StandardEvaluationContext();
+			context.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 			return  (request) -> {
-				System.out.println(Thread.currentThread().getId());
 				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-				StandardEvaluationContext context = new StandardEvaluationContext(request);
-				context.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 				Expression expr = parser.parseExpression(config.getExpression()); 
-				final String value = expr.getValue(context, String.class);
-				System.out.println(value);
+				final String value = expr.getValue(context, request, String.class);
 				return value;
 			};
 		
