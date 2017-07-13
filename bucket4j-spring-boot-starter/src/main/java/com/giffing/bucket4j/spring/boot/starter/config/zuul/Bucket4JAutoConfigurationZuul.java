@@ -18,6 +18,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.SpelCompilerMode;
+import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBandWidth;
@@ -53,7 +55,8 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 
 	@Bean
 	public ExpressionParser zuulExpressionParser() {
-		ExpressionParser parser = new SpelExpressionParser();
+		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
+		ExpressionParser parser = new SpelExpressionParser(config);
 		return parser;
 	}
 	
