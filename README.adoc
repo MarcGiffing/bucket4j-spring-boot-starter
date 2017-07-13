@@ -6,7 +6,7 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 This project provides an integration of bucket4j for limiting the rate of access to REST APIs.
 To limit the access of requests this projects provides predefined filter types which can be reused for simple configurations options.
 
-It autoconfigures servlet filter via property files (next step zuul filters).
+It autoconfigures servlet filter via property files.
 
 == Autoconfiguration:
 
@@ -73,6 +73,7 @@ public class SecurityService {
 bucket4j:
   rate-limit:
     enabled: true
+    filter-method: servlet # servlet(default), zuul
     configs:
     - cache-name: buckets   # create new servlet filter with bucket4j configuration
       filter-type: default  # filter all requests indipendently from the source
