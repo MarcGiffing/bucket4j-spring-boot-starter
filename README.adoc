@@ -3,6 +3,9 @@
 
 https://github.com/vladimir-bukhtoyarov/bucket4j
 
+*Examples:*
+https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-spring-boot-starter-examples]
+
 This project provides an integration of bucket4j for limiting the rate of access to REST APIs.
 To limit the access of requests this projects provides predefined filter types which can be reused for simple configurations options.
 

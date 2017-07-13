@@ -19,8 +19,6 @@
 
 	<modules>
 		<module>bucket4j-spring-boot-starter</module>
-		<module>bucket4j-spring-boot-starter-example-ehcache</module>
-		<module>bucket4j-spring-boot-starter-example-zuul</module>
 	</modules>
 
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
