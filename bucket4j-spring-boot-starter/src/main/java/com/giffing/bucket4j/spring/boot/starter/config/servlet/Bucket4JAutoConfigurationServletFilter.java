@@ -14,6 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -37,8 +38,9 @@ import io.github.bucket4j.grid.jcache.JCache;
 
 @Configuration
 @Order(Ordered.LOWEST_PRECEDENCE)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = "enabled", matchIfMissing = true)
+
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class })
+@Conditional( {EnabledAndServletFilterProperty.class} )
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @ConditionalOnMissingBean(value = CacheManager.class, name = "cacheResolver")
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration {
@@ -52,6 +54,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	@Autowired
 	private BeanFactory beanFactory;
 
+	
 	@Bean
 	public ExpressionParser servletFilterExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());

@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.giffing.bucket4j.spring.boot.starter.context.FilterType;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 public class Bucket4JBootProperties {
@@ -14,11 +15,13 @@ public class Bucket4JBootProperties {
 	
 	private Boolean enabled = true;
 	
+	private FilterMethod filterMethod = FilterMethod.SERVLET;
+	
 	private List<Bucket4JConfiguration> configs = new ArrayList<>();
 	
 	public static class Bucket4JConfiguration {
 
-		private FilterType filterType = FilterType.DEFAULT;
+		private FilterKeyType filterKeyType = FilterKeyType.DEFAULT;
 		
 		/**
 		 * The cache name. Should be provided or an exception is thrown
@@ -67,12 +70,12 @@ public class Bucket4JBootProperties {
 			this.bandwidths = bandwidths;
 		}
 
-		public FilterType getFilterType() {
-			return filterType;
+		public FilterKeyType getFilterKeyType() {
+			return filterKeyType;
 		}
 
-		public void setFilterType(FilterType filterType) {
-			this.filterType = filterType;
+		public void setFilterKeyType(FilterKeyType filterKeyType) {
+			this.filterKeyType = filterKeyType;
 		}
 
 		public int getFilterOrder() {
@@ -111,6 +114,14 @@ public class Bucket4JBootProperties {
 
 	public void setConfigs(List<Bucket4JConfiguration> configs) {
 		this.configs = configs;
+	}
+
+	public FilterMethod getFilterMethod() {
+		return filterMethod;
+	}
+
+	public void setFilterMethod(FilterMethod filterMethod) {
+		this.filterMethod = filterMethod;
 	}
 	
 }

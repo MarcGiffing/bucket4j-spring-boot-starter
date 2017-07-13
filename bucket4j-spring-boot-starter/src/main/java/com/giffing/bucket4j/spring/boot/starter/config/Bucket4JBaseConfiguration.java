@@ -4,11 +4,9 @@ import javax.cache.Cache;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
@@ -18,7 +16,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import io.github.bucket4j.grid.GridBucketState;
 
 public abstract class Bucket4JBaseConfiguration {
-
 	
 	@SuppressWarnings("unchecked")
 	public Cache<String, GridBucketState> jCache(String cacheName, CacheManager cacheManager) {
@@ -30,9 +27,8 @@ public abstract class Bucket4JBaseConfiguration {
         return (Cache<String, GridBucketState>) springCache.getNativeCache();
     }
 	
-
 	public KeyFilter getKeyFilter(Bucket4JConfiguration config, ExpressionParser expressionParser, BeanFactory beanFactory) {
-		switch(config.getFilterType()) {
+		switch(config.getFilterKeyType()) {
 		case IP:
 			return (request) -> request.getRemoteAddr();
 		case EXPRESSION:

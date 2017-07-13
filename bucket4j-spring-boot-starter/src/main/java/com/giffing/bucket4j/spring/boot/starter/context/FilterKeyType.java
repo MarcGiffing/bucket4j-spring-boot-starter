@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
-public enum FilterType {
+public enum FilterKeyType {
 	
 	DEFAULT,
 	IP,

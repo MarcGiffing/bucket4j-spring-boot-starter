@@ -13,10 +13,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
@@ -38,7 +38,7 @@ import io.github.bucket4j.grid.jcache.JCache;
 
 @Configuration
 @Order(Ordered.LOWEST_PRECEDENCE)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = "enabled", matchIfMissing = true)
+@Conditional( {EnabledZuulFilterProperty.class} )
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class, ZuulFilter.class })
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @ConditionalOnMissingBean(value = CacheManager.class, name = "cacheResolver")
@@ -82,6 +82,7 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 			
 			FilterConfiguration filterConfig = new FilterConfiguration();
 			filterConfig.setBuckets(buckets);
+			filterConfig.setUrl(config.getUrl());
 			filterConfig.setConfig(configBuilder.buildConfiguration());
 			filterConfig.setKeyFilter(getKeyFilter(config, zuulExpressionParser(), beanFactory));
 			

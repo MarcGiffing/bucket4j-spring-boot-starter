@@ -1,0 +1,27 @@
+management:
+  security:
+    enabled: false
+spring:
+  application:
+    name: myservice
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+bucket4j:
+  rate-limit:
+    enabled: true
+    configs:
+    - cache-name: buckets
+      filter-type: default
+      url: /*
+      filter-order: 0
+      bandwidths: 
+      -
+        capacity: 20
+        time: 1
+        unit: minutes               
+zuul:
+  routes:
+    myservice:
+      url: http://localhost:8090
+    
