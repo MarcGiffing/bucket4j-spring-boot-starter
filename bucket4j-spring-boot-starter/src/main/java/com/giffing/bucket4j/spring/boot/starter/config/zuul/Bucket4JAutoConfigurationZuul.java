@@ -67,6 +67,60 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 		return createZuulFilter(0);
 	}
 	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[1].url")
+	public ZuulFilter zuulFilter2() {
+		return createZuulFilter(1);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[2].url")
+	public ZuulFilter zuulFilter3() {
+		return createZuulFilter(2);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[3].url")
+	public ZuulFilter zuulFilter4() {
+		return createZuulFilter(3);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[4].url")
+	public ZuulFilter zuulFilter5() {
+		return createZuulFilter(4);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[5].url")
+	public ZuulFilter zuulFilter6() {
+		return createZuulFilter(5);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[6].url")
+	public ZuulFilter zuulFilter7() {
+		return createZuulFilter(6);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[7].url")
+	public ZuulFilter zuulFilter8() {
+		return createZuulFilter(7);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[8].url")
+	public ZuulFilter zuulFilter9() {
+		return createZuulFilter(8);
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value= Bucket4JBootProperties.PROPERTY_PREFIX + ".configs[9].url")
+	public ZuulFilter zuulFilter10() {
+		return createZuulFilter(9);
+	}
+	
 	private ZuulFilter createZuulFilter(int position) {
 		Integer filterCount = 0;
 		if(properties.getConfigs().size() >= (position+1)) {
