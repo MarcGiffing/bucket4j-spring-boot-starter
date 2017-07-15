@@ -85,7 +85,7 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 			filterConfig.setUrl(config.getUrl());
 			filterConfig.setConfig(configBuilder.buildConfiguration());
 			filterConfig.setKeyFilter(getKeyFilter(config, zuulExpressionParser(), beanFactory));
-			
+			filterConfig.setSkipCondition(filterCondition(config, zuulExpressionParser(), beanFactory));
 			
 	        return new ZuulRateLimitFilter(filterConfig);
 		}

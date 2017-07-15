@@ -79,7 +79,7 @@ bucket4j:
     filter-method: servlet # servlet(default), zuul
     configs:
     - cache-name: buckets   # create new servlet filter with bucket4j configuration
-      filter-type: default  # filter all requests indipendently from the source
+      filter-key-type: default  # filter all requests indipendently from the source
       url: /*
       bandwidths: 
       - # maximum of 5 requests within 10 seconds
@@ -87,7 +87,7 @@ bucket4j:
         time: 10
         unit: seconds  
     - cache-name: buckets
-      filter-type: ip			# ip based filter
+      filter-key-type: ip			# ip based filter
       url: /abc*
       bandwidths: 
       -
@@ -95,7 +95,8 @@ bucket4j:
         time: 10
         unit: seconds
     - cache-name: buckets
-      filter-type: expression  # expression based filter key evaluation
+      filter-key-type: expression  # expression based filter key evaluation
+      skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user 
       expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
       url: /*
       filter-order: 0

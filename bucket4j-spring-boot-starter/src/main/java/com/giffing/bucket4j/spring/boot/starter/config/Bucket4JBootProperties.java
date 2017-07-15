@@ -33,6 +33,11 @@ public class Bucket4JBootProperties {
 		 */
 		private String url = "/*";
 		
+		/**
+		 * SpEl condition to check if the rate-limit should apply. If null the there is no check
+		 */
+		private String skipCondition;
+		
 		private int filterOrder = Integer.MIN_VALUE + 1;
 		
 		private List<Bucket4JBandWidth> bandwidths = new ArrayList<>();
@@ -93,6 +98,15 @@ public class Bucket4JBootProperties {
 		public void setExpression(String expression) {
 			this.expression = expression;
 		}
+
+		public String getSkipCondition() {
+			return skipCondition;
+		}
+
+		public void setSkipCondition(String skipCondition) {
+			this.skipCondition = skipCondition;
+		}
+
 		
 	}
 	

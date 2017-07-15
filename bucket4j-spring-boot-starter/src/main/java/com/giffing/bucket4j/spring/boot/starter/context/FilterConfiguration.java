@@ -7,6 +7,8 @@ public class FilterConfiguration {
 
 	private KeyFilter keyFilter;
 	
+	private SkipCondition skipCondition;
+
 	private ProxyManager<String> buckets;
 	
 	private BucketConfiguration config;
@@ -54,5 +56,13 @@ public class FilterConfiguration {
 	public void setOrder(int order) {
 		this.order = order;
 	}
-	
+
+	public SkipCondition getSkipCondition() {
+		return skipCondition;
+	}
+
+	public void setSkipCondition(SkipCondition condition) {
+		this.skipCondition = condition;
+	}
+
 }

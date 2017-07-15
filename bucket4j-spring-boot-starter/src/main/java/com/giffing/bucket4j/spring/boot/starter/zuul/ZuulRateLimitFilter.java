@@ -27,16 +27,24 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
-		String key = filterConfig.getKeyFilter().key(request);
-		Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
 
-		ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+		boolean skipRateLimit = false;
+        if (filterConfig.getSkipCondition() != null) {
+        	skipRateLimit = filterConfig.getSkipCondition().shouldSkip(request);
+        }
 
-		if (probe.isConsumed()) {
-		} else {
-			context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
-			context.setResponseBody("{ \"message\": \"To many requests\"}");
-			context.setSendZuulResponse(false);
+        if(!skipRateLimit) {
+			String key = filterConfig.getKeyFilter().key(request);
+			Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
+	
+			ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+	
+			if (probe.isConsumed()) {
+			} else {
+				context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
+				context.setResponseBody("{ \"message\": \"To many requests\"}");
+				context.setSendZuulResponse(false);
+			}
 		}
 		return null;
 	}

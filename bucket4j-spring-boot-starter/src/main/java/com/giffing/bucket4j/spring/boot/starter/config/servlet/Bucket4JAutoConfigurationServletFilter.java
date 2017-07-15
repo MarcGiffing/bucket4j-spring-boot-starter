@@ -122,6 +122,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			filterConfig.setBuckets(buckets);
 			filterConfig.setConfig(configBuilder.buildConfiguration());
 			filterConfig.setKeyFilter(getKeyFilter(config, servletFilterExpressionParser(), beanFactory));
+			filterConfig.setSkipCondition(filterCondition(config, servletFilterExpressionParser(), beanFactory));
 			
 			FilterRegistrationBean registration = new FilterRegistrationBean();
 			registration.setName("bucket4JRequestFilter" + position);

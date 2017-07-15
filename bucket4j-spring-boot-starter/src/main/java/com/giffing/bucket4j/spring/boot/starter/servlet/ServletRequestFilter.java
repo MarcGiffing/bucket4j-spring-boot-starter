@@ -29,19 +29,28 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
-        String key = filterConfig.getKeyFilter().key(httpRequest);
-		Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
-
-        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-
-        if (probe.isConsumed()) {
-            httpResponse.setHeader("X-Rate-Limit-Remaining", "" + probe.getRemainingTokens());
-            filterChain.doFilter(httpRequest, httpResponse);
+        boolean skipRateLimit = false;
+        if (filterConfig.getSkipCondition() != null) {
+        	skipRateLimit = filterConfig.getSkipCondition().shouldSkip(request);
+        } 
+        
+        if(!skipRateLimit) {
+        	String key = filterConfig.getKeyFilter().key(httpRequest);
+        	Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
+        	
+        	ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+        	
+        	if (probe.isConsumed()) {
+        		httpResponse.setHeader("X-Rate-Limit-Remaining", "" + probe.getRemainingTokens());
+        		filterChain.doFilter(httpRequest, httpResponse);
+        	} else {
+        		httpResponse.setStatus(429);
+        		httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+        		httpResponse.setContentType("application/json");
+        		httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
+        	}
         } else {
-        	 httpResponse.setStatus(429);
-             httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
-             httpResponse.setContentType("application/json");
-             httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
+        	filterChain.doFilter(httpRequest, httpResponse);
         }
 	}
 }

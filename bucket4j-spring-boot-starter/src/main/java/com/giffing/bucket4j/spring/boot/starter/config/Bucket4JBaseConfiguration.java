@@ -11,6 +11,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.SkipCondition;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 
 import io.github.bucket4j.grid.GridBucketState;
@@ -26,6 +27,20 @@ public abstract class Bucket4JBaseConfiguration {
 		
         return (Cache<String, GridBucketState>) springCache.getNativeCache();
     }
+	
+	public SkipCondition filterCondition(Bucket4JConfiguration config, ExpressionParser expressionParser, BeanFactory beanFactory) {
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+		
+		if(config.getSkipCondition() != null) {
+			return  (request) -> {
+				Expression expr = expressionParser.parseExpression(config.getSkipCondition()); 
+				Boolean value = expr.getValue(context, request, Boolean.class);
+				return value;
+			};
+		}
+		return null;
+	}
 	
 	public KeyFilter getKeyFilter(Bucket4JConfiguration config, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		switch(config.getFilterKeyType()) {
