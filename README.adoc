@@ -9,12 +9,10 @@ https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-sp
 This project provides an integration of bucket4j for limiting the rate of access to REST APIs.
 To limit the access of requests this projects provides predefined filter types which can be reused for simple configurations options.
 
-It autoconfigures servlet filter via property files.
-
 == Autoconfiguration:
 
 * Detects the CachManger(JCache) and configures it for bucket4j. You can configure the different CacheManager with https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[spring-boot-starter-cache]
-* Servlet filter registration for limiting the rate
+* *Servlet Filter* or *ZuulFilter* registration for limiting the rate
 * Configuration via properties
 ** cache name
 ** url
