@@ -13,6 +13,9 @@ import com.netflix.zuul.context.RequestContext;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 
+/**
+ * {@link ZuulFilter} to configure Bucket4j on each request. 
+ */
 public class ZuulRateLimitFilter extends ZuulFilter {
 
 	private final Logger log = LoggerFactory.getLogger(ZuulRateLimitFilter.class);

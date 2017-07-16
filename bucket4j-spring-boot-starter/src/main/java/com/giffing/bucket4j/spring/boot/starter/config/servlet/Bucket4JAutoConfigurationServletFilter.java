@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.servlet.Filter;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,10 @@ import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 
@@ -36,9 +37,12 @@ import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.grid.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCache;
 
+/**
+ * Configures Servlet {@link Filter}s for Bucket4Js rate limit.
+ * 
+ */
 @Configuration
 @Order(Ordered.LOWEST_PRECEDENCE)
-
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class })
 @Conditional( {EnabledAndServletFilterProperty.class} )
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })

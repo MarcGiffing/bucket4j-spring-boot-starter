@@ -15,17 +15,15 @@ import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.zuul.ZuulRateLimitFilter;
 import com.netflix.zuul.ZuulFilter;
@@ -36,8 +34,11 @@ import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.grid.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCache;
 
+/**
+ * Configures {@link ZuulFilter}s for Bucket4Js rate limit.
+ * 
+ */
 @Configuration
-@Order(Ordered.LOWEST_PRECEDENCE)
 @Conditional( {EnabledZuulFilterProperty.class} )
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class, ZuulFilter.class })
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })

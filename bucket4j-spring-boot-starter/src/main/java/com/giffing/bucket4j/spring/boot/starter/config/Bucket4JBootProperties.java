@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 
@@ -13,6 +14,9 @@ public class Bucket4JBootProperties {
 
 	public static final String PROPERTY_PREFIX = "bucket4j.rate-limit";
 	
+	/**
+	 * Enables or disables the Bucket4j Spring Boot Starter.
+	 */
 	private Boolean enabled = true;
 	
 	private FilterMethod filterMethod = FilterMethod.SERVLET;

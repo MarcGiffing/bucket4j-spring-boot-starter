@@ -5,7 +5,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
 
-public class EnabledAndServletFilterProperty  extends AllNestedConditions {
+/**
+ * Checks that the Bucket4J property is enabled and the filter-method is set to 'servlet'
+ *  
+ * To check for multiple properties on the {@link Bucket4JAutoConfigurationServletFilter}
+ * this class uses the {@link AllNestedConditions} 
+ *
+ */
+public class EnabledAndServletFilterProperty extends AllNestedConditions {
 
 	public EnabledAndServletFilterProperty() {
 		super(ConfigurationPhase.PARSE_CONFIGURATION);

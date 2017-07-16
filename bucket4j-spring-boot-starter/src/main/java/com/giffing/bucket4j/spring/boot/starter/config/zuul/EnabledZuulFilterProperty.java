@@ -4,7 +4,15 @@ import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 
+/**
+ * Checks that the Bucket4J property is enabled and the filter-method is set to 'zuul'
+ *  
+ * To check for multiple properties on the {@link Bucket4JAutoConfigurationServletFilter}
+ * this class uses the {@link AllNestedConditions} 
+ *
+ */
 public class EnabledZuulFilterProperty  extends AllNestedConditions {
 
 	public EnabledZuulFilterProperty() {

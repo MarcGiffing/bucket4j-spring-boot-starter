@@ -11,11 +11,17 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.SkipCondition;
+import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.SkipCondition;
 
 import io.github.bucket4j.grid.GridBucketState;
 
+/**
+ * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
+ * the {@link Bucket4JAutoConfigurationZuul} configuration classes
+ */
 public abstract class Bucket4JBaseConfiguration {
 	
 	@SuppressWarnings("unchecked")

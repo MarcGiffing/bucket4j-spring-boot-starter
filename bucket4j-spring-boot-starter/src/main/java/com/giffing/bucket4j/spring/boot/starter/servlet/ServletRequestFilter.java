@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.servlet;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 
+/**
+ * Servlet {@link Filter} class to configure Bucket4j on each request. 
+ */
 public class ServletRequestFilter extends OncePerRequestFilter {
 
 	private FilterConfiguration filterConfig;
