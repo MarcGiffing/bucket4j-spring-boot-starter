@@ -15,6 +15,8 @@ import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfi
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.SkipCondition;
+import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
+import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 
 import io.github.bucket4j.grid.GridBucketState;
 
@@ -28,7 +30,7 @@ public abstract class Bucket4JBaseConfiguration {
 	public Cache<String, GridBucketState> jCache(String cacheName, CacheManager cacheManager) {
         org.springframework.cache.Cache springCache = cacheManager.getCache(cacheName);
         if(springCache == null) {
-        	throw new IllegalStateException("Please provide a cache with the name " + cacheName);
+        	throw new JCacheNotFoundException(cacheName);
         }
 		
         return (Cache<String, GridBucketState>) springCache.getNativeCache();
@@ -55,7 +57,7 @@ public abstract class Bucket4JBaseConfiguration {
 		case EXPRESSION:
 			String expression = config.getExpression();
 			if(StringUtils.isEmpty(expression)) {
-				throw new IllegalArgumentException("Missing property expression for filter type expression");
+				throw new MissingKeyFilterExpressionException();
 			}
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
