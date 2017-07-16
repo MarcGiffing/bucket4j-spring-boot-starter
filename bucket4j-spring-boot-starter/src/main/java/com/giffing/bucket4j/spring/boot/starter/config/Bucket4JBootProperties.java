@@ -19,8 +19,6 @@ public class Bucket4JBootProperties {
 	 */
 	private Boolean enabled = true;
 	
-	private FilterMethod filterMethod = FilterMethod.SERVLET;
-	
 	private List<Bucket4JConfiguration> configs = new ArrayList<>();
 	
 	public static class Bucket4JConfiguration {
@@ -31,6 +29,8 @@ public class Bucket4JBootProperties {
 		 * The cache name. Should be provided or an exception is thrown
 		 */
 		private String cacheName = "buckets";
+		
+		private FilterMethod filterMethod = FilterMethod.SERVLET;
 		
 		/**
 		 * Url to which the filter should be registered
@@ -111,6 +111,14 @@ public class Bucket4JBootProperties {
 			this.skipCondition = skipCondition;
 		}
 
+		public FilterMethod getFilterMethod() {
+			return filterMethod;
+		}
+
+		public void setFilterMethod(FilterMethod filterMethod) {
+			this.filterMethod = filterMethod;
+		}
+
 		
 	}
 	
@@ -134,12 +142,4 @@ public class Bucket4JBootProperties {
 		this.configs = configs;
 	}
 
-	public FilterMethod getFilterMethod() {
-		return filterMethod;
-	}
-
-	public void setFilterMethod(FilterMethod filterMethod) {
-		this.filterMethod = filterMethod;
-	}
-	
 }
