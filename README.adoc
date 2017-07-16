@@ -102,9 +102,13 @@ bucket4j:
       filter-order: 0
       bandwidths: 
       -
-        capacity: 5
-        time: 10
-        unit: seconds    
+        capacity: 100
+        time: 1
+        unit: seconds
+      - 
+        capacity: 10000
+        time: 1
+        unit: minutes    
 ----
 
 == Configuration via @Bean
