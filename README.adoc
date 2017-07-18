@@ -18,8 +18,29 @@ To limit the access of requests this projects provides predefined filter types w
 ** url
 ** multiple bandwith (capacity, time unit)
 ** predefined filter types
- 
 
+== Bucket4j properties
+
+
+
+[source, properties]
+----
+
+bucket4j.enabled=true # enable/disable bucket4j support
+bucket4j.filters[0].cache-name=buckets # the name of the cache key
+bucket4j.filters[0].filter-method=servlet # [servlet,zuul]
+bucket4j.filters[0].filter-order=0 
+bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
+bucket4j.filters[0].url=/*
+bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
+bucket4j.filters[0].rate-limits[0].filter-key-type=expression [default, ip, expression]
+bucket4j.filters[0].rate-limits[0].expression=getRemoteAddress() # if filter-key-type is expression the key can be retrieved by an Spring Expression Language
+bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
+bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
+bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=10
+bucket4j.filters[0].rate-limits[0].bandwidths[0].time=1
+bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=minutes
+----
 
 === Filter types (bad name, should be renamed in the feature)
 
