@@ -46,7 +46,7 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 					httpResponse.setStatus(429);
 					httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
 					httpResponse.setContentType("application/json");
-					httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
+					httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
 					break;
 				}
 				if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {

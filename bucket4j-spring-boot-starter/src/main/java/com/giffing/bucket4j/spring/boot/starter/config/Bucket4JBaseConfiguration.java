@@ -55,6 +55,7 @@ public abstract class Bucket4JBaseConfiguration {
 		filterConfig.setUrl(config.getUrl());
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
+		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
 		ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(jCache(config.getCacheName(), cacheManager));
 		
 		config.getRateLimits().forEach(rl -> {

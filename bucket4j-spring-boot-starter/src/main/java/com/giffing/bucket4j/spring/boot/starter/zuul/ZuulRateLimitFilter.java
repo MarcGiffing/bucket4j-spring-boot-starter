@@ -40,7 +40,7 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
 				} else {
 					context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
-					context.setResponseBody("{ \"message\": \"To many requests\"}");
+					context.setResponseBody(filterConfig.getHttpResponseBody());
 					context.setSendZuulResponse(false);
 				}
 			}

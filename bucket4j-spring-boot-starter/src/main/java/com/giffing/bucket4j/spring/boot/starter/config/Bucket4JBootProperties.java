@@ -42,6 +42,12 @@ public class Bucket4JBootProperties {
 
 		private List<RateLimit> rateLimits = new ArrayList<>();
 		
+		/**
+		 * The HTTP content which should be used in case of rate limiting
+		 */
+		private String httpResponseBody = "{ \"message\": \"Too many requests!\" }";
+		
+		
 		public Bucket4JConfiguration() {
 		}
 		
@@ -91,6 +97,14 @@ public class Bucket4JBootProperties {
 
 		public void setStrategy(RateLimitConditionMatchingStrategy strategy) {
 			this.strategy = strategy;
+		}
+
+		public String getHttpResponseBody() {
+			return httpResponseBody;
+		}
+
+		public void setHttpResponseBody(String httpResponseBody) {
+			this.httpResponseBody = httpResponseBody;
 		}
 		
 	}

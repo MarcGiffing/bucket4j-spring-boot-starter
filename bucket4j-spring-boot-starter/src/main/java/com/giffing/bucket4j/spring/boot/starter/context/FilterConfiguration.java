@@ -14,6 +14,8 @@ public class FilterConfiguration {
 	private String url;
 	
 	private int order;
+	
+	private String httpResponseBody;
 
 
 	public String getUrl() {
@@ -46,6 +48,14 @@ public class FilterConfiguration {
 
 	public void setStrategy(RateLimitConditionMatchingStrategy strategy) {
 		this.strategy = strategy;
+	}
+
+	public String getHttpResponseBody() {
+		return httpResponseBody;
+	}
+
+	public void setHttpResponseBody(String httpResponseBody) {
+		this.httpResponseBody = httpResponseBody;
 	}
 
 }
