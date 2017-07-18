@@ -136,21 +136,21 @@ bucket4j:
     url: /*
     rate-limits:
     - filter-key-type: expression
-      skip-condition:  @securityService.isSignedIn() # only for not logged in users
+      execute-condition:  @securityService.notSignedIn() # only for not logged in users
       expression: "getRemoteAddr()"
       bandwidths:
       - capacity: 10
         time: 1
         unit: minutes
     - filter-key-type: expression
-      skip-condition: "!@securityService.isSignedIn() || @securityService.username() == 'admin'" # skip if not logged or not user admin 
+      execute-condition: "@securityService.username() != 'admin'" # strategy is only evaluate first. so the user must be logged in and user is not admin 
       expression: @securityService.username()
       bandwidths:
       - capacity: 1000
         time: 1
         unit: minutes
     - filter-key-type: expression
-      skip-condition:  "!@securityService.isSignedIn() && @securityService.username() != 'admin'"  # skip if not loggedin and user not admin => admin user
+      execute-condition:  "@securityService.username() == 'admin'"  # user is admin
       expression: @securityService.username()
       bandwidths:
       - capacity: 1000000000

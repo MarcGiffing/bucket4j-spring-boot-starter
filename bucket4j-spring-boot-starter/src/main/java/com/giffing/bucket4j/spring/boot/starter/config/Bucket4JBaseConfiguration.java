@@ -20,7 +20,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigur
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.SkipCondition;
+import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 
@@ -69,8 +69,12 @@ public abstract class Bucket4JBaseConfiguration {
 				
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
-		        	skipRateLimit = filterCondition(rl, expressionParser, beanFactory).shouldSkip(servletRequest);
+		        	skipRateLimit = skipCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
 		        } 
+		        
+		        if(rl.getExecuteCondition() != null && !skipRateLimit) {
+		        	skipRateLimit = !executeCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
+		        }
 		        
 		        if(!skipRateLimit) {
 		        	String key = getKeyFilter(rl, expressionParser, beanFactory).key(servletRequest);
@@ -90,13 +94,27 @@ public abstract class Bucket4JBaseConfiguration {
 		return filterConfig;
 	}
 	
-	public SkipCondition filterCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public Condition skipCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		
 		if(rateLimit.getSkipCondition() != null) {
 			return  (request) -> {
 				Expression expr = expressionParser.parseExpression(rateLimit.getSkipCondition()); 
+				Boolean value = expr.getValue(context, request, Boolean.class);
+				return value;
+			};
+		}
+		return null;
+	}
+	
+	public Condition executeCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+		
+		if(rateLimit.getExecuteCondition() != null) {
+			return  (request) -> {
+				Expression expr = expressionParser.parseExpression(rateLimit.getExecuteCondition()); 
 				Boolean value = expr.getValue(context, request, Boolean.class);
 				return value;
 			};

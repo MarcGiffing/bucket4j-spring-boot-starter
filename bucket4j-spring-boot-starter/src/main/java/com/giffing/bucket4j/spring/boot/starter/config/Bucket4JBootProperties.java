@@ -134,7 +134,12 @@ public class Bucket4JBootProperties {
 		private FilterKeyType filterKeyType = FilterKeyType.DEFAULT;
 		
 		/**
-		 * SpEl condition to check if the rate-limit should apply. If null the there is no check
+		 * SpEl condition to check if the rate limit should be executed. If null there is no check. 
+		 */
+		private String executeCondition;
+		
+		/**
+		 * SpEl condition to check if the rate-limit should apply. If null there is no check.
 		 */
 		private String skipCondition;
 		
@@ -176,6 +181,14 @@ public class Bucket4JBootProperties {
 
 		public void setFilterKeyType(FilterKeyType filterKeyType) {
 			this.filterKeyType = filterKeyType;
+		}
+
+		public String getExecuteCondition() {
+			return executeCondition;
+		}
+
+		public void setExecuteCondition(String executeCondition) {
+			this.executeCondition = executeCondition;
 		}
 		
 	}
