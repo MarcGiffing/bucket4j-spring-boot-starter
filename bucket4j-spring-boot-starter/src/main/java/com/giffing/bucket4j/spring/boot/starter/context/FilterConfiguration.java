@@ -9,6 +9,8 @@ public class FilterConfiguration {
 
 	private List<RateLimitCheck> rateLimitChecks = new ArrayList<>();
 	
+	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
+	
 	private String url;
 	
 	private int order;
@@ -36,6 +38,14 @@ public class FilterConfiguration {
 
 	public void setRateLimitChecks(List<RateLimitCheck> rateLimitChecks) {
 		this.rateLimitChecks = rateLimitChecks;
+	}
+
+	public RateLimitConditionMatchingStrategy getStrategy() {
+		return strategy;
+	}
+
+	public void setStrategy(RateLimitConditionMatchingStrategy strategy) {
+		this.strategy = strategy;
 	}
 
 }

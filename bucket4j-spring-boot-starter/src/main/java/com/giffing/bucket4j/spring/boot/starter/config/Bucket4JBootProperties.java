@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 public class Bucket4JBootProperties {
@@ -29,6 +30,8 @@ public class Bucket4JBootProperties {
 		private String cacheName = "buckets";
 		
 		private FilterMethod filterMethod = FilterMethod.SERVLET;
+		
+		private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 		
 		/**
 		 * Url to which the filter should be registered
@@ -80,6 +83,14 @@ public class Bucket4JBootProperties {
 
 		public void setRateLimits(List<RateLimit> rateLimits) {
 			this.rateLimits = rateLimits;
+		}
+
+		public RateLimitConditionMatchingStrategy getStrategy() {
+			return strategy;
+		}
+
+		public void setStrategy(RateLimitConditionMatchingStrategy strategy) {
+			this.strategy = strategy;
 		}
 		
 	}

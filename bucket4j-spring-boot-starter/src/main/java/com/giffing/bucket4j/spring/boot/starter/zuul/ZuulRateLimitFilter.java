@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 
 import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
@@ -31,7 +32,7 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
-		long remainingLimit = 0;
+        Long remainingLimit = null;
 		for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
 			ConsumptionProbe probe = rl.rateLimit(request);
 			if (probe != null) {
@@ -43,14 +44,19 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 					context.setSendZuulResponse(false);
 				}
 			}
+			if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
+				break;
+			}
 		};
 
 		return null;
 	}
 
-	private long getRemainingLimit(long remaining, ConsumptionProbe probe) {
-		if (probe != null) {
-			if (probe.getRemainingTokens() < remaining) {
+	private long getRemainingLimit(Long remaining, ConsumptionProbe probe) {
+		if(probe != null) {
+			if(remaining == null) {
+				remaining = probe.getRemainingTokens();
+			} else if(probe.getRemainingTokens() < remaining) {
 				remaining = probe.getRemainingTokens();
 			}
 		}

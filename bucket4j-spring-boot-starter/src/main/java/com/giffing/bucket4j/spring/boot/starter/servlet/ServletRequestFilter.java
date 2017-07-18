@@ -13,6 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 import io.github.bucket4j.ConsumptionProbe;
 
@@ -32,32 +33,42 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        
+
         boolean allConsumed = true;
-        long remainingLimit = 0;
+        Long remainingLimit = null;
         for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
 			ConsumptionProbe probe = rl.rateLimit(request);
 			if(probe != null) {
 				if(probe.isConsumed()) {
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
-				} else{	allConsumed = false;
+				} else{	
+					allConsumed = false;
 					httpResponse.setStatus(429);
 					httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
 					httpResponse.setContentType("application/json");
 					httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
+					break;
+				}
+				if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
+					break;
 				}
 			}
+			
 		};
 		if(allConsumed) {
-			httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
+			if(remainingLimit != null) {
+				httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
+			}
 			filterChain.doFilter(httpRequest, httpResponse);
 		}
         
 	}
 
-	private long getRemainingLimit(long remaining, ConsumptionProbe probe) {
+	private long getRemainingLimit(Long remaining, ConsumptionProbe probe) {
 		if(probe != null) {
-			if(probe.getRemainingTokens() < remaining) {
+			if(remaining == null) {
+				remaining = probe.getRemainingTokens();
+			} else if(probe.getRemainingTokens() < remaining) {
 				remaining = probe.getRemainingTokens();
 			}
 		}
