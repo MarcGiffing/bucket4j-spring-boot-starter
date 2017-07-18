@@ -6,52 +6,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
+import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
-import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 
 /**
- * {@link ZuulFilter} to configure Bucket4j on each request. 
+ * {@link ZuulFilter} to configure Bucket4j on each request.
  */
 public class ZuulRateLimitFilter extends ZuulFilter {
 
 	private final Logger log = LoggerFactory.getLogger(ZuulRateLimitFilter.class);
-	
+
 	private FilterConfiguration filterConfig;
 
-	public ZuulRateLimitFilter(FilterConfiguration filterConfig){
+	public ZuulRateLimitFilter(FilterConfiguration filterConfig) {
 		this.filterConfig = filterConfig;
 	}
-	
+
 	@Override
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
-		boolean skipRateLimit = false;
-        if (filterConfig.getSkipCondition() != null) {
-        	skipRateLimit = filterConfig.getSkipCondition().shouldSkip(request);
-        }
-
-        if(!skipRateLimit) {
-			String key = filterConfig.getKeyFilter().key(request);
-			Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
-	
-			ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-	
-			if (probe.isConsumed()) {
-			} else {
-				context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
-				context.setResponseBody("{ \"message\": \"To many requests\"}");
-				context.setSendZuulResponse(false);
+		long remainingLimit = 0;
+		for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
+			ConsumptionProbe probe = rl.rateLimit(request);
+			if (probe != null) {
+				if (probe.isConsumed()) {
+					remainingLimit = getRemainingLimit(remainingLimit, probe);
+				} else {
+					context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
+					context.setResponseBody("{ \"message\": \"To many requests\"}");
+					context.setSendZuulResponse(false);
+				}
 			}
-		}
+		};
+
 		return null;
 	}
-	
+
+	private long getRemainingLimit(long remaining, ConsumptionProbe probe) {
+		if (probe != null) {
+			if (probe.getRemainingTokens() < remaining) {
+				remaining = probe.getRemainingTokens();
+			}
+		}
+		return remaining;
+	}
 
 	@Override
 	public boolean shouldFilter() {

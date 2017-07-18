@@ -1,5 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
+import java.time.Duration;
+
 import javax.cache.Cache;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -10,15 +12,26 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
+import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.SkipCondition;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
+import io.github.bucket4j.ConfigurationBuilder;
+import io.github.bucket4j.ConsumptionProbe;
 import io.github.bucket4j.grid.GridBucketState;
+import io.github.bucket4j.grid.ProxyManager;
+import io.github.bucket4j.grid.jcache.JCache;
 
 /**
  * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
@@ -36,13 +49,52 @@ public abstract class Bucket4JBaseConfiguration {
         return (Cache<String, GridBucketState>) springCache.getNativeCache();
     }
 	
-	public SkipCondition filterCondition(Bucket4JConfiguration config, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public FilterConfiguration buildFilterConfig(Bucket4JConfiguration config, org.springframework.cache.CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
+		
+		FilterConfiguration filterConfig = new FilterConfiguration();
+		filterConfig.setUrl(config.getUrl());
+		filterConfig.setOrder(config.getFilterOrder());
+		ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(jCache(config.getCacheName(), cacheManager));
+		
+		config.getRateLimits().forEach(rl -> {
+			ConfigurationBuilder<?> configBuilder = Bucket4j.configurationBuilder();
+			for (Bucket4JBandWidth bandWidth : rl.getBandwidths()) {
+				configBuilder = configBuilder.addLimit(Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit())));
+			};
+			
+			final ConfigurationBuilder<?> configBuilderToUse = configBuilder;
+			RateLimitCheck rlc = (servletRequest) -> {
+				
+		        boolean skipRateLimit = false;
+		        if (rl.getSkipCondition() != null) {
+		        	skipRateLimit = filterCondition(rl, expressionParser, beanFactory).shouldSkip(servletRequest);
+		        } 
+		        
+		        if(!skipRateLimit) {
+		        	String key = getKeyFilter(rl, expressionParser, beanFactory).key(servletRequest);
+		        	Bucket bucket = buckets.getProxy(key, () -> configBuilderToUse.buildConfiguration());
+		        	
+		        	ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+		        	
+		        	return probe;
+		        }
+				return null;
+				
+			};
+			filterConfig.getRateLimitChecks().add(rlc);
+			
+		});
+		
+		return filterConfig;
+	}
+	
+	public SkipCondition filterCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		
-		if(config.getSkipCondition() != null) {
+		if(rateLimit.getSkipCondition() != null) {
 			return  (request) -> {
-				Expression expr = expressionParser.parseExpression(config.getSkipCondition()); 
+				Expression expr = expressionParser.parseExpression(rateLimit.getSkipCondition()); 
 				Boolean value = expr.getValue(context, request, Boolean.class);
 				return value;
 			};
@@ -50,12 +102,12 @@ public abstract class Bucket4JBaseConfiguration {
 		return null;
 	}
 	
-	public KeyFilter getKeyFilter(Bucket4JConfiguration config, ExpressionParser expressionParser, BeanFactory beanFactory) {
-		switch(config.getFilterKeyType()) {
+	public KeyFilter getKeyFilter(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+		switch(rateLimit.getFilterKeyType()) {
 		case IP:
 			return (request) -> request.getRemoteAddr();
 		case EXPRESSION:
-			String expression = config.getExpression();
+			String expression = rateLimit.getExpression();
 			if(StringUtils.isEmpty(expression)) {
 				throw new MissingKeyFilterExpressionException();
 			}
@@ -63,7 +115,7 @@ public abstract class Bucket4JBaseConfiguration {
 			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 			return  (request) -> {
 				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-				Expression expr = expressionParser.parseExpression(config.getExpression()); 
+				Expression expr = expressionParser.parseExpression(rateLimit.getExpression()); 
 				final String value = expr.getValue(context, request, String.class);
 				return value;
 			};

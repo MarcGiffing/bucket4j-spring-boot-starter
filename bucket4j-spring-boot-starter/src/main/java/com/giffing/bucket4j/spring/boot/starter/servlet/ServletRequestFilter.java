@@ -11,9 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 
-import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 
 /**
@@ -33,28 +33,34 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         
-        boolean skipRateLimit = false;
-        if (filterConfig.getSkipCondition() != null) {
-        	skipRateLimit = filterConfig.getSkipCondition().shouldSkip(request);
-        } 
+        boolean allConsumed = true;
+        long remainingLimit = 0;
+        for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
+			ConsumptionProbe probe = rl.rateLimit(request);
+			if(probe != null) {
+				if(probe.isConsumed()) {
+					remainingLimit = getRemainingLimit(remainingLimit, probe);
+				} else{	allConsumed = false;
+					httpResponse.setStatus(429);
+					httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+					httpResponse.setContentType("application/json");
+					httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
+				}
+			}
+		};
+		if(allConsumed) {
+			httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
+			filterChain.doFilter(httpRequest, httpResponse);
+		}
         
-        if(!skipRateLimit) {
-        	String key = filterConfig.getKeyFilter().key(httpRequest);
-        	Bucket bucket = filterConfig.getBuckets().getProxy(key, () -> filterConfig.getConfig());
-        	
-        	ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-        	
-        	if (probe.isConsumed()) {
-        		httpResponse.setHeader("X-Rate-Limit-Remaining", "" + probe.getRemainingTokens());
-        		filterChain.doFilter(httpRequest, httpResponse);
-        	} else {
-        		httpResponse.setStatus(429);
-        		httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
-        		httpResponse.setContentType("application/json");
-        		httpResponse.getWriter().append("{ \"errorId\": 1023, \"message\": \"To many requests\"}");
-        	}
-        } else {
-        	filterChain.doFilter(httpRequest, httpResponse);
-        }
+	}
+
+	private long getRemainingLimit(long remaining, ConsumptionProbe probe) {
+		if(probe != null) {
+			if(probe.getRemainingTokens() < remaining) {
+				remaining = probe.getRemainingTokens();
+			}
+		}
+		return remaining;
 	}
 }

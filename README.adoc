@@ -6,12 +6,12 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 *Examples:*
 https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-spring-boot-starter-examples]
 
-This project provides an integration of bucket4j for limiting the rate of access to REST APIs.
+This project provides an integration of Bucket4j for limiting the rate of access to REST APIs.
 To limit the access of requests this projects provides predefined filter types which can be reused for simple configurations options.
 
 == Autoconfiguration:
 
-* Detects the CachManger(JCache) and configures it for bucket4j. You can configure the different CacheManager with https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[spring-boot-starter-cache]
+* Detects the CachManger(JCache) and configures it for Bucket4j. You can configure the different CacheManager with https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[spring-boot-starter-cache]
 * *Servlet Filter* or *ZuulFilter* registration for limiting the rate
 * Configuration via properties
 ** cache name
@@ -69,44 +69,94 @@ public class SecurityService {
 
 == Configuration via properties
 
+ Simple configuration
+
 [source,yml]
 ----
 bucket4j:
-  rate-limit:
-    enabled: true
-    filter-method: servlet # servlet(default), zuul
-    configs:
-    - cache-name: buckets   # create new servlet filter with bucket4j configuration
-      filter-key-type: default  # filter all requests indipendently from the source
-      url: /*
+  enabled: true
+  filters: 
+  - cache-name: buckets 
+    url: /*
+    rate-limits:
+    - filter-key-type: default 
       bandwidths: 
-      - # maximum of 5 requests within 10 seconds
-        capacity: 5
-        time: 10
-        unit: seconds  
-    - cache-name: buckets
-      filter-key-type: ip			# ip based filter
-      url: /abc*
-      bandwidths: 
-      -
-        capacity: 5
+      - capacity: 5 
         time: 10
         unit: seconds
-    - cache-name: buckets
-      filter-key-type: expression  # expression based filter key evaluation
-      skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user 
-      expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
-      url: /*
-      filter-order: 0
-      bandwidths: 
-      -
-        capacity: 100
-        time: 1
+----
+
+Multiple filters
+
+[source,yml]
+----
+bucket4j:
+  enabled: true
+  configs: # each config entry creates one servlet filter or zuul filter
+  - cache-name: buckets # create new servlet filter with bucket4j configuration
+    url: /*
+    rate-limits:
+    - filter-key-type: default # filter all requests independently from the source
+      bandwidths: # maximum of 5 requests within 10 seconds
+      - capacity: 5 
+        time: 10
         unit: seconds
-      - 
-        capacity: 10000
+  - cache-name: buckets 
+    url: /abc*
+    rate-limits:
+    - filter-key-type: ip # IP based filter
+      bandwidths: # maximum of 5 requests within 10 seconds
+      - capacity: 5 
+        time: 10
+        unit: seconds
+  - cache-name: buckets 
+    url: /xyz*
+    rate-limits:
+    - filter-key-type: expression  # expression based filter key evaluation
+    	  skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
+    	  expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
+      bandwidths: 
+    - capacity: 100
+      time: 1
+      unit: seconds
+    - capacity: 10000
+      time: 1
+      unit: minutes    
+----
+
+One filter with different 
+
+[source,yml]
+----
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: buckets   
+    filter-method: servlet 
+    url: /*
+    rate-limits:
+    - filter-key-type: expression
+      skip-condition:  @securityService.isSignedIn() # only for not logged in users
+      expression: "getRemoteAddr()"
+      bandwidths:
+      - capacity: 10
         time: 1
-        unit: minutes    
+        unit: minutes
+    - filter-key-type: expression
+      skip-condition: "!@securityService.isSignedIn() || @securityService.username() == 'admin'" # skip if not logged or not user admin 
+      expression: @securityService.username()
+      bandwidths:
+      - capacity: 1000
+        time: 1
+        unit: minutes
+    - filter-key-type: expression
+      skip-condition:  "!@securityService.isSignedIn() && @securityService.username() != 'admin'"  # skip if not loggedin and user not admin => admin user
+      expression: @securityService.username()
+      bandwidths:
+      - capacity: 1000000000
+        time: 1
+        unit: minutes
+    
 ----
 
 == Configuration via @Bean

@@ -1,45 +1,18 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
-import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.grid.ProxyManager;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 
 public class FilterConfiguration {
 
-	private KeyFilter keyFilter;
-	
-	private SkipCondition skipCondition;
-
-	private ProxyManager<String> buckets;
-	
-	private BucketConfiguration config;
+	private List<RateLimitCheck> rateLimitChecks = new ArrayList<>();
 	
 	private String url;
 	
 	private int order;
 
-	public KeyFilter getKeyFilter() {
-		return keyFilter;
-	}
-
-	public void setKeyFilter(KeyFilter keyFilter) {
-		this.keyFilter = keyFilter;
-	}
-
-	public ProxyManager<String> getBuckets() {
-		return buckets;
-	}
-
-	public void setBuckets(ProxyManager<String> buckets) {
-		this.buckets = buckets;
-	}
-
-	public BucketConfiguration getConfig() {
-		return config;
-	}
-
-	public void setConfig(BucketConfiguration config) {
-		this.config = config;
-	}
 
 	public String getUrl() {
 		return url;
@@ -57,12 +30,12 @@ public class FilterConfiguration {
 		this.order = order;
 	}
 
-	public SkipCondition getSkipCondition() {
-		return skipCondition;
+	public List<RateLimitCheck> getRateLimitChecks() {
+		return rateLimitChecks;
 	}
 
-	public void setSkipCondition(SkipCondition condition) {
-		this.skipCondition = condition;
+	public void setRateLimitChecks(List<RateLimitCheck> rateLimitChecks) {
+		this.rateLimitChecks = rateLimitChecks;
 	}
 
 }

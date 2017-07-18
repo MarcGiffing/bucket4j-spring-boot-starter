@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.servlet;
 
-import java.time.Duration;
-
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.servlet.Filter;
@@ -28,15 +26,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
-
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket4j;
-import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.grid.ProxyManager;
-import io.github.bucket4j.grid.jcache.JCache;
 
 /**
  * Configures Servlet {@link Filter}s for Bucket4Js rate limit.
@@ -77,10 +68,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition1 extends AllNestedConditions {
 		public ConfigCondition1() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[0].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[0].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[0].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[0].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	} 
 	
@@ -94,10 +85,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition2 extends AllNestedConditions {
 		public ConfigCondition2() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[1].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[1].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[1].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[1].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -112,10 +103,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition3 extends AllNestedConditions {
 		public ConfigCondition3() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[2].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[2].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[2].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[2].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -128,10 +119,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition4 extends AllNestedConditions {
 		public ConfigCondition4() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[3].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[3].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[3].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[3].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -144,10 +135,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition5 extends AllNestedConditions {
 		public ConfigCondition5() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[4].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[4].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[4].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[4].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -160,10 +151,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition6 extends AllNestedConditions {
 		public ConfigCondition6() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[5].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[5].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[5].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[5].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -176,10 +167,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition7 extends AllNestedConditions {
 		public ConfigCondition7() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[6].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[6].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[6].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[6].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -192,10 +183,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition8 extends AllNestedConditions {
 		public ConfigCondition8() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[7].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[7].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[7].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[7].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -208,10 +199,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition9 extends AllNestedConditions {
 		public ConfigCondition9() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[8].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[8].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[8].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[8].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
@@ -224,43 +215,35 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	public static class ConfigCondition10 extends AllNestedConditions {
 		public ConfigCondition10() { super(ConfigurationPhase.REGISTER_BEAN); }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[9].url")
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[9].url")
 		static class OnEnabled { }
 		
-		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "configs[9].filter-method", havingValue = "servlet", matchIfMissing = true)
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[9].filter-method", havingValue = "servlet", matchIfMissing = true)
 		static class OnServletFilter{ }
 	}
 	
 	private FilterRegistrationBean getFilterRegistrationBean(int position) {
 		Integer filterCount = 0;
-		if(properties.getConfigs().size() >= (position+1)) {
-			Bucket4JConfiguration config = properties.getConfigs().get(position);
+		if(properties.getFilters().size() >= (position+1)) {
+			Bucket4JConfiguration filter = properties.getFilters().get(position);
 			filterCount++;
 			
-			ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(jCache(config.getCacheName(), cacheManager));
+			FilterConfiguration filterConfig = buildFilterConfig(filter, cacheManager, servletFilterExpressionParser(), beanFactory);
 			
-			ConfigurationBuilder<?> configBuilder = Bucket4j.configurationBuilder();
-			for (Bucket4JBandWidth bandWidth : config.getBandwidths()) {
-				configBuilder = configBuilder.addLimit(Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit())));
-			};
-			
-			FilterConfiguration filterConfig = new FilterConfiguration();
-			filterConfig.setBuckets(buckets);
-			filterConfig.setConfig(configBuilder.buildConfiguration());
-			filterConfig.setKeyFilter(getKeyFilter(config, servletFilterExpressionParser(), beanFactory));
-			filterConfig.setSkipCondition(filterCondition(config, servletFilterExpressionParser(), beanFactory));
 			
 			FilterRegistrationBean registration = new FilterRegistrationBean();
 			registration.setName("bucket4JRequestFilter" + position);
 	        registration.setFilter(new ServletRequestFilter(filterConfig));
-	        registration.addUrlPatterns(config.getUrl());
-	        registration.setOrder(config.getFilterOrder());
+	        registration.addUrlPatterns(filter.getUrl());
+	        registration.setOrder(filter.getFilterOrder());
 	        
 	        return registration;
 		}
 		
 		return null;
 	}
+
+	
 	
 
 }

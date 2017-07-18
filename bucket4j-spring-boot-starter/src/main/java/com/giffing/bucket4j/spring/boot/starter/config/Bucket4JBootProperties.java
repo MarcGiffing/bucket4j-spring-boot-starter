@@ -12,19 +12,17 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 public class Bucket4JBootProperties {
 
-	public static final String PROPERTY_PREFIX = "bucket4j.rate-limit";
+	public static final String PROPERTY_PREFIX = "bucket4j";
 	
 	/**
 	 * Enables or disables the Bucket4j Spring Boot Starter.
 	 */
 	private Boolean enabled = true;
 	
-	private List<Bucket4JConfiguration> configs = new ArrayList<>();
+	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 	
 	public static class Bucket4JConfiguration {
 
-		private FilterKeyType filterKeyType = FilterKeyType.DEFAULT;
-		
 		/**
 		 * The cache name. Should be provided or an exception is thrown
 		 */
@@ -37,22 +35,11 @@ public class Bucket4JBootProperties {
 		 */
 		private String url = "/*";
 		
-		/**
-		 * SpEl condition to check if the rate-limit should apply. If null the there is no check
-		 */
-		private String skipCondition;
-		
 		private int filterOrder = Integer.MIN_VALUE + 1;
-		
-		private List<Bucket4JBandWidth> bandwidths = new ArrayList<>();
-		
-		/**
-		 * SPEL expression to dynamic evaluate filter key 
-		 */
-		private String expression;
+
+		private List<RateLimit> rateLimits = new ArrayList<>();
 		
 		public Bucket4JConfiguration() {
-			
 		}
 		
 		public String getCacheName() {
@@ -71,44 +58,12 @@ public class Bucket4JBootProperties {
 			this.url = url;
 		}
 
-		public List<Bucket4JBandWidth> getBandwidths() {
-			return bandwidths;
-		}
-
-		public void setBandwidths(List<Bucket4JBandWidth> bandwidths) {
-			this.bandwidths = bandwidths;
-		}
-
-		public FilterKeyType getFilterKeyType() {
-			return filterKeyType;
-		}
-
-		public void setFilterKeyType(FilterKeyType filterKeyType) {
-			this.filterKeyType = filterKeyType;
-		}
-
 		public int getFilterOrder() {
 			return filterOrder;
 		}
 
 		public void setFilterOrder(int filterOrder) {
 			this.filterOrder = filterOrder;
-		}
-
-		public String getExpression() {
-			return expression;
-		}
-
-		public void setExpression(String expression) {
-			this.expression = expression;
-		}
-
-		public String getSkipCondition() {
-			return skipCondition;
-		}
-
-		public void setSkipCondition(String skipCondition) {
-			this.skipCondition = skipCondition;
 		}
 
 		public FilterMethod getFilterMethod() {
@@ -119,6 +74,13 @@ public class Bucket4JBootProperties {
 			this.filterMethod = filterMethod;
 		}
 
+		public List<RateLimit> getRateLimits() {
+			return rateLimits;
+		}
+
+		public void setRateLimits(List<RateLimit> rateLimits) {
+			this.rateLimits = rateLimits;
+		}
 		
 	}
 	
@@ -134,12 +96,63 @@ public class Bucket4JBootProperties {
 		return PROPERTY_PREFIX;
 	}
 
-	public List<Bucket4JConfiguration> getConfigs() {
-		return configs;
+	public List<Bucket4JConfiguration> getFilters() {
+		return filters;
 	}
 
-	public void setConfigs(List<Bucket4JConfiguration> configs) {
-		this.configs = configs;
+	public void setFilters(List<Bucket4JConfiguration> filters) {
+		this.filters = filters;
+	}
+
+	public static class RateLimit {
+		
+		private FilterKeyType filterKeyType = FilterKeyType.DEFAULT;
+		
+		/**
+		 * SpEl condition to check if the rate-limit should apply. If null the there is no check
+		 */
+		private String skipCondition;
+		
+		private String expression;
+
+		private List<Bucket4JBandWidth> bandwidths = new ArrayList<>();
+		
+		/**
+		 * SPEL expression to dynamic evaluate filter key 
+		 */
+		
+		public String getExpression() {
+			return expression;
+		}
+
+		public void setExpression(String expression) {
+			this.expression = expression;
+		}
+
+		public String getSkipCondition() {
+			return skipCondition;
+		}
+
+		public void setSkipCondition(String skipCondition) {
+			this.skipCondition = skipCondition;
+		}
+		
+		public List<Bucket4JBandWidth> getBandwidths() {
+			return bandwidths;
+		}
+
+		public void setBandwidths(List<Bucket4JBandWidth> bandwidths) {
+			this.bandwidths = bandwidths;
+		}
+		
+		public FilterKeyType getFilterKeyType() {
+			return filterKeyType;
+		}
+
+		public void setFilterKeyType(FilterKeyType filterKeyType) {
+			this.filterKeyType = filterKeyType;
+		}
+		
 	}
 
 }
