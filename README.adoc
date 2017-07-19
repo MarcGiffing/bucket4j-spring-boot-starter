@@ -6,8 +6,16 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 *Examples:*
 https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-spring-boot-starter-examples]
 
-This project provides an integration of Bucket4j for limiting the rate of access to REST APIs.
-To limit the access of requests this projects provides predefined filter types which can be reused for simple configurations options.
+This project is a http://projects.spring.io/spring-boot/[Spring Boot Starter] for Bucket4j.
+It can be used limiting the rate of access to your REST APIs.
+
+* Prevention of DoS Attacks, brute-force logins attempts
+* Request throttling for specific regions, unauthenticated users, authenticated users, not paying users.
+
+The benefit of this project is that the Bucket4j can configured via *properties* or *yaml* files. You don't
+have to write a single line of code. For complex condition this project uses the 
+https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language].
+
 
 == Autoconfiguration:
 
@@ -22,10 +30,8 @@ To limit the access of requests this projects provides predefined filter types w
 == Bucket4j properties
 
 
-
 [source, properties]
 ----
-
 bucket4j.enabled=true # enable/disable bucket4j support
 bucket4j.filters[0].cache-name=buckets # the name of the cache key
 bucket4j.filters[0].filter-method=servlet # [servlet,zuul]
@@ -73,6 +79,9 @@ getRemoteAddress()
 ----
 [source,java]
 ----
+/**
+* You can define custom beans like the SecurityService which can be used in the SpEl expressions.
+**/
 @Service
 public class SecurityService {
 
@@ -86,11 +95,29 @@ public class SecurityService {
 	
 }
 ----
- 
+
+=== Filter strategy
+
+The filter strategy defines how the execution of the rate limits will be performed.
+
+[source, properties]
+----
+bucket4j.filters[0].strategy=first # [first, all]
+----
+
+==== first
+
+The *first* is the default strategy. This the default strategy which only execute one rate limit.
+So if you check in the first rate limit if the user is authenticated and the user is not you know that the other rate-limits handles
+authenticated users.
+
+==== all
+
+The *all* strategy executes all rate limit independently. 
 
 == Configuration via properties
 
- Simple configuration
+Simple configuration to allow a maximum of 5 requests within 10 seconds independently from the user.
 
 [source,yml]
 ----
@@ -107,45 +134,9 @@ bucket4j:
         unit: seconds
 ----
 
-Multiple filters
-
-[source,yml]
-----
-bucket4j:
-  enabled: true
-  configs: # each config entry creates one servlet filter or zuul filter
-  - cache-name: buckets # create new servlet filter with bucket4j configuration
-    url: /*
-    rate-limits:
-    - filter-key-type: default # filter all requests independently from the source
-      bandwidths: # maximum of 5 requests within 10 seconds
-      - capacity: 5 
-        time: 10
-        unit: seconds
-  - cache-name: buckets 
-    url: /abc*
-    rate-limits:
-    - filter-key-type: ip # IP based filter
-      bandwidths: # maximum of 5 requests within 10 seconds
-      - capacity: 5 
-        time: 10
-        unit: seconds
-  - cache-name: buckets 
-    url: /xyz*
-    rate-limits:
-    - filter-key-type: expression  # expression based filter key evaluation
-    	  skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
-    	  expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
-      bandwidths: 
-    - capacity: 100
-      time: 1
-      unit: seconds
-    - capacity: 10000
-      time: 1
-      unit: minutes    
-----
-
-One filter with different 
+Conditional filtering depending on the anonymous or logged in user. Cause the *bucket4j.filters[0].strategy* is *first*
+you havn't to check in the second rate-limit if the user is logged in cause the first rate-limit check if the user is unauthenticated.
+If its the case no other rate-limit will be evaluated.
 
 [source,yml]
 ----
@@ -180,5 +171,41 @@ bucket4j:
     
 ----
 
-== Configuration via @Bean
+Configuration of multiple independently filters (servlet filter or zuul) with specific rate limit configuraitons.
+
+[source,yml]
+----
+bucket4j:
+  enabled: true
+  filters: # each config entry creates one servlet filter or zuul filter
+  - cache-name: buckets # create new servlet filter with bucket4j configuration
+    url: /admin*
+    rate-limits:
+    - filter-key-type: default # filter all requests independently from the source
+      bandwidths: # maximum of 5 requests within 10 seconds
+      - capacity: 5 
+        time: 10
+        unit: seconds
+  - cache-name: buckets 
+    url: /public*
+    rate-limits:
+    - filter-key-type: ip # IP based filter
+      bandwidths: # maximum of 5 requests within 10 seconds
+      - capacity: 5 
+        time: 10
+        unit: seconds
+  - cache-name: buckets 
+    url: /users*
+    rate-limits:
+    - filter-key-type: expression  # expression based filter key evaluation
+    	  skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
+    	  expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
+      bandwidths: 
+    - capacity: 100
+      time: 1
+      unit: seconds
+    - capacity: 10000
+      time: 1
+      unit: minutes    
+----
 
