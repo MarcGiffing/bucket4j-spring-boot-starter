@@ -2,13 +2,11 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 
 import java.time.temporal.ChronoUnit;
 
-import io.github.bucket4j.Bandwidth;
-
 /**
- * Property configuration for Bucket4Js {@link Bandwidth}
+ * Configures the rate of data which should be transfered 
  *
  */
-public class Bucket4JBandWidth {
+public class BandWidthConfig {
 	
 	private long capacity;
 	private long time;

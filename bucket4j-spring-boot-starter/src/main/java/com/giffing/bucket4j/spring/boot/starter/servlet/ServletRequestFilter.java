@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 import io.github.bucket4j.ConsumptionProbe;
@@ -36,6 +36,7 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 
         boolean allConsumed = true;
         Long remainingLimit = null;
+        
         for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
 			ConsumptionProbe probe = rl.rateLimit(request);
 			if(probe != null) {
@@ -43,10 +44,7 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
 				} else{	
 					allConsumed = false;
-					httpResponse.setStatus(429);
-					httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
-					httpResponse.setContentType("application/json");
-					httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
+					handleHttpResponseOnRateLimiting(httpResponse, probe);
 					break;
 				}
 				if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
@@ -62,6 +60,13 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 			filterChain.doFilter(httpRequest, httpResponse);
 		}
         
+	}
+
+	private void handleHttpResponseOnRateLimiting(HttpServletResponse httpResponse, ConsumptionProbe probe) throws IOException {
+		httpResponse.setStatus(429);
+		httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+		httpResponse.setContentType("application/json");
+		httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
 	}
 
 	private long getRemainingLimit(Long remaining, ConsumptionProbe probe) {

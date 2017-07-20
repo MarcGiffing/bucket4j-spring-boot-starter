@@ -3,20 +3,34 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giffing.bucket4j.spring.boot.starter.RateLimitCheck;
+import javax.servlet.Filter;
 
+import com.netflix.zuul.ZuulFilter;
+
+/**
+ * This class is the main configuration class which is used to build the Servlet {@link Filter}s or {@link ZuulFilter}s.
+ *
+ */
 public class FilterConfiguration {
 
-	private List<RateLimitCheck> rateLimitChecks = new ArrayList<>();
-	
 	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 	
+	/**
+	 * The url on which the filter should listen.
+	 */
 	private String url;
 	
+	/**
+	 * The order of the filter depending on other filters independently from the Bucket4j filters.
+	 */
 	private int order;
 	
+	/**
+	 * The HTTP response body which should be returned when limiting the rate.
+	 */
 	private String httpResponseBody;
 
+	private List<RateLimitCheck> rateLimitChecks = new ArrayList<>();
 
 	public String getUrl() {
 		return url;

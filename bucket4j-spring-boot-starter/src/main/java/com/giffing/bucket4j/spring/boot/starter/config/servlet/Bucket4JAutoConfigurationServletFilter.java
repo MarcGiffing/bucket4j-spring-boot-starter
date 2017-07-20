@@ -30,7 +30,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 
 /**
- * Configures Servlet {@link Filter}s for Bucket4Js rate limit.
+ * Configures up to 10 Servlet {@link Filter}s for Bucket4Js rate limit.
+ * 
+ * Technical problem: The dynamic creation of the {@link FilterRegistrationBean}s failed cause when
+ * registering them manually in the application context the Beans arn't detected as {@link Filter}s
+ * and therefore not configured correctly. The current workaround is the define 10 different methods
+ * which creates individual {@link FilterRegistrationBean}s conditional on properties.
  * 
  */
 @Configuration

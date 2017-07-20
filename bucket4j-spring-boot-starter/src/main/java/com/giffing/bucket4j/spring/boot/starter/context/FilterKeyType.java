@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
-import org.springframework.expression.Expression;
-
 /**
  * Predefined filter type to identify the Bucket4j key which is used to
  * define to whom the rate limit should be applied. 

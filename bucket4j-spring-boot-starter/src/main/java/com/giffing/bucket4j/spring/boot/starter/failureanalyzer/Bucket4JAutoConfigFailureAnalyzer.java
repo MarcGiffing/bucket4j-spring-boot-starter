@@ -7,14 +7,18 @@ import com.giffing.bucket4j.spring.boot.starter.exception.Bucket4jGeneralExcepti
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 
+/**
+ * The failure analyzer is responsible to provide readable information of exception which
+ * occur on startup. All exception based on the {@link Bucket4jGeneralException} are handled here.   
+ */
 public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<Bucket4jGeneralException>{
 
 	public static String newline = System.getProperty("line.separator");
 	
 	@Override
 	protected FailureAnalysis analyze(Throwable rootFailure, Bucket4jGeneralException cause) {
-		String descriptionMessage = "unknown";
-		String actionMessage = "unknown";
+		String descriptionMessage = cause.getMessage();
+		String actionMessage = cause.getMessage();
 		
 		if(cause instanceof JCacheNotFoundException) {
 			JCacheNotFoundException ex = (JCacheNotFoundException) cause;
