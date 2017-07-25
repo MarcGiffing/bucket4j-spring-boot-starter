@@ -69,7 +69,7 @@ spring:
 
 [source,yml]
 ----
-<config xmlns='...">
+<config xmlns="...">
 	<cache alias="buckets">
 		<expiry>
 			<ttl unit="seconds">3600</ttl>
