@@ -6,6 +6,10 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 *Examples:*
 https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-spring-boot-starter-examples]
 
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-ehcache[Ehcache]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-hazelcast[Hazelcast]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-zuul[Zuul]
+
 This project is a http://projects.spring.io/spring-boot/[Spring Boot Starter] for Bucket4j.
 It can be used limiting the rate of access to your REST APIs.
 
