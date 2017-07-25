@@ -1,15 +1,18 @@
 package com.giffing.bucket4j.spring.boot.starter.config.zuul;
 
+import javax.cache.CacheManager;
 import javax.cache.Caching;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -34,14 +37,15 @@ import com.netflix.zuul.ZuulFilter;
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class, ZuulFilter.class })
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@ConditionalOnMissingBean(value = CacheManager.class, name = "cacheResolver")
+@ConditionalOnBean(value = CacheManager.class, name = "cacheResolver")
+@AutoConfigureAfter(CacheAutoConfiguration.class)
 public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 
 	@Autowired
 	private Bucket4JBootProperties properties;
 	
 	@Autowired
-	private org.springframework.cache.CacheManager cacheManager;
+	private CacheManager cacheManager;
 	
 	@Autowired
 	private BeanFactory beanFactory;

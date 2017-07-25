@@ -46,12 +46,12 @@ The current configuration limits all requests independently from the user. It al
 ----
 bucket4j:
   enabled: true
-  filters: 
-  - cache-name: buckets 
+  filters:
+  - cache-name: buckets
     url: /*
     rate-limits:
-      bandwidths: 
-      - capacity: 5 
+    - bandwidths:
+      - capacity: 5
         time: 10
         unit: seconds
 ----

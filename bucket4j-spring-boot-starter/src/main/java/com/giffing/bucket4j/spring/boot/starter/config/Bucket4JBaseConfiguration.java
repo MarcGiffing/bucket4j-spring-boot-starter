@@ -1,12 +1,11 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
 import java.time.Duration;
-import java.util.Optional;
 
 import javax.cache.Cache;
+import javax.cache.CacheManager;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -49,12 +48,12 @@ public abstract class Bucket4JBaseConfiguration {
 	 */
 	@SuppressWarnings("unchecked")
 	public Cache<String, GridBucketState> jCache(String cacheName, CacheManager cacheManager) {
-        org.springframework.cache.Cache springCache = cacheManager.getCache(cacheName);
+        Cache springCache = cacheManager.getCache(cacheName);
         if(springCache == null) {
         	throw new JCacheNotFoundException(cacheName);
         }
 		
-        return (Cache<String, GridBucketState>) springCache.getNativeCache();
+        return (Cache<String, GridBucketState>) springCache;
     }
 	
 	/**
@@ -66,7 +65,7 @@ public abstract class Bucket4JBaseConfiguration {
 	 * @param beanFactory
 	 * @return
 	 */
-	public FilterConfiguration buildFilterConfig(Bucket4JConfiguration config, org.springframework.cache.CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public FilterConfiguration buildFilterConfig(Bucket4JConfiguration config, CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
 		FilterConfiguration filterConfig = new FilterConfiguration();
 		filterConfig.setUrl(config.getUrl());

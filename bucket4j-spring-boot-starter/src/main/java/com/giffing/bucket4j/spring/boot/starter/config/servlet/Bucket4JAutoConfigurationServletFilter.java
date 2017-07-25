@@ -6,7 +6,10 @@ import javax.servlet.Filter;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -39,18 +42,18 @@ import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
  * 
  */
 @Configuration
-@Order(Ordered.LOWEST_PRECEDENCE)
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class })
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
-@ConditionalOnMissingBean(value = CacheManager.class, name = "cacheResolver")
+@ConditionalOnBean(value = CacheManager.class, name = "cacheResolver")
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
+@AutoConfigureAfter(CacheAutoConfiguration.class)
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration {
 
 	@Autowired
 	private Bucket4JBootProperties properties;
 	
 	@Autowired
-	private org.springframework.cache.CacheManager cacheManager;
+	private CacheManager cacheManager;
 	
 	@Autowired
 	private BeanFactory beanFactory;
