@@ -67,7 +67,7 @@ spring:
       config: classpath:ehcache.xml
 ----
 
-[source,yml]
+[source]
 ----
 <config xmlns="...">
 	<cache alias="buckets">
