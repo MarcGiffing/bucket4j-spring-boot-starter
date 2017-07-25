@@ -16,16 +16,70 @@ The benefit of this project is that the Bucket4j can configured via *properties*
 have to write a single line of code. For complex condition this project uses the 
 https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language].
 
+== Getting started
 
-== Autoconfiguration:
+To use the rate limit in your project you have to add the Bucket4j Spring Boot Starter dependency in 
+your project. Additionally you need to add a https://www.jcp.org/en/jsr/detail?id=107[JSR 107] provider like Ehcache or Hazelcast which will be
+auto configured with the https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[Spring Boot Starter Cache].
 
-* Detects the CachManger(JCache) and configures it for Bucket4j. You can configure the different CacheManager with https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[spring-boot-starter-cache]
-* *Servlet Filter* or *ZuulFilter* registration for limiting the rate
-* Configuration via properties
-** cache name
-** url
-** multiple bandwith (capacity, time unit)
-** predefined filter types
+[source, xml]
+----
+<dependency>
+	<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+	<artifactId>bucket4j-spring-boot-starter</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.ehcache</groupId>
+	<artifactId>ehcache</artifactId>
+</dependency>
+----
+
+The configuration can be done in the application.properties / application.yml. 
+The current configuration limits all requests independently from the user. It allows a maximum of 5 requests within 10 seconds independently from the user.
+
+
+[source,yml]
+----
+bucket4j:
+  enabled: true
+  filters: 
+  - cache-name: buckets 
+    url: /*
+    rate-limits:
+      bandwidths: 
+      - capacity: 5 
+        time: 10
+        unit: seconds
+----
+
+For Ehcache 3 you also need a *ehcache.xml* which can be placed in the classpath.
+The configured cache name *buckets* must be defined in the configuration file.   
+
+[source,yml]
+----
+spring:
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+----
+
+[source,yml]
+----
+<config xmlns='...">
+	<cache alias="buckets">
+		<expiry>
+			<ttl unit="seconds">3600</ttl>
+		</expiry>
+		<heap unit="entries">1000000</heap>
+	</cache>
+
+</config>
+----
+
 
 == Bucket4j properties
 
@@ -62,8 +116,8 @@ The IP filter type limits the access based on the IP address (httpServletRequest
 
 ==== Expression
 
-The expression based filter type provides the most flexible one but uses the Spring Expression Language (SpEL) which is maybe not the best choice for optimal performance.
-But is provides an easy way to configure the limiting in different environments without writing one line of code.
+The expression based filter type provides the most flexible one and uses the Spring Expression Language (SpEL). https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
+It provides an easy way to configure the throttling in different environments without writing one line of code.
 
 *Limiting based on IP-Address*:
 [source]
@@ -107,9 +161,7 @@ bucket4j.filters[0].strategy=first # [first, all]
 
 ==== first
 
-The *first* is the default strategy. This the default strategy which only execute one rate limit.
-So if you check in the first rate limit if the user is authenticated and the user is not you know that the other rate-limits handles
-authenticated users.
+The *first* is the default strategy. This the default strategy which only executes one rate limit configuration.
 
 ==== all
 
@@ -134,9 +186,8 @@ bucket4j:
         unit: seconds
 ----
 
-Conditional filtering depending on the anonymous or logged in user. Cause the *bucket4j.filters[0].strategy* is *first*
-you havn't to check in the second rate-limit if the user is logged in cause the first rate-limit check if the user is unauthenticated.
-If its the case no other rate-limit will be evaluated.
+Conditional filtering depending on the anonymous or logged in user. Because the *bucket4j.filters[0].strategy* is *first*
+you havn't to check in the second rate-limit that the user is logged in. Only the first one is executed.
 
 [source,yml]
 ----
