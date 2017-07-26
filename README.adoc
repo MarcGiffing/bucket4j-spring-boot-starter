@@ -8,6 +8,7 @@ https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-sp
 
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-ehcache[Ehcache]
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-hazelcast[Hazelcast]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-caffeine[Caffeine]
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-zuul[Zuul]
 
 This project is a http://projects.spring.io/spring-boot/[Spring Boot Starter] for Bucket4j.
