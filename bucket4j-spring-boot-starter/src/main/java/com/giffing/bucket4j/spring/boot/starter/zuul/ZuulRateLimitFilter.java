@@ -68,7 +68,7 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 		RequestContext currentContext = RequestContext.getCurrentContext();
 		HttpServletRequest request = currentContext.getRequest();
 		String requestURI = request.getRequestURI();
-		return requestURI.startsWith(filterConfig.getUrl());
+		return requestURI.matches(filterConfig.getUrl());
 	}
 
 	@Override
