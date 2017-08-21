@@ -75,7 +75,7 @@ class ZuulRateLimitFilterSpec extends Specification {
         when: "executing the rate limit filter"
             filter.run()
 
-        then: "all rate limit checks are performed"
+        then: "only the first matching rate limit check is performed"
             1 * rateLimitCheck1.rateLimit(_) >> ConsumptionProbe.consumed(1)
             0 * rateLimitCheck2.rateLimit(_) >> ConsumptionProbe.consumed(1)
             0 * rateLimitCheck3.rateLimit(_) >> ConsumptionProbe.consumed(1)
@@ -93,18 +93,9 @@ class ZuulRateLimitFilterSpec extends Specification {
         when: "executing the rate limit filter"
             filter.run()
 
-        then: "all rate limit checks are performed"
+        then: "only one non-skipped rate limit check is performed"
             1 * rateLimitCheck1.rateLimit(_) >> null
             1 * rateLimitCheck2.rateLimit(_) >> ConsumptionProbe.consumed(1)
             0 * rateLimitCheck3.rateLimit(_)
     }
-
-    private RateLimitCheck mockRateLimitCheck() {
-        def limitCheck = Mock(RateLimitCheck)
-        limitCheck.rateLimit(_) >> {
-            ConsumptionProbe.consumed(1)
-        }
-        limitCheck
-    }
-
 }
