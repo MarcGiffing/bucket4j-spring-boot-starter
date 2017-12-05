@@ -93,7 +93,7 @@ public abstract class Bucket4JBaseConfiguration {
 		        }
 		        
 		        if(!skipRateLimit) {
-		        	String key = getKeyFilter(rl, expressionParser, beanFactory).key(servletRequest);
+		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	Bucket bucket = buckets.getProxy(key, () -> configBuilderToUse.buildConfiguration());
 		        	
 		        	ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
@@ -114,12 +114,13 @@ public abstract class Bucket4JBaseConfiguration {
 	 * Creates the key filter lambda which is responsible to decide how the rate limit will be performed. The key
 	 * is the unique identifier like an IP address or a username.
 	 * 
+	 * @param url is used to generated a unique cache key
 	 * @param rateLimit the {@link RateLimit} configuration which holds the skip condition string
 	 * @param expressionParser is used to evaluate the expression if the filter key type is EXPRESSION.
 	 * @param beanFactory used to get full access to all java beans in the SpEl
 	 * @return should not been null. If no filter key type is matching a plain 1 is returned so that all requests uses the same key.
 	 */
-	public KeyFilter getKeyFilter(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public KeyFilter getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		switch(rateLimit.getFilterKeyType()) {
 		case IP:
 			return (request) -> request.getRemoteAddr();
@@ -134,7 +135,7 @@ public abstract class Bucket4JBaseConfiguration {
 				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
 				Expression expr = expressionParser.parseExpression(rateLimit.getExpression()); 
 				final String value = expr.getValue(context, request, String.class);
-				return value;
+				return url + "-" + value;
 			};
 		
 		}
