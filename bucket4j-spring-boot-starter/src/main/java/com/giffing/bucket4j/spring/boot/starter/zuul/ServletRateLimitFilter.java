@@ -15,19 +15,19 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * {@link ZuulFilter} to configure Bucket4j on each request.
  */
-public class ZuulRateLimitFilter extends ZuulFilter {
+public class ServletRateLimitFilter extends ZuulFilter {
 
-	private final Logger log = LoggerFactory.getLogger(ZuulRateLimitFilter.class);
+	private final Logger log = LoggerFactory.getLogger(ServletRateLimitFilter.class);
 
 	private FilterConfiguration filterConfig;
 
-	public ZuulRateLimitFilter(FilterConfiguration filterConfig) {
+	public ServletRateLimitFilter(FilterConfiguration filterConfig) {
 		this.filterConfig = filterConfig;
 	}
 
 	@Override
 	public Object run() {
-		RequestContext context = getCurrentRequestContext();
+		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
         Long remainingLimit = null;
@@ -40,7 +40,6 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 					context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
 					context.setResponseBody(filterConfig.getHttpResponseBody());
 					context.setSendZuulResponse(false);
-					break;
 				}
 				if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
 					break;
@@ -49,10 +48,6 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 		};
 
 		return null;
-	}
-	
-	protected RequestContext getCurrentRequestContext() {
-		return RequestContext.getCurrentContext();
 	}
 
 	private long getRemainingLimit(Long remaining, ConsumptionProbe probe) {

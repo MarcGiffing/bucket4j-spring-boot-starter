@@ -8,7 +8,7 @@ import com.netflix.zuul.ZuulFilter;
 import io.github.bucket4j.ConsumptionProbe;
 
 /**
- * Used to check if the rate limit should be performed indipendently from the Servlet {@link Filter} or {@link ZuulFilter}.  
+ * Used to check if the rate limit should be performed independently from the Servlet {@link Filter} or {@link ZuulFilter}.  
  *
  */
 @FunctionalInterface
