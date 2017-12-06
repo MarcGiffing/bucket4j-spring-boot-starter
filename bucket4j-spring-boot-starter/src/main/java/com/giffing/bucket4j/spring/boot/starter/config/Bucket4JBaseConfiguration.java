@@ -121,9 +121,10 @@ public abstract class Bucket4JBaseConfiguration {
 	 * @return should not been null. If no filter key type is matching a plain 1 is returned so that all requests uses the same key.
 	 */
 	public KeyFilter getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+		
 		switch(rateLimit.getFilterKeyType()) {
 		case IP:
-			return (request) -> request.getRemoteAddr();
+			return (request) -> url + "-" + request.getRemoteAddr();
 		case EXPRESSION:
 			String expression = rateLimit.getExpression();
 			if(StringUtils.isEmpty(expression)) {
@@ -139,7 +140,7 @@ public abstract class Bucket4JBaseConfiguration {
 			};
 		
 		}
-		return (request) -> "1";
+		return (request) -> url + "-" + "1";
 	}
 	
 	/**
