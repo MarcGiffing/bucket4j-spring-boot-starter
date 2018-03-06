@@ -37,7 +37,7 @@ import com.netflix.zuul.ZuulFilter;
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class, ZuulFilter.class })
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@ConditionalOnBean(value = CacheManager.class, name = "cacheResolver")
+@ConditionalOnBean(value = CacheManager.class)
 @AutoConfigureAfter(CacheAutoConfiguration.class)
 public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 

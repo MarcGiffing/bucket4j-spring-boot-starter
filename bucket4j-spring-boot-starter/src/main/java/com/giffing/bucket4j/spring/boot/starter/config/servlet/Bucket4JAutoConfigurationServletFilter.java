@@ -44,7 +44,7 @@ import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 @Configuration
 @ConditionalOnClass({ Caching.class, JCacheCacheManager.class })
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
-@ConditionalOnBean(value = CacheManager.class, name = "cacheResolver")
+@ConditionalOnBean(value = CacheManager.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @AutoConfigureAfter(CacheAutoConfiguration.class)
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration {
