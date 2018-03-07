@@ -218,6 +218,166 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 		static class OnServletFilter{ }
 	} 
 	
+	@Bean
+	@Conditional(ConfigCondition11.class)
+	public ZuulFilter zuulFilter11() {
+		return createZuulFilter(10);
+	}
+	
+	public static class ConfigCondition11 extends AllNestedConditions {
+		public ConfigCondition11() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[10].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[10].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition12.class)
+	public ZuulFilter zuulFilter12() {
+		return createZuulFilter(11);
+	}
+	
+	public static class ConfigCondition12 extends AllNestedConditions {
+		public ConfigCondition12() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[11].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[11].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition13.class)
+	public ZuulFilter zuulFilter13() {
+		return createZuulFilter(12);
+	}
+	
+	public static class ConfigCondition13 extends AllNestedConditions {
+		public ConfigCondition13() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[12].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[12].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition14.class)
+	public ZuulFilter zuulFilter14() {
+		return createZuulFilter(13);
+	}
+	
+	public static class ConfigCondition14 extends AllNestedConditions {
+		public ConfigCondition14() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[13].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[13].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition15.class)
+	public ZuulFilter zuulFilter15() {
+		return createZuulFilter(14);
+	}
+	
+	public static class ConfigCondition15 extends AllNestedConditions {
+		public ConfigCondition15() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[14].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[14].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition16.class)
+	public ZuulFilter zuulFilter16() {
+		return createZuulFilter(15);
+	}
+	
+	public static class ConfigCondition16 extends AllNestedConditions {
+		public ConfigCondition16() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[15].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[15].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition17.class)
+	public ZuulFilter zuulFilter17() {
+		return createZuulFilter(16);
+	}
+	
+	public static class ConfigCondition17 extends AllNestedConditions {
+		public ConfigCondition17() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[16].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[16].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition18.class)
+	public ZuulFilter zuulFilter18() {
+		return createZuulFilter(17);
+	}
+	
+	public static class ConfigCondition18 extends AllNestedConditions {
+		public ConfigCondition18() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[17].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[17].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition19.class)
+	public ZuulFilter zuulFilter19() {
+		return createZuulFilter(18);
+	}
+	
+	public static class ConfigCondition19 extends AllNestedConditions {
+		public ConfigCondition19() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[18].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[18].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
+	@Bean
+	@Conditional(ConfigCondition20.class)
+	public ZuulFilter zuulFilter20() {
+		return createZuulFilter(19);
+	}
+	
+	public static class ConfigCondition20 extends AllNestedConditions {
+		public ConfigCondition20() { super(ConfigurationPhase.REGISTER_BEAN); }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[19].url")
+		static class OnEnabled { }
+		
+		@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value =  "filters[19].filter-method", havingValue = "zuul")
+		static class OnServletFilter{ }
+	}
+	
 	private ZuulFilter createZuulFilter(int position) {
 		Integer filterCount = 0;
 		if(properties.getFilters().size() >= (position+1)) {
