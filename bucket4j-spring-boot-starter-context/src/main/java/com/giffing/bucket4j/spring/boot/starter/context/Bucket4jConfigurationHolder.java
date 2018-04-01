@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
 public class Bucket4jConfigurationHolder {
 
