@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
-import javax.servlet.Filter;
-
 /**
  * The filter method defines which type of should be used. 
  *
@@ -9,12 +7,12 @@ import javax.servlet.Filter;
 public enum FilterMethod {
 	
 	/**
-	 * Servlet Request {@link Filter}
+	 * Servlet Request Filter
 	 */
 	SERVLET,
 	
 	/**
-	 * {@link ZuulRoute} filter 
+	 * ZuulRoute filter 
 	 */
 	ZUUL;
 	
