@@ -1,7 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 
 /**
  * Functional interface to retrieve the Bucket4j key. The key is used to identify the Bucket4j storage.  
@@ -17,7 +16,6 @@ public interface KeyFilter {
 	 * @param servletRequest HTTP Servlet Request information of the current request
 	 * @return the key to identify the the rate limit (IP, username, ...)
 	 */
-	@NotNull
 	String key(HttpServletRequest servletRequest);
 	
 }

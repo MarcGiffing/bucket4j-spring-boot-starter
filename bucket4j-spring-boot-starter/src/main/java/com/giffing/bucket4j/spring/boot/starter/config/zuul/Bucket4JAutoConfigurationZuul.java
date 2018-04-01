@@ -3,8 +3,11 @@ package com.giffing.bucket4j.spring.boot.starter.config.zuul;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
@@ -23,9 +26,11 @@ import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.zuul.ZuulRateLimitFilter;
 import com.netflix.zuul.ZuulFilter;
 
@@ -41,6 +46,8 @@ import com.netflix.zuul.ZuulFilter;
 @AutoConfigureAfter(CacheAutoConfiguration.class)
 public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 
+	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationZuul.class);
+	
 	@Autowired
 	private Bucket4JBootProperties properties;
 	
@@ -50,6 +57,12 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 	@Autowired
 	private BeanFactory beanFactory;
 
+	@Bean
+	@Qualifier("ZUUL")
+	public Bucket4jConfigurationHolder zuulConfigurationHolder() {
+		return new Bucket4jConfigurationHolder();
+	}
+	
 	@Bean
 	public ExpressionParser zuulExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
@@ -385,7 +398,9 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration {
 			filterCount++;
 			
 			FilterConfiguration filterConfig = buildFilterConfig(filter, cacheManager, zuulExpressionParser(), beanFactory);
+			zuulConfigurationHolder().addFilterConfiguration(filter);
 			
+			log.info("create-zuul-filter;{};{};{}", position, filter.getCacheName(), filter.getUrl());
 	        return new ZuulRateLimitFilter(filterConfig);
 		}
 		

@@ -12,14 +12,14 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.BandWidthConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;

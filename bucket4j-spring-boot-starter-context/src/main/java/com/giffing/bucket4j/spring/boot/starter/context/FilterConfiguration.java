@@ -3,10 +3,6 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.Filter;
-
-import com.netflix.zuul.ZuulFilter;
-
 /**
  * This class is the main configuration class which is used to build the Servlet {@link Filter}s or {@link ZuulFilter}s.
  *

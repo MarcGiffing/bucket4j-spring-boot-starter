@@ -3,8 +3,6 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
-import com.netflix.zuul.ZuulFilter;
-
 import io.github.bucket4j.ConsumptionProbe;
 
 /**

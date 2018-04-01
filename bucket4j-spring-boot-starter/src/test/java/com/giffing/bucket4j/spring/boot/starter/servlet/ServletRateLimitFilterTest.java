@@ -50,7 +50,7 @@ public class ServletRateLimitFilterTest {
         filter = new ServletRequestFilter(configuration);
     }
 	
-	@Test
+	@Test 
 	public void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws Exception {
 		
         when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbe);

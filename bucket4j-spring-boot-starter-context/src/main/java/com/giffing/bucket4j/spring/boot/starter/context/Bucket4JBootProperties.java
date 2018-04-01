@@ -1,14 +1,9 @@
-package com.giffing.bucket4j.spring.boot.starter.config;
+package com.giffing.bucket4j.spring.boot.starter.context;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import com.giffing.bucket4j.spring.boot.starter.context.BandWidthConfig;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 /**
  * Holds all the relevant starter properties which can be configured with

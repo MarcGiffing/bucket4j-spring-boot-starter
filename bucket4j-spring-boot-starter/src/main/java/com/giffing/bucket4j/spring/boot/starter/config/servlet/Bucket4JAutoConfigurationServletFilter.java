@@ -4,8 +4,11 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.servlet.Filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
@@ -19,6 +22,7 @@ import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.ExpressionParser;
@@ -27,10 +31,15 @@ import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBootProperties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
+import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
+import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4JBootProperties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
+import com.giffing.bucket4j.spring.boot.starter.springboot1.actuator.Bucket4jEndpoint;
 
 /**
  * Configures up to 10 Servlet {@link Filter}s for Bucket4Js rate limit.
@@ -47,8 +56,11 @@ import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 @ConditionalOnBean(value = CacheManager.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @AutoConfigureAfter(CacheAutoConfiguration.class)
+@Import(value = {SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration {
 
+	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);
+	
 	@Autowired
 	private Bucket4JBootProperties properties;
 	
@@ -58,6 +70,11 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	@Autowired
 	private BeanFactory beanFactory;
 
+	@Bean
+	@Qualifier("SERVLET")
+	public Bucket4jConfigurationHolder servletConfigurationHolder() {
+		return new Bucket4jConfigurationHolder();
+	}
 	
 	@Bean
 	public ExpressionParser servletFilterExpressionParser() {
@@ -398,6 +415,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			
 			FilterConfiguration filterConfig = buildFilterConfig(filter, cacheManager, servletFilterExpressionParser(), beanFactory);
 			
+			servletConfigurationHolder().addFilterConfiguration(filter);
 			
 			FilterRegistrationBean registration = new FilterRegistrationBean();
 			registration.setName("bucket4JRequestFilter" + position);
@@ -405,6 +423,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	        registration.addUrlPatterns(filter.getUrl());
 	        registration.setOrder(filter.getFilterOrder());
 	        
+	        log.info("create-servlet-filter;{};{};{}", position, filter.getCacheName(), filter.getUrl());
 	        return registration;
 		}
 		
