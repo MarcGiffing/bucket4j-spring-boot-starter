@@ -10,8 +10,7 @@ public class JCacheNotFoundException extends Bucket4jGeneralException {
 	private String cacheName;
 	
 	/**
-	 * The missing cache key
-	 * @param cacheName
+	 * @param cacheName the missing cache key
 	 */
 	public JCacheNotFoundException(String cacheName) {
 		this.cacheName = cacheName;

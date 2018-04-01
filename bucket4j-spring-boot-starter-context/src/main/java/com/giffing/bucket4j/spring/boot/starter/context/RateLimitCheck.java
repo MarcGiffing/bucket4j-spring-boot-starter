@@ -1,12 +1,11 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
-import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
 import io.github.bucket4j.ConsumptionProbe;
 
 /**
- * Used to check if the rate limit should be performed independently from the Servlet {@link Filter} or {@link ZuulFilter}.  
+ * Used to check if the rate limit should be performed independently from the Servlet Filter or ZuulFilter.  
  *
  */
 @FunctionalInterface

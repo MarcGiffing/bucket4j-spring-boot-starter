@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is the main configuration class which is used to build the Servlet {@link Filter}s or {@link ZuulFilter}s.
+ * This class is the main configuration class which is used to build the Servlet Filter or ZuulFilter.
  *
  */
 public class FilterConfiguration {

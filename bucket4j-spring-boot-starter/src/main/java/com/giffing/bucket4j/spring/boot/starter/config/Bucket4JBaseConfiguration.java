@@ -43,7 +43,7 @@ public abstract class Bucket4JBaseConfiguration {
 	 * This methods 
 	 * 
 	 * @param cacheName the name of the cache to retrieve
-	 * @param cacheManager
+	 * @param cacheManager the cache manager
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -56,15 +56,6 @@ public abstract class Bucket4JBaseConfiguration {
         return (Cache<String, GridBucketState>) springCache;
     }
 	
-	/**
-	 * This method  
-	 * 
-	 * @param config
-	 * @param cacheManager
-	 * @param expressionParser
-	 * @param beanFactory
-	 * @return
-	 */
 	public FilterConfiguration buildFilterConfig(Bucket4JConfiguration config, CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
 		FilterConfiguration filterConfig = new FilterConfiguration();
