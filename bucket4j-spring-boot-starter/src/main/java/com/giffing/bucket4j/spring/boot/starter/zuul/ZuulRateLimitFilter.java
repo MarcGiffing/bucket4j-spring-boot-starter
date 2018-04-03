@@ -19,9 +19,9 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 
 	private final Logger log = LoggerFactory.getLogger(ZuulRateLimitFilter.class);
 
-	private FilterConfiguration filterConfig;
+	private FilterConfiguration<HttpServletRequest> filterConfig;
 
-	public ZuulRateLimitFilter(FilterConfiguration filterConfig) {
+	public ZuulRateLimitFilter(FilterConfiguration<HttpServletRequest> filterConfig) {
 		this.filterConfig = filterConfig;
 	}
 
@@ -31,7 +31,7 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 		HttpServletRequest request = context.getRequest();
 
         Long remainingLimit = null;
-		for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
+		for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
 			ConsumptionProbe probe = rl.rateLimit(request);
 			if (probe != null) {
 				if (probe.isConsumed()) {

@@ -25,6 +25,9 @@ public class Bucket4jEndpoint extends AbstractEndpoint<Map<String, Object>> impl
 	@Qualifier("ZUUL")
 	private Bucket4jConfigurationHolder zuulConfigs;
 	
+	@Autowired(required = false)
+	@Qualifier("WEBFLUX")
+	private Bucket4jConfigurationHolder webfluxConfigs;
 	
 	
 	public Bucket4jEndpoint() {
@@ -39,6 +42,9 @@ public class Bucket4jEndpoint extends AbstractEndpoint<Map<String, Object>> impl
 		}
 		if(zuulConfigs != null) {
 			result.put("zuul", zuulConfigs.getFilterConfiguration());
+		}
+		if(webfluxConfigs != null) {
+			result.put("webflux", webfluxConfigs.getFilterConfiguration());
 		}
 		
 		return result;

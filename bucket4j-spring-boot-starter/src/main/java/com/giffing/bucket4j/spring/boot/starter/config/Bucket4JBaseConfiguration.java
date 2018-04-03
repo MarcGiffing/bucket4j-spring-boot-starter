@@ -4,12 +4,14 @@ import java.time.Duration;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
@@ -37,7 +39,7 @@ import io.github.bucket4j.grid.jcache.JCache;
  * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
  * the {@link Bucket4JAutoConfigurationZuul} configuration classes
  */
-public abstract class Bucket4JBaseConfiguration {
+public abstract class Bucket4JBaseConfiguration<R> {
 	
 	/**
 	 * This methods 
@@ -56,9 +58,9 @@ public abstract class Bucket4JBaseConfiguration {
         return (Cache<String, GridBucketState>) springCache;
     }
 	
-	public FilterConfiguration buildFilterConfig(Bucket4JConfiguration config, CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
-		FilterConfiguration filterConfig = new FilterConfiguration();
+		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
 		filterConfig.setUrl(config.getUrl());
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
@@ -72,7 +74,7 @@ public abstract class Bucket4JBaseConfiguration {
 			};
 			
 			final ConfigurationBuilder<?> configBuilderToUse = configBuilder;
-			RateLimitCheck rlc = (servletRequest) -> {
+			RateLimitCheck<R> rlc = (servletRequest) -> {
 				
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
@@ -111,11 +113,19 @@ public abstract class Bucket4JBaseConfiguration {
 	 * @param beanFactory used to get full access to all java beans in the SpEl
 	 * @return should not been null. If no filter key type is matching a plain 1 is returned so that all requests uses the same key.
 	 */
-	public KeyFilter getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public KeyFilter<R> getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
 		switch(rateLimit.getFilterKeyType()) {
 		case IP:
-			return (request) -> url + "-" + request.getRemoteAddr();
+			return (request) -> {
+				if(request instanceof HttpServletRequest) {
+					return url + "-" + ((HttpServletRequest)request).getRemoteAddr();	
+				}
+				if(request instanceof ServerHttpRequest) {
+					return url + "-" + ((ServerHttpRequest)request).getRemoteAddress().getHostName();	
+				}
+				throw new IllegalStateException("Unsupported request type");
+			};
 		case EXPRESSION:
 			String expression = rateLimit.getExpression();
 			if(StringUtils.isEmpty(expression)) {
@@ -142,7 +152,7 @@ public abstract class Bucket4JBaseConfiguration {
 	 * @param beanFactory used to get full access to all java beans in the SpEl
 	 * @return the lamdba condition which will be evaluated lazy - null if there is no condition available.
 	 */
-	public Condition skipCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public Condition<R> skipCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		
@@ -164,7 +174,7 @@ public abstract class Bucket4JBaseConfiguration {
 	 * @param beanFactory used to get full access to all java beans in the SpEl
 	 * @return the lamdba condition which will be evaluated lazy - null if there is no condition available.
 	 */
-	public Condition executeCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public Condition<R> executeCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		

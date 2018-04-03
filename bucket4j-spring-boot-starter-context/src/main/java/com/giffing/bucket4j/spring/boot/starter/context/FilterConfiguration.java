@@ -7,7 +7,7 @@ import java.util.List;
  * This class is the main configuration class which is used to build the Servlet Filter or ZuulFilter.
  *
  */
-public class FilterConfiguration {
+public class FilterConfiguration<R> {
 
 	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 	
@@ -26,7 +26,7 @@ public class FilterConfiguration {
 	 */
 	private String httpResponseBody;
 
-	private List<RateLimitCheck> rateLimitChecks = new ArrayList<>();
+	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
 
 	public String getUrl() {
 		return url;
@@ -44,11 +44,11 @@ public class FilterConfiguration {
 		this.order = order;
 	}
 
-	public List<RateLimitCheck> getRateLimitChecks() {
+	public List<RateLimitCheck<R>> getRateLimitChecks() {
 		return rateLimitChecks;
 	}
 
-	public void setRateLimitChecks(List<RateLimitCheck> rateLimitChecks) {
+	public void setRateLimitChecks(List<RateLimitCheck<R>> rateLimitChecks) {
 		this.rateLimitChecks = rateLimitChecks;
 	}
 

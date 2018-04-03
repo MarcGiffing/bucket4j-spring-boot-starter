@@ -14,6 +14,11 @@ public enum FilterMethod {
 	/**
 	 * ZuulRoute filter 
 	 */
-	ZUUL;
+	ZUUL,
+	
+	/**
+	 * Spring Boots 5 async WebFilter
+	 */
+	WEBFLUX;
 	
 }

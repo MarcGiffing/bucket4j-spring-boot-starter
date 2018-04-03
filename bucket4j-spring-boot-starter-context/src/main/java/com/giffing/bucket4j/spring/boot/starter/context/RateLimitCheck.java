@@ -1,6 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.context;
 
-import javax.servlet.http.HttpServletRequest;
 
 import io.github.bucket4j.ConsumptionProbe;
 
@@ -9,13 +8,13 @@ import io.github.bucket4j.ConsumptionProbe;
  *
  */
 @FunctionalInterface
-public interface RateLimitCheck {
+public interface RateLimitCheck<R> {
 
 	/**
-	 * @param request the http servlet request of the current request
+	 * @param request the request information object
 	 * 
 	 * @return null if no rate limit should be performed. (maybe skipped or shouldn't be executed).
 	 */
-	ConsumptionProbe rateLimit(HttpServletRequest request);
+	ConsumptionProbe rateLimit(R request);
 	
 }

@@ -22,9 +22,9 @@ import io.github.bucket4j.ConsumptionProbe;
  */
 public class ServletRequestFilter extends OncePerRequestFilter {
 
-	private FilterConfiguration filterConfig;
+	private FilterConfiguration<HttpServletRequest> filterConfig;
 	
-    public ServletRequestFilter(FilterConfiguration filterConfig) {
+    public ServletRequestFilter(FilterConfiguration<HttpServletRequest> filterConfig) {
     	this.filterConfig = filterConfig;
     }
 
@@ -37,7 +37,7 @@ public class ServletRequestFilter extends OncePerRequestFilter {
         boolean allConsumed = true;
         Long remainingLimit = null;
         
-        for (RateLimitCheck rl : filterConfig.getRateLimitChecks()) {
+        for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
 			ConsumptionProbe probe = rl.rateLimit(request);
 			if(probe != null) {
 				if(probe.isConsumed()) {
