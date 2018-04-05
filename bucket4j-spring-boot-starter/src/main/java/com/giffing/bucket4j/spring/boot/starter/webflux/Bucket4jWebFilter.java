@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -47,8 +48,7 @@ public class Bucket4jWebFilter implements WebFilter {
 						remainingLimit = getRemainingLimit(remainingLimit, probe);
 					} else{	
 						allConsumed = false;
-						handleHttpResponseOnRateLimiting(response, probe);
-						return Mono.empty();
+						throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, filterConfig.getHttpResponseBody());
 					}
 					if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
 						break;
@@ -67,24 +67,6 @@ public class Bucket4jWebFilter implements WebFilter {
 	    return chain.filter(exchange);
 	}
 	
-	private void handleHttpResponseOnRateLimiting(ServerHttpResponse httpResponse, ConsumptionProbe probe) {
-		httpResponse.setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
-		httpResponse.getHeaders().add("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
-//		httpResponse.setContentType("application/json");
-//		httpResponse.writeWith(Response.)
-		// TODO HOW TO SET THE BODY??
-//		byte[] string = "asdf".getBytes();
-//		DataBuffer buffer = httpResponse.bufferFactory().allocateBuffer(string.length);
-//		buffer.write(string);
-//		httpResponse.writeAndFlushWith(Flux.just(Flux.just(buffer)));
-		;
-	}
-	
-	private Mono<DataBuffer> createBuffer(String msg, ServerHttpResponse httpResponse) {
-			DataBufferFactory bufferFactory = httpResponse.bufferFactory();
-			return Mono.just(bufferFactory.wrap(msg.getBytes()));
-	}
-
 	private long getRemainingLimit(Long remaining, ConsumptionProbe probe) {
 		if(probe != null) {
 			if(remaining == null) {
