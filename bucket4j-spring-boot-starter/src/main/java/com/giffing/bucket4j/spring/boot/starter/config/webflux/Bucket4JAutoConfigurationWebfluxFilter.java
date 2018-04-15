@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.webflux;
 
+import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
@@ -15,7 +16,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +28,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.WebFilter;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -35,6 +37,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.webflux.Bucket4jWebFilter;
+
+import io.github.bucket4j.grid.ProxyManager;
 
 /**
  * Configures up to 10 Servlet {@link Filter}s for Bucket4Js rate limit.
@@ -46,11 +50,11 @@ import com.giffing.bucket4j.spring.boot.starter.webflux.Bucket4jWebFilter;
  * 
  */
 @Configuration
-@ConditionalOnClass({ Caching.class, JCacheCacheManager.class, WebFilter.class  })
+@ConditionalOnClass({ WebFilter.class  })
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
-@ConditionalOnBean(value = CacheManager.class)
+@AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
+@ConditionalOnBean(value = AsyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@AutoConfigureAfter(CacheAutoConfiguration.class)
 @Import(value = {SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
@@ -60,10 +64,10 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 	private Bucket4JBootProperties properties;
 	
 	@Autowired
-	private CacheManager cacheManager;
+	private BeanFactory beanFactory;
 	
 	@Autowired
-	private BeanFactory beanFactory;
+	private AsyncCacheResolver cacheResolver;
 
 	@Bean
 	@Qualifier("WEBFLUX")
@@ -408,7 +412,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			Bucket4JConfiguration filter = properties.getFilters().get(position);
 			filterCount++;
 			
-			FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheManager, webFilterExpressionParser(), beanFactory);
+			FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, createProxyManager(filter), webFilterExpressionParser(), beanFactory);
 			
 			servletConfigurationHolder().addFilterConfiguration(filter);
 			
@@ -421,7 +425,10 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		return null;
 	}
 
-	
-	
+	@Override
+	protected ProxyManager<String> createProxyManager(Bucket4JConfiguration config) {
+		return cacheResolver.resolve(config.getCacheName());
+	}
+
 
 }

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
@@ -38,8 +39,9 @@ public class ServletRequestFilter extends OncePerRequestFilter {
         Long remainingLimit = null;
         
         for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
-			ConsumptionProbe probe = rl.rateLimit(request);
-			if(probe != null) {
+        	ConsumptionProbeHolder probeHolder = rl.rateLimit(request, false);
+			if (probeHolder != null && probeHolder.getConsumptionProbe() != null) {
+				ConsumptionProbe probe = probeHolder.getConsumptionProbe();
 				if(probe.isConsumed()) {
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
 				} else{	

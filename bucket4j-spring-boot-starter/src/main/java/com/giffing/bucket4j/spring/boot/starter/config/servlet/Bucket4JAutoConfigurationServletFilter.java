@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.servlet;
 
-import javax.cache.CacheManager;
-import javax.cache.Caching;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +16,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +26,8 @@ import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -36,6 +35,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
+
+import io.github.bucket4j.grid.ProxyManager;
 
 /**
  * Configures up to 10 Servlet {@link Filter}s for Bucket4Js rate limit.
@@ -47,12 +48,12 @@ import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
  * 
  */
 @Configuration
-@ConditionalOnClass({ Caching.class, JCacheCacheManager.class, Filter.class })
+@ConditionalOnClass({ Filter.class })
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
-@ConditionalOnBean(value = CacheManager.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@AutoConfigureAfter(CacheAutoConfiguration.class)
-@Import(value = {SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
+@AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
+@ConditionalOnBean(value = SyncCacheResolver.class)
+@Import(value = {Bucket4jCacheConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);
@@ -61,10 +62,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	private Bucket4JBootProperties properties;
 	
 	@Autowired
-	private CacheManager cacheManager;
+	private BeanFactory beanFactory;
 	
 	@Autowired
-	private BeanFactory beanFactory;
+	private SyncCacheResolver cacheResolver;
 
 	@Bean
 	@Qualifier("SERVLET")
@@ -409,7 +410,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			Bucket4JConfiguration filter = properties.getFilters().get(position);
 			filterCount++;
 			
-			FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(filter, cacheManager, servletFilterExpressionParser(), beanFactory);
+			FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(filter, createProxyManager(filter), servletFilterExpressionParser(), beanFactory);
 			
 			servletConfigurationHolder().addFilterConfiguration(filter);
 			
@@ -426,7 +427,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 		return null;
 	}
 
-	
-	
+	@Override
+	protected ProxyManager<String> createProxyManager(Bucket4JConfiguration config) {
+		return cacheResolver.resolve(config.getCacheName());
+	}
+
 
 }

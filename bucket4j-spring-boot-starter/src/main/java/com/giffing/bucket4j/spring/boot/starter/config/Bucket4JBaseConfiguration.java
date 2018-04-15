@@ -18,6 +18,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfi
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.BandWidthConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
@@ -30,7 +31,6 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.ConsumptionProbe;
 import io.github.bucket4j.grid.GridBucketState;
 import io.github.bucket4j.grid.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCache;
@@ -41,31 +41,14 @@ import io.github.bucket4j.grid.jcache.JCache;
  */
 public abstract class Bucket4JBaseConfiguration<R> {
 	
-	/**
-	 * This methods 
-	 * 
-	 * @param cacheName the name of the cache to retrieve
-	 * @param cacheManager the cache manager
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Cache<String, GridBucketState> jCache(String cacheName, CacheManager cacheManager) {
-        Cache springCache = cacheManager.getCache(cacheName);
-        if(springCache == null) {
-        	throw new JCacheNotFoundException(cacheName);
-        }
-		
-        return (Cache<String, GridBucketState>) springCache;
-    }
-	
-	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, CacheManager cacheManager, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, ProxyManager<String> buckets, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
 		filterConfig.setUrl(config.getUrl());
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
-		ProxyManager<String> buckets = Bucket4j.extension(JCache.class).proxyManagerForCache(jCache(config.getCacheName(), cacheManager));
+		
 		
 		config.getRateLimits().forEach(rl -> {
 			ConfigurationBuilder<?> configBuilder = Bucket4j.configurationBuilder();
@@ -74,7 +57,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			};
 			
 			final ConfigurationBuilder<?> configBuilderToUse = configBuilder;
-			RateLimitCheck<R> rlc = (servletRequest) -> {
+			RateLimitCheck<R> rlc = (servletRequest, async) -> {
 				
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
@@ -88,10 +71,12 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        if(!skipRateLimit) {
 		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	Bucket bucket = buckets.getProxy(key, () -> configBuilderToUse.buildConfiguration());
+		        	if(async) {
+		        		return new ConsumptionProbeHolder(bucket.asAsync().tryConsumeAndReturnRemaining(1));
+		        	} else {
+		        		return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(1));
+		        	}
 		        	
-		        	ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
-		        	
-		        	return probe;
 		        }
 				return null;
 				
@@ -102,6 +87,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		
 		return filterConfig;
 	}
+
+	protected abstract ProxyManager<String> createProxyManager(Bucket4JConfiguration config);
 	
 	/**
 	 * Creates the key filter lambda which is responsible to decide how the rate limit will be performed. The key

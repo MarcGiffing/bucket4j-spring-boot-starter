@@ -14,36 +14,43 @@ import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHol
 
 @Configuration
 @ConditionalOnClass(Endpoint.class)
-@Endpoint(id = "bucket4j")
 public class Bucket4jEndpoint {
 
-	@Autowired(required = false)
-	@Qualifier("SERVLET")
-	private Bucket4jConfigurationHolder servletConfigs;
-	
-	@Autowired(required = false)
-	@Qualifier("ZUUL")
-	private Bucket4jConfigurationHolder zuulConfigs;
-	
-	@Autowired(required = false)
-	@Qualifier("WEBFLUX")
-	private Bucket4jConfigurationHolder webfluxConfigs;
-	
-	
-	@ReadOperation
-	public Map<String, Object> bucket4jConfig() {
-		Map<String, Object> result = new HashMap<>();
-		if(servletConfigs != null) {
-			result.put("servlet", servletConfigs.getFilterConfiguration());
-		}
-		if(zuulConfigs != null) {
-			result.put("zuul", zuulConfigs.getFilterConfiguration());
-		}
-		if(webfluxConfigs != null) {
-			result.put("webflux", webfluxConfigs.getFilterConfiguration());
+	@Configuration
+	@Endpoint(id = "bucket4j")
+	public static class Bucket4jEndpointConfig {
+
+		@Autowired(required = false)
+		@Qualifier("SERVLET")
+		private Bucket4jConfigurationHolder servletConfigs;
+		
+		@Autowired(required = false)
+		@Qualifier("ZUUL")
+		private Bucket4jConfigurationHolder zuulConfigs;
+		
+		@Autowired(required = false)
+		@Qualifier("WEBFLUX")
+		private Bucket4jConfigurationHolder webfluxConfigs;
+		
+		
+		@ReadOperation
+		public Map<String, Object> bucket4jConfig() {
+			Map<String, Object> result = new HashMap<>();
+			if(servletConfigs != null) {
+				result.put("servlet", servletConfigs.getFilterConfiguration());
+			}
+			if(zuulConfigs != null) {
+				result.put("zuul", zuulConfigs.getFilterConfiguration());
+			}
+			if(webfluxConfigs != null) {
+				result.put("webflux", webfluxConfigs.getFilterConfiguration());
+			}
+			
+			return result;
 		}
 		
-		return result;
 	}
+	
+	
 
 }

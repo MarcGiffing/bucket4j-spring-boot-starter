@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
@@ -28,12 +29,16 @@ public class ZuulRateLimitFilterTest {
 	private RateLimitCheck rateLimitCheck2;
 	private RateLimitCheck rateLimitCheck3;
 
+	private ConsumptionProbeHolder consumptionProbeHolder;
 	private ConsumptionProbe consumptionProbe;
 	
 	@Before
     public void setup() {
+		consumptionProbeHolder = Mockito.mock(ConsumptionProbeHolder.class);
 		consumptionProbe = Mockito.mock(ConsumptionProbe.class);
+		
 		when(consumptionProbe.isConsumed()).thenReturn(true);
+		when(consumptionProbeHolder.getConsumptionProbe()).thenReturn(consumptionProbe);
 		
     	rateLimitCheck1 = mock(RateLimitCheck.class);
         rateLimitCheck2 = mock(RateLimitCheck.class);
@@ -59,17 +64,17 @@ public class ZuulRateLimitFilterTest {
         context.setRequest(request);
         RequestContext.testSetCurrentContext(context);
         
-        when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbe);
-        when(rateLimitCheck2.rateLimit(any())).thenReturn(consumptionProbe);
-        when(rateLimitCheck3.rateLimit(any())).thenReturn(consumptionProbe);
+        when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
+        when(rateLimitCheck2.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
+        when(rateLimitCheck3.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
         
         filter.run();
         
-        verify(rateLimitCheck1, times(1)).rateLimit(any());
-        verify(rateLimitCheck2, times(1)).rateLimit(any());
-        verify(rateLimitCheck3, times(1)).rateLimit(any());
+        verify(rateLimitCheck1, times(1)).rateLimit(any(), Mockito.anyBoolean());
+        verify(rateLimitCheck2, times(1)).rateLimit(any(), Mockito.anyBoolean());
+        verify(rateLimitCheck3, times(1)).rateLimit(any(), Mockito.anyBoolean());
 	}
 
 	@Test
@@ -81,14 +86,14 @@ public class ZuulRateLimitFilterTest {
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
-        when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbe);
+        when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
         
         filter.run();
         
         
-        verify(rateLimitCheck1, times(1)).rateLimit(any());
-        verify(rateLimitCheck2, times(0)).rateLimit(any());
-        verify(rateLimitCheck3, times(0)).rateLimit(any());
+        verify(rateLimitCheck1, times(1)).rateLimit(any(), Mockito.anyBoolean());
+        verify(rateLimitCheck2, times(0)).rateLimit(any(), Mockito.anyBoolean());
+        verify(rateLimitCheck3, times(0)).rateLimit(any(), Mockito.anyBoolean());
 	}
 	
 }

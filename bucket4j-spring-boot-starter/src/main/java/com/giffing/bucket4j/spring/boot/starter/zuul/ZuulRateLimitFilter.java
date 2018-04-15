@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.zuul;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
@@ -32,8 +33,9 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 
         Long remainingLimit = null;
 		for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
-			ConsumptionProbe probe = rl.rateLimit(request);
-			if (probe != null) {
+			ConsumptionProbeHolder probeHolder = rl.rateLimit(request, false);
+			if (probeHolder != null && probeHolder.getConsumptionProbe() != null) {
+				ConsumptionProbe probe = probeHolder.getConsumptionProbe();
 				if (probe.isConsumed()) {
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
 				} else {
