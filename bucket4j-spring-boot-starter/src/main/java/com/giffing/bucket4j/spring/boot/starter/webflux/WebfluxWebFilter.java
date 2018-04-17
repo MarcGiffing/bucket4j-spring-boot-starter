@@ -15,16 +15,17 @@ import org.springframework.web.server.WebFilterChain;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.google.common.base.Functions;
 
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
 
-public class Bucket4jWebFilter implements WebFilter {
+public class WebfluxWebFilter implements WebFilter {
 
 	private FilterConfiguration<ServerHttpRequest> filterConfig;
 
-	public Bucket4jWebFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
+	public WebfluxWebFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
 		this.filterConfig = filterConfig;
 	}
 
@@ -59,6 +60,9 @@ public class Bucket4jWebFilter implements WebFilter {
 					if(a1 == null){
 						return b1;
 					}
+					if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
+						return a1;
+					}
 					return a1.thenCombine(b1, (x,y) -> {
 						if(x == null && y == null) {
 							return null;
@@ -73,10 +77,14 @@ public class Bucket4jWebFilter implements WebFilter {
 						});
 				});
 			
-			Long remainingLimit = reduced.join();
+			Long remainingLimit = null;
+			if (reduced != null) {
+				remainingLimit = reduced.join();
+			}
+			
 			System.out.println("remaining: " + remainingLimit);
-			if(remainingLimit == null) {
-            	throw new Bucket4jRateLimitException(filterConfig.getHttpResponseBody());
+			if(remainingLimit == null || remainingLimit <= 0) {
+            	throw new WebfluxRateLimitException(filterConfig.getHttpResponseBody());
             }
 			if(remainingLimit != null) {
 				response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);

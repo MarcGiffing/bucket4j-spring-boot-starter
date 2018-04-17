@@ -36,7 +36,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHol
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.webflux.Bucket4jWebFilter;
+import com.giffing.bucket4j.spring.boot.starter.webflux.WebfluxWebFilter;
 
 import io.github.bucket4j.grid.ProxyManager;
 
@@ -416,7 +416,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			
 			servletConfigurationHolder().addFilterConfiguration(filter);
 			
-			WebFilter registration = new Bucket4jWebFilter(filterConfig);
+			WebFilter registration = new WebfluxWebFilter(filterConfig);
 	        
 	        log.info("create-webflux-filter;{};{};{}", position, filter.getCacheName(), filter.getUrl());
 	        return registration;
