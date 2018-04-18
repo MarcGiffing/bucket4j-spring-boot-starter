@@ -83,7 +83,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition1.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter1() {
+	public FilterRegistrationBean bucket4JFilter1() {
 		return getFilterRegistrationBean(0);
 	}
 	
@@ -100,7 +100,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition2.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter2() {
+	public FilterRegistrationBean bucket4JFilter2() {
 		return getFilterRegistrationBean(1);
 	}
 	
@@ -118,7 +118,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition3.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter3() {
+	public FilterRegistrationBean bucket4JFilter3() {
 		return getFilterRegistrationBean(2);
 	}
 	
@@ -134,7 +134,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition4.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter4() {
+	public FilterRegistrationBean bucket4JFilter4() {
 		return getFilterRegistrationBean(3);
 	}
 	
@@ -150,7 +150,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition5.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter5() {
+	public FilterRegistrationBean bucket4JFilter5() {
 		return getFilterRegistrationBean(4);
 	}
 	
@@ -166,7 +166,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition6.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter6() {
+	public FilterRegistrationBean bucket4JFilter6() {
 		return getFilterRegistrationBean(5);
 	}
 	
@@ -182,7 +182,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition7.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter7() {
+	public FilterRegistrationBean bucket4JFilter7() {
 		return getFilterRegistrationBean(6);
 	}
 	
@@ -198,7 +198,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition8.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter8() {
+	public FilterRegistrationBean bucket4JFilter8() {
 		return getFilterRegistrationBean(7);
 	}
 	
@@ -214,7 +214,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition9.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter9() {
+	public FilterRegistrationBean bucket4JFilter9() {
 		return getFilterRegistrationBean(8);
 	}
 	
@@ -230,7 +230,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition10.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter10() {
+	public FilterRegistrationBean bucket4JFilter10() {
 		return getFilterRegistrationBean(9);
 	}
 	
@@ -246,7 +246,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition11.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter11() {
+	public FilterRegistrationBean bucket4JFilter11() {
 		return getFilterRegistrationBean(10);
 	}
 	
@@ -262,7 +262,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition12.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter12() {
+	public FilterRegistrationBean bucket4JFilter12() {
 		return getFilterRegistrationBean(11);
 	}
 	
@@ -278,7 +278,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition13.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter13() {
+	public FilterRegistrationBean bucket4JFilter13() {
 		return getFilterRegistrationBean(12);
 	}
 	
@@ -294,7 +294,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition14.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter14() {
+	public FilterRegistrationBean bucket4JFilter14() {
 		return getFilterRegistrationBean(13);
 	}
 	
@@ -310,7 +310,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition15.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter15() {
+	public FilterRegistrationBean bucket4JFilter15() {
 		return getFilterRegistrationBean(14);
 	}
 	
@@ -326,7 +326,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition16.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter16() {
+	public FilterRegistrationBean bucket4JFilter16() {
 		return getFilterRegistrationBean(15);
 	}
 	
@@ -342,7 +342,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition17.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter17() {
+	public FilterRegistrationBean bucket4JFilter17() {
 		return getFilterRegistrationBean(16);
 	}
 	
@@ -358,7 +358,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition18.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter18() {
+	public FilterRegistrationBean bucket4JFilter18() {
 		return getFilterRegistrationBean(17);
 	}
 	
@@ -374,7 +374,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition19.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter19() {
+	public FilterRegistrationBean bucket4JFilter19() {
 		return getFilterRegistrationBean(18);
 	}
 	
@@ -390,7 +390,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Bean
 	@Conditional(ConfigCondition20.class)
-	public FilterRegistrationBean<ServletRequestFilter> bucket4JFilter20() {
+	public FilterRegistrationBean bucket4JFilter20() {
 		return getFilterRegistrationBean(19);
 	}
 	
@@ -404,7 +404,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 		static class OnServletFilter{ }
 	}
 	
-	private FilterRegistrationBean<ServletRequestFilter> getFilterRegistrationBean(int position) {
+	private FilterRegistrationBean getFilterRegistrationBean(int position) {
 		Integer filterCount = 0;
 		if(properties.getFilters().size() >= (position+1)) {
 			Bucket4JConfiguration filter = properties.getFilters().get(position);
@@ -414,7 +414,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			
 			servletConfigurationHolder().addFilterConfiguration(filter);
 			
-			FilterRegistrationBean<ServletRequestFilter> registration = new FilterRegistrationBean<>();
+			FilterRegistrationBean registration = new FilterRegistrationBean();
 			registration.setName("bucket4JRequestFilter" + position);
 	        registration.setFilter(new ServletRequestFilter(filterConfig));
 	        registration.addUrlPatterns(filter.getUrl());
