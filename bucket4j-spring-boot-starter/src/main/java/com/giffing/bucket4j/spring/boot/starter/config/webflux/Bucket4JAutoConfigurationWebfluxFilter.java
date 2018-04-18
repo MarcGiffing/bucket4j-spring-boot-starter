@@ -1,9 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.webflux;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -41,12 +37,12 @@ import com.giffing.bucket4j.spring.boot.starter.webflux.WebfluxWebFilter;
 import io.github.bucket4j.grid.ProxyManager;
 
 /**
- * Configures up to 10 Servlet {@link Filter}s for Bucket4Js rate limit.
+ * Configures up to 10 Servlet Filters for Bucket4Js rate limit.
  * 
- * Technical problem: The dynamic creation of the {@link WebFilter}s failed cause when
+ * Technical problem: The dynamic creation of the Webflux WebFilters failed cause when
  * registering them manually in the application context the Beans arn't detected as {@link Filter}s
  * and therefore not configured correctly. The current workaround is the define 10 different methods
- * which creates individual {@link WebFilter}s conditional on properties.
+ * which creates individual Webfilters conditional on properties.
  * 
  */
 @Configuration
