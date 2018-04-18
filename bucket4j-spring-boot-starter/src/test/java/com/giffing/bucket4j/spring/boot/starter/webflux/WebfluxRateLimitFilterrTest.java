@@ -1,6 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.webflux;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -76,26 +78,13 @@ public class WebfluxRateLimitFilterrTest {
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
 
-        ConsumptionProbeHolder consumptionProbeHolder1 = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe consumptionProbe1 = Mockito.mock(ConsumptionProbe.class);
-		when(consumptionProbe1.isConsumed()).thenReturn(true);
-		when(consumptionProbe1.getRemainingTokens()).thenReturn(30L);
-		when(consumptionProbeHolder1.getConsumptionProbeCompletableFuture()).thenReturn(CompletableFuture.completedFuture(consumptionProbe1));
-        when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder1);
+        rateLimitConfig(30L, rateLimitCheck1);
+        rateLimitConfig(20L, rateLimitCheck2);
+        rateLimitConfig(0L, rateLimitCheck3);
 
-        ConsumptionProbeHolder consumptionProbeHolder2 = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe consumptionProbe2 = Mockito.mock(ConsumptionProbe.class);
-		when(consumptionProbe2.isConsumed()).thenReturn(true);
-		when(consumptionProbe2.getRemainingTokens()).thenReturn(20L);
-		when(consumptionProbeHolder2.getConsumptionProbeCompletableFuture()).thenReturn(CompletableFuture.completedFuture(consumptionProbe2));
-        when(rateLimitCheck2.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder2);
-        
-        ConsumptionProbeHolder consumptionProbeHolder3 = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe consumptionProbe3 = Mockito.mock(ConsumptionProbe.class);
-		when(consumptionProbe3.isConsumed()).thenReturn(true);
-		when(consumptionProbe3.getRemainingTokens()).thenReturn(10L);
-		when(consumptionProbeHolder3.getConsumptionProbeCompletableFuture()).thenReturn(CompletableFuture.completedFuture(consumptionProbe3));
-        when(rateLimitCheck3.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder3);
+        HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
+        when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         
 		try {
 			filter.filter(exchange, chain);
@@ -120,32 +109,13 @@ public class WebfluxRateLimitFilterrTest {
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
-        ConsumptionProbeHolder consumptionProbeHolder1 = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe consumptionProbe1 = Mockito.mock(ConsumptionProbe.class);
-		when(consumptionProbe1.isConsumed()).thenReturn(true);
-		when(consumptionProbe1.getRemainingTokens()).thenReturn(10L);
-		when(consumptionProbeHolder1.getConsumptionProbeCompletableFuture()).thenReturn(CompletableFuture.completedFuture(consumptionProbe1));
-        when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder1);
-
-        ConsumptionProbeHolder consumptionProbeHolder2 = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe consumptionProbe2 = Mockito.mock(ConsumptionProbe.class);
-		when(consumptionProbe2.isConsumed()).thenReturn(true);
-		when(consumptionProbe2.getRemainingTokens()).thenReturn(0L);
-		when(consumptionProbeHolder2.getConsumptionProbeCompletableFuture()).thenReturn(CompletableFuture.completedFuture(consumptionProbe2));
-        when(rateLimitCheck2.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder2);
+        rateLimitConfig(30L, rateLimitCheck1);
+        rateLimitConfig(0L, rateLimitCheck2);
+        rateLimitConfig(10L, rateLimitCheck3);
         
-        ConsumptionProbeHolder consumptionProbeHolder3 = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe consumptionProbe3 = Mockito.mock(ConsumptionProbe.class);
-		when(consumptionProbe3.isConsumed()).thenReturn(true);
-		when(consumptionProbe3.getRemainingTokens()).thenReturn(0L);
-		when(consumptionProbeHolder3.getConsumptionProbeCompletableFuture()).thenReturn(CompletableFuture.completedFuture(consumptionProbe3));
-        when(rateLimitCheck3.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder3);
-
         HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-
-
         
         try {
 			filter.filter(exchange, chain );
@@ -157,12 +127,21 @@ public class WebfluxRateLimitFilterrTest {
         verify(httpHeaders, times(1)).set(any(), captor.capture());
 
         List<String> values = captor.getAllValues();
-        // TODO check only limit of first
-        values.stream().forEach(v -> System.out.println(v));
+        assertThat(values.stream().findFirst().get(), equalTo("30"));
         
         verify(rateLimitCheck1, times(1)).rateLimit(any(), Mockito.anyBoolean());
         verify(rateLimitCheck2, times(1)).rateLimit(any(), Mockito.anyBoolean());
         verify(rateLimitCheck3, times(1)).rateLimit(any(), Mockito.anyBoolean());
+	}
+
+	private void rateLimitConfig(Long remainingTokens, RateLimitCheck rateLimitCheck) {
+		ConsumptionProbeHolder consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
+        ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
+		when(probe.isConsumed()).thenReturn(true);
+		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
+		when(consumptionHolder.getConsumptionProbeCompletableFuture())
+			.thenReturn(CompletableFuture.completedFuture(probe));
+        when(rateLimitCheck.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionHolder);
 	}
 	
 }
