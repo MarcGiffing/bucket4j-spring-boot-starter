@@ -40,7 +40,7 @@ import io.github.bucket4j.grid.ProxyManager;
  * Configures up to 10 Servlet Filters for Bucket4Js rate limit.
  * 
  * Technical problem: The dynamic creation of the Webflux WebFilters failed cause when
- * registering them manually in the application context the Beans arn't detected as {@link Filter}s
+ * registering them manually in the application context the Beans arn't detected as Servlet Filters
  * and therefore not configured correctly. The current workaround is the define 10 different methods
  * which creates individual Webfilters conditional on properties.
  * 
