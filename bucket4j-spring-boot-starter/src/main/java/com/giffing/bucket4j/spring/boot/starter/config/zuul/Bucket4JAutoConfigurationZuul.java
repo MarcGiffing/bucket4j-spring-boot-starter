@@ -25,7 +25,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
@@ -37,6 +36,7 @@ import com.giffing.bucket4j.spring.boot.starter.zuul.ZuulRateLimitFilter;
 import com.netflix.zuul.ZuulFilter;
 
 import io.github.bucket4j.grid.ProxyManager;
+import io.github.bucket4j.grid.jcache.JCache;
 
 /**
  * Configures {@link ZuulFilter}s for Bucket4Js rate limit.
@@ -44,7 +44,7 @@ import io.github.bucket4j.grid.ProxyManager;
  */
 @Configuration
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = { "enabled" }, matchIfMissing = true)
-@ConditionalOnClass({ ZuulFilter.class })
+@ConditionalOnClass({ ZuulFilter.class, JCache.class })
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })

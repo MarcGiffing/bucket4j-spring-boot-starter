@@ -82,7 +82,6 @@ public class WebfluxWebFilter implements WebFilter {
 				remainingLimit = reduced.join();
 			}
 			
-			System.out.println("remaining: " + remainingLimit);
 			if(remainingLimit == null || remainingLimit <= 0) {
             	throw new WebfluxRateLimitException(filterConfig.getHttpResponseBody());
             }
