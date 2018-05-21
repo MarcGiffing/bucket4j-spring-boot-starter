@@ -12,7 +12,6 @@ public class BandWidthConfig {
 	private long time;
 	private ChronoUnit unit;
 	
-	
 	public long getCapacity() {
 		return capacity;
 	}

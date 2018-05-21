@@ -9,12 +9,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.HazelcastBucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.InfinispanJCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 
 @Configuration
 @ConditionalOnClass({ Extension.class})
 @AutoConfigureAfter(CacheAutoConfiguration.class)
-@Import(value = {JCacheBucket4jConfiguration.class, HazelcastBucket4jCacheConfiguration.class})
+@Import(value = {JCacheBucket4jConfiguration.class, InfinispanJCacheBucket4jConfiguration.class, HazelcastBucket4jCacheConfiguration.class})
 public class Bucket4jCacheConfiguration {
 
 
