@@ -10,7 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheResolver;
 
+/**
+ * The configuration class for Infinispan. Infinispan is not directly supported by
+ * bucket4j. See {@link InfinispanCacheResolver} for more informations.
+ */
 @Configuration
 @ConditionalOnClass({ CacheContainer.class, Caching.class, JCacheCacheManager.class })
 @ConditionalOnBean(CacheContainer.class)
