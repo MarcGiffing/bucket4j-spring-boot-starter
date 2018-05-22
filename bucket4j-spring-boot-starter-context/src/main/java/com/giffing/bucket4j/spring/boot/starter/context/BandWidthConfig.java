@@ -8,9 +8,13 @@ import java.time.temporal.ChronoUnit;
  */
 public class BandWidthConfig {
 	
+	
 	private long capacity;
 	private long time;
 	private ChronoUnit unit;
+	
+	private long fixedRefillInterval = 0;;
+	private ChronoUnit fixedRefillIntervalUnit = ChronoUnit.MINUTES;
 	
 	public long getCapacity() {
 		return capacity;
@@ -30,8 +34,17 @@ public class BandWidthConfig {
 	public void setUnit(ChronoUnit unit) {
 		this.unit = unit;
 	}
-	
-	
-
+	public long getFixedRefillInterval() {
+		return fixedRefillInterval;
+	}
+	public void setFixedRefillnterval(long fixedRefillInterval) {
+		this.fixedRefillInterval = fixedRefillInterval;
+	}
+	public ChronoUnit getFixedRefillIntervalUnit() {
+		return fixedRefillIntervalUnit;
+	}
+	public void setFixedRefillIntervalUnit(ChronoUnit fixedRefillIntervalUnit) {
+		this.fixedRefillIntervalUnit = fixedRefillIntervalUnit;
+	}
 	
 }

@@ -51,12 +51,16 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		
 		
 		config.getRateLimits().forEach(rl -> {
-			ConfigurationBuilder<?> configBuilder = Bucket4j.configurationBuilder();
+			ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
 			for (BandWidthConfig bandWidth : rl.getBandwidths()) {
-				configBuilder = configBuilder.addLimit(Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit())));
+					Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
+					if(bandWidth.getFixedRefillInterval() > 0) {
+						bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
+					}
+					configBuilder = configBuilder.addLimit(bucket4jBandWidth);
 			};
 			
-			final ConfigurationBuilder<?> configBuilderToUse = configBuilder;
+			final ConfigurationBuilder configBuilderToUse = configBuilder;
 			RateLimitCheck<R> rlc = (servletRequest, async) -> {
 				
 		        boolean skipRateLimit = false;
@@ -70,7 +74,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        
 		        if(!skipRateLimit) {
 		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
-		        	Bucket bucket = buckets.getProxy(key, () -> configBuilderToUse.buildConfiguration());
+		        	Bucket bucket = buckets.getProxy(key, configBuilderToUse.build());
 		        	if(async) {
 		        		return new ConsumptionProbeHolder(bucket.asAsync().tryConsumeAndReturnRemaining(1));
 		        	} else {

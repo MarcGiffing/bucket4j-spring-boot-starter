@@ -107,6 +107,8 @@ bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expres
 bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=10
 bucket4j.filters[0].rate-limits[0].bandwidths[0].time=1
 bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=minutes
+bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval=0
+bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minutes
 ----
 
 === Filter types (bad name, should be renamed in the feature)
