@@ -9,7 +9,6 @@ import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 

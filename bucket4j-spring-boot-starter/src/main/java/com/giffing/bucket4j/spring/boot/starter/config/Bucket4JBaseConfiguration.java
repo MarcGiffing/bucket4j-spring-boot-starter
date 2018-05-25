@@ -7,6 +7,7 @@ import javax.cache.CacheManager;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -21,6 +22,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.MetricBucketListener;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
@@ -30,6 +32,7 @@ import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpres
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
+import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.grid.GridBucketState;
 import io.github.bucket4j.grid.ProxyManager;
@@ -41,7 +44,7 @@ import io.github.bucket4j.grid.jcache.JCache;
  */
 public abstract class Bucket4JBaseConfiguration<R> {
 	
-	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, ProxyManager<String> buckets, ExpressionParser expressionParser, BeanFactory beanFactory) {
+	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, ProxyManager<String> buckets, ExpressionParser expressionParser, ConfigurableBeanFactory  beanFactory) {
 		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
 		filterConfig.setUrl(config.getUrl());
@@ -60,6 +63,9 @@ public abstract class Bucket4JBaseConfiguration<R> {
 					configBuilder = configBuilder.addLimit(bucket4jBandWidth);
 			};
 			
+			MetricBucketListener metricBucketListener = new MetricBucketListener(config.getCacheName());
+			beanFactory.registerSingleton("bucket4jMetric" + config.getCacheName() , metricBucketListener);
+			
 			final ConfigurationBuilder configBuilderToUse = configBuilder;
 			RateLimitCheck<R> rlc = (servletRequest, async) -> {
 				
@@ -74,7 +80,9 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        
 		        if(!skipRateLimit) {
 		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
-		        	Bucket bucket = buckets.getProxy(key, configBuilderToUse.build());
+		        	BucketConfiguration bucketConfiguration = configBuilderToUse.build();
+		        	
+					Bucket bucket = buckets.getProxy(key, bucketConfiguration).toListenable( metricBucketListener);
 		        	if(async) {
 		        		return new ConsumptionProbeHolder(bucket.asAsync().tryConsumeAndReturnRemaining(1));
 		        	} else {

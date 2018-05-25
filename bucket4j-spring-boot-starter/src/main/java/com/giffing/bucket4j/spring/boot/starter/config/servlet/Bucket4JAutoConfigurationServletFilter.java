@@ -5,9 +5,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
@@ -63,7 +63,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	private Bucket4JBootProperties properties;
 	
 	@Autowired
-	private BeanFactory beanFactory;
+	private ConfigurableBeanFactory beanFactory;
 	
 	@Autowired
 	private SyncCacheResolver cacheResolver;

@@ -22,6 +22,11 @@
 			<artifactId>spring-boot-actuator</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 </project>
