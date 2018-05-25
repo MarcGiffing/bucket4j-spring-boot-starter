@@ -52,6 +52,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
 		
+		MetricBucketListener metricBucketListener = new MetricBucketListener(config.getCacheName());
+		beanFactory.registerSingleton("bucket4jMetric" + config.getCacheName() , metricBucketListener);
 		
 		config.getRateLimits().forEach(rl -> {
 			ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
@@ -62,9 +64,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 					}
 					configBuilder = configBuilder.addLimit(bucket4jBandWidth);
 			};
-			
-			MetricBucketListener metricBucketListener = new MetricBucketListener(config.getCacheName());
-			beanFactory.registerSingleton("bucket4jMetric" + config.getCacheName() , metricBucketListener);
 			
 			final ConfigurationBuilder configBuilderToUse = configBuilder;
 			RateLimitCheck<R> rlc = (servletRequest, async) -> {
