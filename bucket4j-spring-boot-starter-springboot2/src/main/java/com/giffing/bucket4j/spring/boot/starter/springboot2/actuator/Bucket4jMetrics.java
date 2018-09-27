@@ -24,13 +24,17 @@ public class Bucket4jMetrics implements ApplicationListener<ApplicationReadyEven
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
 		metricBucketListeners.forEach(metricBucketListener -> {
-			Counter counterConsumed = Metrics.counter("bucket4j_consumed_" + metricBucketListener.getName());
-			Counter counterRejected = Metrics.counter("bucket4j_rejected_" + metricBucketListener.getName());
+			Counter counterConsumed = Metrics.counter("bucket4j_counter_consumed_" + metricBucketListener.getName());
+			Counter counterRejected = Metrics.counter("bucket4j_counter_rejected_" + metricBucketListener.getName());
+			
 			metricBucketListener.setConsumedFunction( (tokens) -> {
 				counterConsumed.increment(tokens);
+				Metrics.summary("bucket4j_summary_consumed_" + metricBucketListener.getName());
 			});
 			metricBucketListener.setRejectedFunction( (tokens) -> {
 				counterRejected.increment(tokens);
+				Metrics.summary("bucket4j_summary_rejected_" + metricBucketListener.getName());
+				
 			});
 		});
 		
