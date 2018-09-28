@@ -18,7 +18,7 @@ import io.micrometer.core.instrument.Metrics;
 @ConditionalOnClass(value = {Metrics.class})
 public class Bucket4jMetrics implements ApplicationListener<ApplicationReadyEvent> {
 
-	@Autowired
+	@Autowired(required = false)
 	private List<MetricBucketListener> metricBucketListeners = new ArrayList<>();
 
 	@Override
@@ -26,7 +26,7 @@ public class Bucket4jMetrics implements ApplicationListener<ApplicationReadyEven
 		metricBucketListeners.forEach(metricBucketListener -> {
 			Counter counterConsumed = Metrics.counter("bucket4j_counter_consumed_" + metricBucketListener.getName());
 			Counter counterRejected = Metrics.counter("bucket4j_counter_rejected_" + metricBucketListener.getName());
-			
+
 			metricBucketListener.setConsumedFunction( (tokens) -> {
 				counterConsumed.increment(tokens);
 				Metrics.summary("bucket4j_summary_consumed_" + metricBucketListener.getName());
@@ -34,12 +34,12 @@ public class Bucket4jMetrics implements ApplicationListener<ApplicationReadyEven
 			metricBucketListener.setRejectedFunction( (tokens) -> {
 				counterRejected.increment(tokens);
 				Metrics.summary("bucket4j_summary_rejected_" + metricBucketListener.getName());
-				
+
 			});
 		});
-		
+
 	}
-	
-	
-	
+
+
+
 }
