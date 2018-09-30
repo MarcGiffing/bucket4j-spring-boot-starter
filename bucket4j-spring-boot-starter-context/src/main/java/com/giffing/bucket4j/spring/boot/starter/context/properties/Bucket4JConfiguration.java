@@ -26,6 +26,8 @@ public class Bucket4JConfiguration {
 
 	private List<RateLimit> rateLimits = new ArrayList<>();
 	
+	private List<String> metricTagsStrategyKeys = new ArrayList<>();
+	
 	/**
 	 * The HTTP content which should be used in case of rate limiting
 	 */
@@ -89,6 +91,14 @@ public class Bucket4JConfiguration {
 
 	public void setHttpResponseBody(String httpResponseBody) {
 		this.httpResponseBody = httpResponseBody;
+	}
+
+	public List<String> getMetricTagsStrategyKeys() {
+		return metricTagsStrategyKeys;
+	}
+
+	public void setMetricTagsStrategyKeys(List<String> metricTagsStrategyKeys) {
+		this.metricTagsStrategyKeys = metricTagsStrategyKeys;
 	}
 	
 }

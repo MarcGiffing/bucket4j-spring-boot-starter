@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -27,6 +26,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.Bucket4jMetricConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -49,7 +49,7 @@ import io.github.bucket4j.grid.jcache.JCache;
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@Import(value = {Bucket4jCacheConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
+@Import(value = {Bucket4jCacheConfiguration.class, Bucket4jMetricConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration<HttpServletRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationZuul.class);
@@ -68,7 +68,7 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration<Htt
 	public Bucket4jConfigurationHolder zuulConfigurationHolder() {
 		return new Bucket4jConfigurationHolder();
 	}
-
+	
 	@Bean
 	public ExpressionParser zuulExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,

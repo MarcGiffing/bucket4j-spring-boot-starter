@@ -1,13 +1,20 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
-import java.time.Duration;
+import static java.util.stream.Collectors.joining;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -15,6 +22,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.util.StringUtils;
 
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.DummyMetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.BandWidthConfig;
@@ -22,11 +30,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.MetricBucketListener;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 
 import io.github.bucket4j.Bandwidth;
@@ -34,15 +43,23 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.grid.GridBucketState;
 import io.github.bucket4j.grid.ProxyManager;
-import io.github.bucket4j.grid.jcache.JCache;
 
 /**
  * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
  * the {@link Bucket4JAutoConfigurationZuul} configuration classes
  */
 public abstract class Bucket4JBaseConfiguration<R> {
+	
+	//TODO it should work without registrating a dummy metric handler
+	@Bean
+	public MetricHandler dummyMetricHandler() {
+		return new DummyMetricHandler();
+	}
+	
+	//TODO don't autowire the metric tag strategies here
+	@Autowired(required = false)
+	private List<MetricTagStrategy<R>> metricTagStrategies = new ArrayList<>();
 	
 	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, ProxyManager<String> buckets, ExpressionParser expressionParser, ConfigurableBeanFactory  beanFactory) {
 		
@@ -51,9 +68,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
-		
-		MetricBucketListener metricBucketListener = new MetricBucketListener(config.getCacheName());
-		beanFactory.registerSingleton("bucket4jMetric" + config.getCacheName() , metricBucketListener);
 		
 		config.getRateLimits().forEach(rl -> {
 			ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
@@ -81,6 +95,25 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	BucketConfiguration bucketConfiguration = configBuilderToUse.build();
 		        	
+		        	MetricHandler metricHandler = beanFactory.getBean(MetricHandler.class);
+					//TODO check performance
+		        	Optional<List<String>> tagResult = metricTagStrategies
+							.stream()
+							.filter(strategy -> config.getMetricTagsStrategyKeys().contains(strategy.key()))
+							.filter(strategy -> strategy.supports(servletRequest))
+							.map(strategy -> strategy.getTags(servletRequest))
+							.map(metricResult -> new ArrayList<String>(Arrays.asList(metricResult.getKey(), metricResult.getValue())))
+							.collect(Collectors.reducing((a, b) -> {
+								a.addAll(b);
+								return a;
+							}));
+					
+		        				
+					MetricBucketListener metricBucketListener = new MetricBucketListener(
+							config.getCacheName(),
+							metricHandler, 
+							tagResult.orElse(new ArrayList<>()).toArray(new String[0]));
+					
 					Bucket bucket = buckets.getProxy(key, bucketConfiguration).toListenable( metricBucketListener);
 		        	if(async) {
 		        		return new ConsumptionProbeHolder(bucket.asAsync().tryConsumeAndReturnRemaining(1));

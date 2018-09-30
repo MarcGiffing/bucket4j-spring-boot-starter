@@ -28,6 +28,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.Bucket4jMetricConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -54,7 +55,7 @@ import io.github.bucket4j.grid.jcache.JCache;
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
-@Import(value = {Bucket4jCacheConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
+@Import(value = {Bucket4jCacheConfiguration.class, Bucket4jMetricConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);

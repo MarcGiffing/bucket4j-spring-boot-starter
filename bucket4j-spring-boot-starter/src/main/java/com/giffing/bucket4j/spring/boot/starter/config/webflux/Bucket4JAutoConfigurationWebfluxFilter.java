@@ -26,6 +26,7 @@ import org.springframework.web.server.WebFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.Bucket4jMetricConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -51,7 +52,7 @@ import io.github.bucket4j.grid.ProxyManager;
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = AsyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@Import(value = {SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
+@Import(value = {Bucket4jMetricConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);

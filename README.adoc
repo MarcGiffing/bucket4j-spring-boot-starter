@@ -99,6 +99,7 @@ bucket4j.filters[0].filter-method=servlet # [servlet,zuul,webflux]
 bucket4j.filters[0].filter-order=0 
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].url=/*
+bucket4j.filters[0].metric-tags-strategy-keys=USERNAME,URL # see MetricTagStrategy | Micrometer tags  
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
 bucket4j.filters[0].rate-limits[0].filter-key-type=expression [default, ip, expression]
 bucket4j.filters[0].rate-limits[0].expression=getRemoteAddress() # if filter-key-type is expression the key can be retrieved by an Spring Expression Language
@@ -175,6 +176,11 @@ The *first* is the default strategy. This the default strategy which only execut
 ==== all
 
 The *all* strategy executes all rate limit independently. 
+
+== Monitoring - Spring Boot 2 Actuator
+
+TODO
+https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-ehcache[ehcache example with prometheus]
 
 == Configuration via properties
 
