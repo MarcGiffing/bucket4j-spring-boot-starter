@@ -21,7 +21,6 @@ public class Bucket4jMetricHandler implements MetricHandler {
 		extendedTags.add("name");
 		extendedTags.add(name);
 		extendedTags.addAll(Arrays.asList(tags));
-		System.out.println(tokens);
 		Metrics
 			.counter("bucket4j_summary_consumed", extendedTags.toArray(new String[0]))
 			.increment(tokens);
@@ -33,7 +32,6 @@ public class Bucket4jMetricHandler implements MetricHandler {
 		extendedTags.add("name");
 		extendedTags.add(name);
 		extendedTags.addAll(Arrays.asList(tags));
-		System.out.println(tokens);
 		Metrics
 			.counter("bucket4j_summary_rejected", extendedTags.toArray(new String[0]))
 			.increment(tokens);
