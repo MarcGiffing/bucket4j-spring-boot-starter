@@ -1,18 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
-import static java.util.stream.Collectors.joining;
-
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -33,7 +28,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
@@ -57,10 +52,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		return new DummyMetricHandler();
 	}
 	
-	//TODO don't autowire the metric tag strategies here
-	@Autowired(required = false)
-	private List<MetricTagStrategy<R>> metricTagStrategies = new ArrayList<>();
-	
 	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, ProxyManager<String> buckets, ExpressionParser expressionParser, ConfigurableBeanFactory  beanFactory) {
 		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
@@ -68,6 +59,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
+		filterConfig.setMetricTags(config.getMetricTags());
 		
 		config.getRateLimits().forEach(rl -> {
 			ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
@@ -96,23 +88,30 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        	BucketConfiguration bucketConfiguration = configBuilderToUse.build();
 		        	
 		        	MetricHandler metricHandler = beanFactory.getBean(MetricHandler.class);
-					//TODO check performance
-		        	Optional<List<String>> tagResult = metricTagStrategies
-							.stream()
-							.filter(strategy -> config.getMetricTagsStrategyKeys().contains(strategy.key()))
-							.filter(strategy -> strategy.supports(servletRequest))
-							.map(strategy -> strategy.getTags(servletRequest))
-							.map(metricResult -> new ArrayList<String>(Arrays.asList(metricResult.getKey(), metricResult.getValue())))
-							.collect(Collectors.reducing((a, b) -> {
-								a.addAll(b);
-								return a;
-							}));
+		        	
+		        	List<MetricTagResult> metricTagResults = filterConfig
+		        		.getMetricTags()
+			        	.stream()
+			        	.map( (metricMetaTag) -> {
+			        		String expression = metricMetaTag.getExpression();
+			    			if(StringUtils.isEmpty(expression)) {
+			    				throw new MissingKeyFilterExpressionException();
+			    			}
+			    			StandardEvaluationContext context = new StandardEvaluationContext();
+			    			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+		    				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
+		    				Expression expr = expressionParser.parseExpression(expression); 
+		    				final String value = expr.getValue(context, servletRequest, String.class);
+		    				return new MetricTagResult(metricMetaTag.getKey(), value);
+		        	}).collect(Collectors.toList());
+		        	if(metricTagResults == null) {
+		        		metricTagResults = new ArrayList<>();
+		        	}
 					
-		        				
 					MetricBucketListener metricBucketListener = new MetricBucketListener(
 							config.getCacheName(),
 							metricHandler, 
-							tagResult.orElse(new ArrayList<>()).toArray(new String[0]));
+							metricTagResults);
 					
 					Bucket bucket = buckets.getProxy(key, bucketConfiguration).toListenable( metricBucketListener);
 		        	if(async) {

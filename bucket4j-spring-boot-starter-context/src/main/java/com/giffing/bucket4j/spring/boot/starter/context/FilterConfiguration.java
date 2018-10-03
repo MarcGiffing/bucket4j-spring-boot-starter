@@ -3,6 +3,8 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
+
 /**
  * This class is the main configuration class which is used to build the Servlet Filter or ZuulFilter.
  *
@@ -27,6 +29,8 @@ public class FilterConfiguration<R> {
 	private String httpResponseBody;
 
 	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
+	
+	private List<MetricTag> metricTags = new ArrayList<>();
 
 	public String getUrl() {
 		return url;
@@ -66,6 +70,14 @@ public class FilterConfiguration<R> {
 
 	public void setHttpResponseBody(String httpResponseBody) {
 		this.httpResponseBody = httpResponseBody;
+	}
+
+	public List<MetricTag> getMetricTags() {
+		return metricTags;
+	}
+
+	public void setMetricTags(List<MetricTag> metricTags) {
+		this.metricTags = metricTags;
 	}
 
 }

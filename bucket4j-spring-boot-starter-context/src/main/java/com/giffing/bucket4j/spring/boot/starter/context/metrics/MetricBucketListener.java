@@ -1,5 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.context.metrics;
 
+import java.util.List;
+
 import io.github.bucket4j.BucketListener;
 
 /**
@@ -9,10 +11,10 @@ import io.github.bucket4j.BucketListener;
 public class MetricBucketListener implements BucketListener {
 
     private final String name;
-	private final String[] tags;
+	private final List<MetricTagResult> tags;
 	private final MetricHandler metricHandler;
 
-    public MetricBucketListener(String name, MetricHandler metricHandler, String... tags) {
+    public MetricBucketListener(String name, MetricHandler metricHandler, List<MetricTagResult> tags) {
 		this.name = name;
 		this.tags = tags;
 		this.metricHandler = metricHandler;
