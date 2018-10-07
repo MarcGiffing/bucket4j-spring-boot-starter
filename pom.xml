@@ -4,7 +4,7 @@
 
 	<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 	<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
-	<version>0.1.8</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>bucket4j-spring-boot-starter</name>
@@ -35,7 +35,7 @@
 		<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter/</url>
 		<connection>scm:git:git://github.com/MarcGiffing/bucket4j-spring-boot-starter</connection>
 		<developerConnection>scm:git:git@github.com:MarcGiffing/bucket4j-spring-boot-starter</developerConnection>
-		<tag>bucket4j-spring-boot-starter-parent-0.1.8</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 
