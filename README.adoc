@@ -12,22 +12,33 @@ https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-sp
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-zuul[Zuul]
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-webflux[Webflux (Async)]
 
+= Contents
+
+* <<introduction>>
+* <<getting_started>>
+* <<bucket4j_complete_properties>>
+* <<monitoring>>
+* <<configuration_examples>>
+
+
+[[introduction]]
+== Introduction
 
 This project is a http://projects.spring.io/spring-boot/[Spring Boot Starter] for Bucket4j.
-It can be used limiting the rate of access to your REST APIs.
+It can be used limit the rate of access to your REST APIs.
 
 * Prevention of DoS Attacks, brute-force logins attempts
 * Request throttling for specific regions, unauthenticated users, authenticated users, not paying users.
 
-The benefit of this project is the configuration of Bucket4j via *properties* or *yaml* files. You don't
+The benefit of this project is the configuration of Bucket4j via Spring Boots *properties* or *yaml* files. You don't
 have to write a single line of code.
 .
 
+[[getting_started]]
 == Getting started
 
 To use the rate limit in your project you have to add the Bucket4j Spring Boot Starter dependency in 
-your project. Additionally you need to add a https://www.jcp.org/en/jsr/detail?id=107[JSR 107] provider like Ehcache or Hazelcast which will be
-auto configured with the https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[Spring Boot Starter Cache].
+your project. Additionally you need to add a https://www.jcp.org/en/jsr/detail?id=107[JSR 107] provider like Ehcache or Hazelcast which will be auto configured with the https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[Spring Boot Starter Cache].
 
 [source, xml]
 ----
@@ -46,7 +57,7 @@ auto configured with the https://docs.spring.io/spring-boot/docs/current/referen
 ----
 
 The configuration can be done in the application.properties / application.yml. 
-The current configuration limits all requests independently from the user. It allows a maximum of 5 requests within 10 seconds independently from the user.
+The following configuration limits all requests independently from the user. It allows a maximum of 5 requests within 10 seconds independently from the user.
 
 
 [source,yml]
@@ -87,7 +98,7 @@ spring:
 </config>
 ----
 
-
+[[bucket4j_complete_properties]]
 == Bucket4j properties
 
 
@@ -182,11 +193,39 @@ The *first* is the default strategy. This the default strategy which only execut
 
 The *all* strategy executes all rate limit independently. 
 
+[[monitoring]]
 == Monitoring - Spring Boot 2 Actuator
 
-TODO
-https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-ehcache[ehcache example with prometheus]
+Spring Boot 2 ships with a great support for collecting metrics. This project automatically provides metric information about the consumed and rejected buckets. You can extend these information with configurable https://micrometer.io/docs/concepts#_tag_naming[custom tags] like the username or the IP-Address which can then be evaluated in a monitoring system like prometheus/grafana.
 
+[source,yml]
+----
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: buckets   
+    filter-method: servlet
+    filter-order: 1
+    url: /*
+    metricTags:
+    - key: IP
+      expression: getRemoteAddr()
+    - key: USERNAME
+      expression: "@securityService.username() != null ? @securityService.username() : 'anonym'"
+    - key: URL
+      expression: request.getRequestURI()  
+    rate-limits:
+    - filter-key-type: expression
+      execute-condition:  "@securityService.username() == 'admin'"
+      expression: "@securityService.username()?: getRemoteAddr()"
+      bandwidths:
+      - capacity: 30
+        time: 1
+        unit: minutes
+----
+
+
+[[configuration_examples]]
 == Configuration via properties
 
 Simple configuration to allow a maximum of 5 requests within 10 seconds independently from the user.
