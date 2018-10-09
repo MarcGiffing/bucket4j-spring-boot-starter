@@ -3,19 +3,19 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Configures the rate of data which should be transfered 
+ * Configures the rate of data which should be transfered
  *
  */
 public class BandWidthConfig {
-	
-	
+
+
 	private long capacity;
 	private long time;
 	private ChronoUnit unit;
-	
+
 	private long fixedRefillInterval = 0;;
 	private ChronoUnit fixedRefillIntervalUnit = ChronoUnit.MINUTES;
-	
+
 	public long getCapacity() {
 		return capacity;
 	}
@@ -37,7 +37,7 @@ public class BandWidthConfig {
 	public long getFixedRefillInterval() {
 		return fixedRefillInterval;
 	}
-	public void setFixedRefillnterval(long fixedRefillInterval) {
+	public void setFixedRefillInterval(long fixedRefillInterval) {
 		this.fixedRefillInterval = fixedRefillInterval;
 	}
 	public ChronoUnit getFixedRefillIntervalUnit() {
@@ -46,5 +46,5 @@ public class BandWidthConfig {
 	public void setFixedRefillIntervalUnit(ChronoUnit fixedRefillIntervalUnit) {
 		this.fixedRefillIntervalUnit = fixedRefillIntervalUnit;
 	}
-	
+
 }
