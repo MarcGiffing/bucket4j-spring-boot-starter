@@ -66,7 +66,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			for (BandWidthConfig bandWidth : rl.getBandwidths()) {
 					Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
 					if(bandWidth.getFixedRefillInterval() > 0) {
-						bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
+						bucket4jBandWidth = bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
 					}
 					configBuilder = configBuilder.addLimit(bucket4jBandWidth);
 			};
