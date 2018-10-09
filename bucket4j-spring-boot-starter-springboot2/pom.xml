@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 		<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
-		<version>0.1.9</version>
+		<version>0.1.10-SNAPSHOT</version>
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-springboot2</artifactId>
 
