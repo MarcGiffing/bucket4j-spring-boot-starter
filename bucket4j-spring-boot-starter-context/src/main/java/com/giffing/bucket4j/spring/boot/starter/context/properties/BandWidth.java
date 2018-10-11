@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.context;
+package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.time.temporal.ChronoUnit;
 
@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit;
  * Configures the rate of data which should be transfered
  *
  */
-public class BandWidthConfig {
+public class BandWidth {
 
 
 	private long capacity;

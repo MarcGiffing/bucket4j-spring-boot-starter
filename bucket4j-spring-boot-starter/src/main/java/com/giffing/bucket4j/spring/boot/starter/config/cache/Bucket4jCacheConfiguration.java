@@ -1,6 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
-import java.security.cert.Extension;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
@@ -12,8 +11,8 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.Hazelcast
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.InfinispanJCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 
+
 @Configuration
-@ConditionalOnClass({ Extension.class})
 @AutoConfigureAfter(CacheAutoConfiguration.class)
 @Import(value = {JCacheBucket4jConfiguration.class, InfinispanJCacheBucket4jConfiguration.class, HazelcastBucket4jCacheConfiguration.class})
 public class Bucket4jCacheConfiguration {

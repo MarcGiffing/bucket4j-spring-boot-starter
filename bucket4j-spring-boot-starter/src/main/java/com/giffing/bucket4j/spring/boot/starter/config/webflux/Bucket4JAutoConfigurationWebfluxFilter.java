@@ -23,37 +23,23 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
-import org.springframework.web.server.handler.ResponseStatusExceptionHandler;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.Bucket4jMetricConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.webflux.WebfluxWebFilter;
 
-import io.github.bucket4j.grid.ProxyManager;
-
 /**
- * Configures up to 10 Servlet Filters for Bucket4Js rate limit.
- * 
- * Technical problem: The dynamic creation of the Webflux WebFilters failed
- * cause when registering them manually in the application context the Beans
- * arn't detected as Servlet Filters and therefore not configured correctly. The
- * current workaround is the define 10 different methods which creates
- * individual Webfilters conditional on properties.
+ * Configures Servlet Filters for Bucket4Js rate limit.
  * 
  */
 @Configuration
@@ -62,7 +48,7 @@ import io.github.bucket4j.grid.ProxyManager;
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = AsyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
-@Import(value = { Bucket4jMetricConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
+@Import(value = { SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);

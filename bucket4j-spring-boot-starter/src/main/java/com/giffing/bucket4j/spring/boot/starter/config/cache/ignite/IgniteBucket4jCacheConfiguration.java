@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.hazelcast.core.HazelcastInstance;
 
 @Configuration
 @ConditionalOnClass({ Ignite.class })

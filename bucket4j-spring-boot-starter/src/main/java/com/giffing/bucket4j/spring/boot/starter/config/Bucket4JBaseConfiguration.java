@@ -21,16 +21,16 @@ import org.springframework.util.StringUtils;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.DummyMetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
-import com.giffing.bucket4j.spring.boot.starter.context.BandWidthConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
@@ -114,7 +114,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 
 	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
 		ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
-		for (BandWidthConfig bandWidth : rl.getBandwidths()) {
+		for (BandWidth bandWidth : rl.getBandwidths()) {
 				Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
 				if(bandWidth.getFixedRefillInterval() > 0) {
 					bucket4jBandWidth = bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
@@ -172,7 +172,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				if(request instanceof ServerHttpRequest) {
 					return url + "-" + ((ServerHttpRequest)request).getRemoteAddress().getHostName();	
 				}
-				throw new IllegalStateException("Unsupported request type");
+				throw new IllegalStateException("Unsupported request type " + request.getClass());
 			};
 		case EXPRESSION:
 			String expression = rateLimit.getExpression();

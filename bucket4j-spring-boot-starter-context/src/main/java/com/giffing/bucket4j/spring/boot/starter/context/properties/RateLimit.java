@@ -3,7 +3,6 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giffing.bucket4j.spring.boot.starter.context.BandWidthConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
 
 public class RateLimit {
@@ -22,7 +21,7 @@ public class RateLimit {
 	
 	private String expression;
 
-	private List<BandWidthConfig> bandwidths = new ArrayList<>();
+	private List<BandWidth> bandwidths = new ArrayList<>();
 	
 	/**
 	 * SPEL expression to dynamic evaluate filter key 
@@ -44,11 +43,11 @@ public class RateLimit {
 		this.skipCondition = skipCondition;
 	}
 	
-	public List<BandWidthConfig> getBandwidths() {
+	public List<BandWidth> getBandwidths() {
 		return bandwidths;
 	}
 
-	public void setBandwidths(List<BandWidthConfig> bandwidths) {
+	public void setBandwidths(List<BandWidth> bandwidths) {
 		this.bandwidths = bandwidths;
 	}
 	

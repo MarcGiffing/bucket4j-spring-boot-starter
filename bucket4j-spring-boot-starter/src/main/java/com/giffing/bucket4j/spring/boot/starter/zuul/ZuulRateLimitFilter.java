@@ -1,17 +1,19 @@
 package com.giffing.bucket4j.spring.boot.starter.zuul;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import io.github.bucket4j.ConsumptionProbe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.http.HttpStatus;
+
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+import io.github.bucket4j.ConsumptionProbe;
 
 /**
  * {@link ZuulFilter} to configure Bucket4j on each request.
@@ -38,6 +40,7 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
 				} else {
 					context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
+					context.addZuulResponseHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
 					context.setResponseBody(filterConfig.getHttpResponseBody());
 					context.setSendZuulResponse(false);
 					break;

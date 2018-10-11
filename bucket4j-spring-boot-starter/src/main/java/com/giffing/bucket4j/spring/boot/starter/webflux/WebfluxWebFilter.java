@@ -11,9 +11,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
@@ -44,7 +44,6 @@ public class WebfluxWebFilter implements WebFilter {
 						return CompletableFuture.completedFuture(null);
 					}
 		        }));
-				
 			}
 			
 		};

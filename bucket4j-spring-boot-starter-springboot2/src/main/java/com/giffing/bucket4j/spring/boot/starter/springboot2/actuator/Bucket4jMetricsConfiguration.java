@@ -11,7 +11,7 @@ import io.micrometer.core.instrument.Metrics;
 
 @Configuration
 @ConditionalOnClass(value = {Metrics.class})
-public class Bucket4jMetrics {
+public class Bucket4jMetricsConfiguration {
 
 	@Bean
 	@Primary

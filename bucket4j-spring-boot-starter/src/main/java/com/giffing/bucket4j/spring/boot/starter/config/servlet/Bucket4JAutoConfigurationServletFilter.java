@@ -1,57 +1,63 @@
 package com.giffing.bucket4j.spring.boot.starter.config.servlet;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
+import javax.servlet.FilterRegistration.Dynamic;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.server.WebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.Bucket4jMetricConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot1ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBoot2ActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 
-import io.github.bucket4j.grid.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCache;
 
 /**
- * Configures up to 10 Servlet {@link Filter}s for Bucket4Js rate limit.
- * 
- * Technical problem: The dynamic creation of the {@link FilterRegistrationBean}s failed cause when
- * registering them manually in the application context the Beans arn't detected as {@link Filter}s
- * and therefore not configured correctly. The current workaround is the define 10 different methods
- * which creates individual {@link FilterRegistrationBean}s conditional on properties.
+ * Configures {@link Filter}s for Bucket4Js rate limit.
  * 
  */
 @Configuration
@@ -60,8 +66,8 @@ import io.github.bucket4j.grid.jcache.JCache;
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
-@Import(value = {Bucket4jCacheConfiguration.class, Bucket4jMetricConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
-public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> {
+@Import(value = {Bucket4jCacheConfiguration.class, SpringBoot1ActuatorConfig.class, SpringBoot2ActuatorConfig.class })
+public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>   {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);
 	
@@ -72,12 +78,11 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	private ConfigurableBeanFactory beanFactory;
 	
 	@Autowired
-    private GenericWebApplicationContext context;
+    private GenericApplicationContext context;
 	
 	@Autowired
 	private SyncCacheResolver cacheResolver;
 
-	
 	@Bean
 	@Qualifier("SERVLET")
 	public Bucket4jConfigurationHolder servletConfigurationHolder() {
@@ -91,34 +96,34 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 		
 		return parser;
 	}
-	
-	@PostConstruct
-	public void initFilters() {
-		AtomicInteger filterCount = new AtomicInteger(0);
-		properties
-			.getFilters()
-			.stream()
-			.filter(filter -> !StringUtils.isEmpty(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
-			.map(filter -> {
-				filterCount.incrementAndGet();
-				FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
-						filter.getCacheName()), 
-						servletFilterExpressionParser(), 
-						beanFactory);
-				
-				servletConfigurationHolder().addFilterConfiguration(filter);
-				
-				FilterRegistrationBean<ServletRequestFilter> registration = new FilterRegistrationBean<>();
-				registration.setName("bucket4JRequestFilter" + filterCount);
-		        registration.setFilter(new ServletRequestFilter(filterConfig));
-		        registration.addUrlPatterns(filter.getUrl());
-		        registration.setOrder(filter.getFilterOrder());
-		        
-		        log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
-		        return registration;
-			}).forEach(filterRegistrationBean -> {
-				context.registerBean("bucket4JFilter" + filterCount, FilterRegistrationBean.class, () -> filterRegistrationBean);
-			});
+
+	@Override
+	public void customize(ConfigurableServletWebServerFactory factory) {
+		factory.addInitializers(new ServletContextInitializer() {
+
+			@Override
+			public void onStartup(ServletContext servletContext) throws ServletException {
+				AtomicInteger filterCount = new AtomicInteger(0);
+				properties
+					.getFilters()
+					.stream()
+					.filter(filter -> !StringUtils.isEmpty(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+					.forEach(filter -> {
+						filterCount.incrementAndGet();
+						FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
+								filter.getCacheName()), 
+								servletFilterExpressionParser(), 
+								beanFactory);
+						
+						servletConfigurationHolder().addFilterConfiguration(filter);
+						//FIXME how to set the order
+				        Dynamic addFilter = servletContext.addFilter("bucket4JRequestFilter" + filterCount, new ServletRequestFilter(filterConfig));
+				        addFilter.addMappingForUrlPatterns(null,  false, filter.getUrl());
+				        
+				        log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
+					});
+			}
+		});
 	}
 
 }

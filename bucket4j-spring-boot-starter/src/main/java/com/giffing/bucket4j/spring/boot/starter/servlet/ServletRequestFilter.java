@@ -9,18 +9,21 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 
 import io.github.bucket4j.ConsumptionProbe;
 
 /**
  * Servlet {@link Filter} class to configure Bucket4j on each request. 
  */
+@Order(value = Ordered.HIGHEST_PRECEDENCE)
 public class ServletRequestFilter extends OncePerRequestFilter {
 
 	private FilterConfiguration<HttpServletRequest> filterConfig;

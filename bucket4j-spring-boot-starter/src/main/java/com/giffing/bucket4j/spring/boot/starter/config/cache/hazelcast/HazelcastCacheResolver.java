@@ -1,7 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 import com.hazelcast.core.HazelcastInstance;
 
 import io.github.bucket4j.Bucket4j;

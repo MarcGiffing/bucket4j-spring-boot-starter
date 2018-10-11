@@ -1,9 +1,10 @@
-package com.giffing.bucket4j.spring.boot.starter.context;
+package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 /**
  * This class is the main configuration class which is used to build the Servlet Filter or ZuulFilter.
