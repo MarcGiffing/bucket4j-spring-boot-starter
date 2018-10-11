@@ -18,8 +18,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ZuulRateLimitFilter extends ZuulFilter {
 
-	private final Logger log = LoggerFactory.getLogger(ZuulRateLimitFilter.class);
-
 	private FilterConfiguration<HttpServletRequest> filterConfig;
 
 	public ZuulRateLimitFilter(FilterConfiguration<HttpServletRequest> filterConfig) {

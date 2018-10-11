@@ -113,7 +113,7 @@ bucket4j.filters[0].url=/*
 bucket4j.filters[0].metric-tags[0].key=IP
 bucket4j.filters[0].metric-tags[0].expression=getRemoteAddr()
 bucket4j.filters[0].metric-tags[1].key=URL
-bucket4j.filters[0].metric-tags[1].expression=request.getRequestURI()
+bucket4j.filters[0].metric-tags[1].expression=getRequestURI()
 bucket4j.filters[0].metric-tags[2].key=USERNAME
 bucket4j.filters[0].metric-tags[2].expression="@securityService.username() != null ? @securityService.username() : 'anonym'"
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
@@ -144,6 +144,12 @@ The IP filter type limits the access based on the IP address (httpServletRequest
 
 The expression based filter type provides the most flexible one and uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL). https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
 It provides an easy way to configure the throttling in different environments without writing one line of code.
+
+Depending on the filter method [servlet,zuul,webflux] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
+
+* servlet: javax.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
+* zuul: javax.servlet.http.HttpServletRequest
+* webflux: org.springframework.http.server.reactive.ServerHttpRequest
 
 *Limiting based on IP-Address*:
 [source]

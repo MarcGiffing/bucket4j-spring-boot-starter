@@ -1,9 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +33,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
+import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -52,7 +54,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		return new DummyMetricHandler();
 	}
 	
-	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, ProxyManager<String> buckets, ExpressionParser expressionParser, ConfigurableBeanFactory  beanFactory) {
+	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, 
+			ProxyManager<String> buckets, 
+			ExpressionParser expressionParser, 
+			ConfigurableBeanFactory  beanFactory) {
 		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
 		filterConfig.setUrl(config.getUrl());
@@ -62,16 +67,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setMetricTags(config.getMetricTags());
 		
 		config.getRateLimits().forEach(rl -> {
-			ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
-			for (BandWidthConfig bandWidth : rl.getBandwidths()) {
-					Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
-					if(bandWidth.getFixedRefillInterval() > 0) {
-						bucket4jBandWidth = bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
-					}
-					configBuilder = configBuilder.addLimit(bucket4jBandWidth);
-			};
 			
-			final ConfigurationBuilder configBuilderToUse = configBuilder;
+			MetricHandler metricHandler = beanFactory.getBean(MetricHandler.class);
+			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
+			
 			RateLimitCheck<R> rlc = (servletRequest, async) -> {
 				
 		        boolean skipRateLimit = false;
@@ -85,28 +84,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        
 		        if(!skipRateLimit) {
 		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
-		        	BucketConfiguration bucketConfiguration = configBuilderToUse.build();
+		        	BucketConfiguration bucketConfiguration = configurationBuilder.build();
 		        	
-		        	MetricHandler metricHandler = beanFactory.getBean(MetricHandler.class);
-		        	
-		        	List<MetricTagResult> metricTagResults = filterConfig
-		        		.getMetricTags()
-			        	.stream()
-			        	.map( (metricMetaTag) -> {
-			        		String expression = metricMetaTag.getExpression();
-			    			if(StringUtils.isEmpty(expression)) {
-			    				throw new MissingKeyFilterExpressionException();
-			    			}
-			    			StandardEvaluationContext context = new StandardEvaluationContext();
-			    			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-		    				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-		    				Expression expr = expressionParser.parseExpression(expression); 
-		    				final String value = expr.getValue(context, servletRequest, String.class);
-		    				return new MetricTagResult(metricMetaTag.getKey(), value);
-		        	}).collect(Collectors.toList());
-		        	if(metricTagResults == null) {
-		        		metricTagResults = new ArrayList<>();
-		        	}
+		        	List<MetricTagResult> metricTagResults = getMetricTags(expressionParser, beanFactory, filterConfig,
+							servletRequest);
 					
 					MetricBucketListener metricBucketListener = new MetricBucketListener(
 							config.getCacheName(),
@@ -131,8 +112,45 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		return filterConfig;
 	}
 
-	protected abstract ProxyManager<String> createProxyManager(Bucket4JConfiguration config);
-	
+	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
+		ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
+		for (BandWidthConfig bandWidth : rl.getBandwidths()) {
+				Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
+				if(bandWidth.getFixedRefillInterval() > 0) {
+					bucket4jBandWidth = bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
+				}
+				configBuilder = configBuilder.addLimit(bucket4jBandWidth);
+		};
+		return configBuilder;
+	}
+
+	private List<MetricTagResult> getMetricTags(ExpressionParser expressionParser, 
+			ConfigurableBeanFactory beanFactory,
+			FilterConfiguration<R> filterConfig, 
+			R servletRequest) {
+		
+		List<MetricTagResult> metricTagResults = filterConfig
+			.getMetricTags()
+			.stream()
+			.map( (metricMetaTag) -> {
+				String expression = metricMetaTag.getExpression();
+				if(StringUtils.isEmpty(expression)) {
+					throw new MissingMetricTagExpressionException(metricMetaTag.getKey());
+				}
+				StandardEvaluationContext context = new StandardEvaluationContext();
+				context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
+				Expression expr = expressionParser.parseExpression(expression); 
+				final String value = expr.getValue(context, servletRequest, String.class);
+				
+				return new MetricTagResult(metricMetaTag.getKey(), value);
+		}).collect(toList());
+		if(metricTagResults == null) {
+			metricTagResults = new ArrayList<>();
+		}
+		return metricTagResults;
+	}
+
 	/**
 	 * Creates the key filter lambda which is responsible to decide how the rate limit will be performed. The key
 	 * is the unique identifier like an IP address or a username.
@@ -169,9 +187,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				final String value = expr.getValue(context, request, String.class);
 				return url + "-" + value;
 			};
-		
+		default:
+			return (request) -> url + "-" + "1";
 		}
-		return (request) -> url + "-" + "1";
+		
 	}
 	
 	/**
