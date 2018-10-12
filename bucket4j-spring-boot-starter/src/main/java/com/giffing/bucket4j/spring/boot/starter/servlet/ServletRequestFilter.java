@@ -31,16 +31,18 @@ public class ServletRequestFilter extends OncePerRequestFilter {
     public ServletRequestFilter(FilterConfiguration<HttpServletRequest> filterConfig) {
     	this.filterConfig = filterConfig;
     }
-
+    
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+		return !request.getRequestURI().matches(filterConfig.getUrl());
+	}
+    
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-
         boolean allConsumed = true;
         Long remainingLimit = null;
-        
         for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
         	ConsumptionProbeHolder probeHolder = rl.rateLimit(request, false);
 			if (probeHolder != null && probeHolder.getConsumptionProbe() != null) {

@@ -4,6 +4,7 @@ import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
 import com.giffing.bucket4j.spring.boot.starter.exception.Bucket4jGeneralException;
+import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 
@@ -31,6 +32,13 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
 		if(cause instanceof MissingKeyFilterExpressionException) {
 			descriptionMessage = "You've set the 'filter-key-type' to 'expression' but didn't set the property 'expression'";
 			actionMessage = "Please set the property 'expression' in your configuration file with a valid expression (see Spring Expression Language)" + newline;
+		}
+		
+		if( cause instanceof FilterURLInvalidException) {
+			FilterURLInvalidException e = (FilterURLInvalidException) cause;
+			descriptionMessage = "You've set an invalid regular expression in the 'filter'" + newline +
+					"Description: " + e.getDescription();
+			actionMessage = "To Filter for all requests type .* or remove the property 'bucket4j.filters.url' completly." + newline;
 		}
 		
 		

@@ -19,9 +19,13 @@ public class Bucket4JConfiguration {
 	
 	/**
 	 * Url to which the filter should be registered
+	 * 
 	 */
-	private String url = "/*";
+	private String url = ".*";
 	
+	/**
+	 * The filter order is only used in the ZuulFilter
+	 */
 	private int filterOrder = Integer.MIN_VALUE + 1;
 
 	private List<RateLimit> rateLimits = new ArrayList<>();

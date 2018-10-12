@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toList;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +34,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
 
@@ -65,6 +68,15 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
 		filterConfig.setMetricTags(config.getMetricTags());
+		
+		try {
+			Pattern.compile(filterConfig.getUrl());
+			if(filterConfig.getUrl().equals("/*")) {
+				throw new PatternSyntaxException(filterConfig.getUrl(), "/*", 0);
+			}
+		} catch( PatternSyntaxException exception) {
+			throw new FilterURLInvalidException(filterConfig.getUrl(), exception.getDescription());
+		}
 		
 		config.getRateLimits().forEach(rl -> {
 			
