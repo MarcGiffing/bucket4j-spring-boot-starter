@@ -8,7 +8,6 @@ import java.time.temporal.ChronoUnit;
  */
 public class BandWidth {
 
-
 	private long capacity;
 	private long time;
 	private ChronoUnit unit;
