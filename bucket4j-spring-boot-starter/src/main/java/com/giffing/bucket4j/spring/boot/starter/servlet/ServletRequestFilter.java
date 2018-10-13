@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
@@ -23,8 +22,7 @@ import io.github.bucket4j.ConsumptionProbe;
 /**
  * Servlet {@link Filter} class to configure Bucket4j on each request. 
  */
-@Order(value = Ordered.HIGHEST_PRECEDENCE)
-public class ServletRequestFilter extends OncePerRequestFilter {
+public class ServletRequestFilter extends OncePerRequestFilter implements Ordered {
 
 	private FilterConfiguration<HttpServletRequest> filterConfig;
 	
@@ -85,5 +83,11 @@ public class ServletRequestFilter extends OncePerRequestFilter {
 			}
 		}
 		return remaining;
+	}
+
+
+	@Override
+	public int getOrder() {
+		return filterConfig.getOrder();
 	}
 }
