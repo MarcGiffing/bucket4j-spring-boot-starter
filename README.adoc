@@ -107,7 +107,7 @@ spring:
 bucket4j.enabled=true # enable/disable bucket4j support
 bucket4j.filters[0].cache-name=buckets # the name of the cache key
 bucket4j.filters[0].filter-method=servlet # [servlet,zuul,webflux]
-bucket4j.filters[0].filter-order=0 
+bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].url=.* # a regular expression 
 bucket4j.filters[0].metric-tags[0].key=IP
