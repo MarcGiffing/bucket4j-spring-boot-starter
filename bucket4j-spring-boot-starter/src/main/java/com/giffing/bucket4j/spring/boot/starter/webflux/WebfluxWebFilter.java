@@ -3,7 +3,9 @@ package com.giffing.bucket4j.spring.boot.starter.webflux;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
@@ -18,7 +20,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfigu
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
 
-public class WebfluxWebFilter implements WebFilter {
+public class WebfluxWebFilter implements WebFilter, Ordered {
 
 	private FilterConfiguration<ServerHttpRequest> filterConfig;
 
@@ -88,5 +90,11 @@ public class WebfluxWebFilter implements WebFilter {
 		}
 		return chain.filter(exchange);
 	}
+
+	@Override
+	public int getOrder() {
+		return filterConfig.getOrder();
+	}
+
 
 }
