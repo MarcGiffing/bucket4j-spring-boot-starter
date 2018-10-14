@@ -67,7 +67,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
-		filterConfig.setMetricTags(config.getMetricTags());
+		filterConfig.setMetrics(config.getMetrics());
 		
 		try {
 			Pattern.compile(filterConfig.getUrl());
@@ -100,10 +100,11 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        	
 		        	List<MetricTagResult> metricTagResults = getMetricTags(expressionParser, beanFactory, filterConfig,
 							servletRequest);
-					
-					MetricBucketListener metricBucketListener = new MetricBucketListener(
+
+		        	MetricBucketListener metricBucketListener = new MetricBucketListener(
 							config.getCacheName(),
 							metricHandler, 
+							filterConfig.getMetrics().getTypes(),
 							metricTagResults);
 					
 					Bucket bucket = buckets.getProxy(key, bucketConfiguration).toListenable( metricBucketListener);
@@ -142,7 +143,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			R servletRequest) {
 		
 		List<MetricTagResult> metricTagResults = filterConfig
-			.getMetricTags()
+			.getMetrics().getTags()
 			.stream()
 			.map( (metricMetaTag) -> {
 				String expression = metricMetaTag.getExpression();
@@ -155,7 +156,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				Expression expr = expressionParser.parseExpression(expression); 
 				final String value = expr.getValue(context, servletRequest, String.class);
 				
-				return new MetricTagResult(metricMetaTag.getKey(), value);
+				return new MetricTagResult(metricMetaTag.getKey(), value, metricMetaTag.getTypes());
 		}).collect(toList());
 		if(metricTagResults == null) {
 			metricTagResults = new ArrayList<>();

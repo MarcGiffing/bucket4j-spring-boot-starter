@@ -109,13 +109,16 @@ bucket4j.filters[0].cache-name=buckets # the name of the cache key
 bucket4j.filters[0].filter-method=servlet # [servlet,zuul,webflux]
 bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
-bucket4j.filters[0].url=.* # a regular expression 
-bucket4j.filters[0].metric-tags[0].key=IP
-bucket4j.filters[0].metric-tags[0].expression=getRemoteAddr()
-bucket4j.filters[0].metric-tags[1].key=URL
-bucket4j.filters[0].metric-tags[1].expression=getRequestURI()
-bucket4j.filters[0].metric-tags[2].key=USERNAME
-bucket4j.filters[0].metric-tags[2].expression="@securityService.username() != null ? @securityService.username() : 'anonym'"
+bucket4j.filters[0].url=.* # a regular expression
+bucket4j.filters[0].metrics.enabled=true
+bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter 
+bucket4j.filters[0].metrics.tags[0].key=IP
+bucket4j.filters[0].metrics.tags[0].expression=getRemoteAddr()
+bucket4j.filters[0].metrics.tags[0].types=REJECTED_COUNTER # (optionial) this tag should for example only be applied for the rejected counter
+bucket4j.filters[0].metrics.tags[1].key=URL
+bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
+bucket4j.filters[0].metrics.tags[2].key=USERNAME
+bucket4j.filters[0].metrics.tags[2].expression="@securityService.username() != null ? @securityService.username() : 'anonym'"
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
 bucket4j.filters[0].rate-limits[0].filter-key-type=expression [default, ip, expression]
 bucket4j.filters[0].rate-limits[0].expression=getRemoteAddress() # if filter-key-type is expression the key can be retrieved by an Spring Expression Language
@@ -213,13 +216,15 @@ bucket4j:
     filter-method: servlet
     filter-order: 1
     url: /*
-    metricTags:
-    - key: IP
-      expression: getRemoteAddr()
-    - key: USERNAME
-      expression: "@securityService.username() != null ? @securityService.username() : 'anonym'"
-    - key: URL
-      expression: request.getRequestURI()  
+    metrics:
+      tags:
+        - key: IP
+          expression: getRemoteAddr()
+          types: REJECTED_COUNTER # for data privacy reasons the IP should only be collected on bucket rejections
+        - key: USERNAME
+          expression: "@securityService.username() != null ? @securityService.username() : 'anonym'"
+        - key: URL
+          expression: request.getRequestURI()  
     rate-limits:
     - filter-key-type: expression
       execute-condition:  "@securityService.username() == 'admin'"

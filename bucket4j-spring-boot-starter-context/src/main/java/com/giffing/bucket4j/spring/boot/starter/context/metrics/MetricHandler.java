@@ -4,8 +4,6 @@ import java.util.List;
 
 public interface MetricHandler {
 
-    void onConsumed(String name, long tokens, List<MetricTagResult> tags);
+    void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags);
 
-    void onRejected(String name, long tokens, List<MetricTagResult> tags);
-	
 }

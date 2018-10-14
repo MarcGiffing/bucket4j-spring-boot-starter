@@ -31,7 +31,7 @@ public class FilterConfiguration<R> {
 
 	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
 	
-	private List<MetricTag> metricTags = new ArrayList<>();
+	private Metrics metrics;
 
 	public String getUrl() {
 		return url;
@@ -73,12 +73,12 @@ public class FilterConfiguration<R> {
 		this.httpResponseBody = httpResponseBody;
 	}
 
-	public List<MetricTag> getMetricTags() {
-		return metricTags;
+	public Metrics getMetrics() {
+		return metrics;
 	}
 
-	public void setMetricTags(List<MetricTag> metricTags) {
-		this.metricTags = metricTags;
+	public void setMetrics(Metrics metrics) {
+		this.metrics = metrics;
 	}
 
 }

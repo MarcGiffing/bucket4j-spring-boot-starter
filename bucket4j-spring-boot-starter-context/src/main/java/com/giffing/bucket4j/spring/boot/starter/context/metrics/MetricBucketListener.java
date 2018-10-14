@@ -13,21 +13,27 @@ public class MetricBucketListener implements BucketListener {
     private final String name;
 	private final List<MetricTagResult> tags;
 	private final MetricHandler metricHandler;
+	private final List<MetricType> allowedTypes;
 
-    public MetricBucketListener(String name, MetricHandler metricHandler, List<MetricTagResult> tags) {
+    public MetricBucketListener(String name, MetricHandler metricHandler, List<MetricType> allowedTypes, List<MetricTagResult> tags) {
 		this.name = name;
-		this.tags = tags;
 		this.metricHandler = metricHandler;
+		this.allowedTypes = allowedTypes;
+		this.tags = tags;
 	}
     
     @Override
     public void onConsumed(long tokens) {
-    	metricHandler.onConsumed(name, tokens, tags);
+    	if(allowedTypes.contains(MetricType.CONSUMED_COUNTER)) {
+    		metricHandler.handle(MetricType.CONSUMED_COUNTER, name, tokens, tags);
+    	}
     }
 
     @Override
     public void onRejected(long tokens) {
-        metricHandler.onRejected(name, tokens, tags);
+    	if(allowedTypes.contains(MetricType.REJECTED_COUNTER)) {
+    		metricHandler.handle(MetricType.REJECTED_COUNTER, name, tokens, tags);
+    	}
     }
 
     @Override
