@@ -10,7 +10,7 @@ public class Metrics {
 
 	private boolean enabled = true;
 	
-	private List<MetricType> types = Arrays.asList();
+	private List<MetricType> types = Arrays.asList(MetricType.values());
 	
 	private List<MetricTag> tags = new ArrayList<>();
 
