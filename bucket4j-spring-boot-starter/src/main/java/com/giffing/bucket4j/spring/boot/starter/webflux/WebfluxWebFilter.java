@@ -79,7 +79,7 @@ public class WebfluxWebFilter implements WebFilter, Ordered {
 				remainingLimit = reduced.join();
 			}
 			
-			if(remainingLimit == null || remainingLimit <= 0) {
+			if(remainingLimit == null || remainingLimit < 0) {
 	        	return Mono.error(new WebfluxRateLimitException(filterConfig.getHttpResponseBody()));
 	        }
 			if(remainingLimit != null) {
