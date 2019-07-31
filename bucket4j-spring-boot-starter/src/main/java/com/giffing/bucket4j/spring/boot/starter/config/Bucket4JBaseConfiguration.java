@@ -18,6 +18,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.DummyMetricHandler;
@@ -51,6 +52,7 @@ import io.github.bucket4j.grid.ProxyManager;
  * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
  * the {@link Bucket4JAutoConfigurationZuul} configuration classes
  */
+@Component
 public abstract class Bucket4JBaseConfiguration<R> {
 	
 	//TODO it should work without registrating a dummy metric handler
@@ -64,6 +66,12 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
 		
+		config.getRateLimits().forEach(r -> {
+			if(r.getFilterKeyType() != null) {
+				throw new FilterKeyTypeDeprectatedException();
+			}
+		});
+		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
 		filterConfig.setUrl(config.getUrl());
 		filterConfig.setOrder(config.getFilterOrder());
@@ -71,14 +79,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
 		filterConfig.setMetrics(config.getMetrics());
 		
-		try {
-			Pattern.compile(filterConfig.getUrl());
-			if(filterConfig.getUrl().equals("/*")) {
-				throw new PatternSyntaxException(filterConfig.getUrl(), "/*", 0);
-			}
-		} catch( PatternSyntaxException exception) {
-			throw new FilterURLInvalidException(filterConfig.getUrl(), exception.getDescription());
-		}
+		throwExceptionOnInvalidFilterUrl(filterConfig);
 		
 		config.getRateLimits().forEach(rl -> {
 			
@@ -125,6 +126,17 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		});
 		
 		return filterConfig;
+	}
+
+	private void throwExceptionOnInvalidFilterUrl(FilterConfiguration<R> filterConfig) {
+		try {
+			Pattern.compile(filterConfig.getUrl());
+			if(filterConfig.getUrl().equals("/*")) {
+				throw new PatternSyntaxException(filterConfig.getUrl(), "/*", 0);
+			}
+		} catch( PatternSyntaxException exception) {
+			throw new FilterURLInvalidException(filterConfig.getUrl(), exception.getDescription());
+		}
 	}
 
 	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
@@ -178,33 +190,19 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	 */
 	public KeyFilter<R> getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
-		switch(rateLimit.getFilterKeyType()) {
-		case IP:
-			return (request) -> {
-				if(request instanceof HttpServletRequest) {
-					return url + "-" + ((HttpServletRequest)request).getRemoteAddr();	
-				}
-				if(request instanceof ServerHttpRequest) {
-					return url + "-" + ((ServerHttpRequest)request).getRemoteAddress().getHostName();	
-				}
-				throw new IllegalStateException("Unsupported request type " + request.getClass());
-			};
-		case EXPRESSION:
-			String expression = rateLimit.getExpression();
-			if(StringUtils.isEmpty(expression)) {
-				throw new MissingKeyFilterExpressionException();
-			}
-			StandardEvaluationContext context = new StandardEvaluationContext();
-			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-			return  (request) -> {
-				//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-				Expression expr = expressionParser.parseExpression(rateLimit.getExpression()); 
-				final String value = expr.getValue(context, request, String.class);
-				return url + "-" + value;
-			};
-		default:
-			return (request) -> url + "-" + "1";
+		String expression = rateLimit.getExpression();
+		if(StringUtils.isEmpty(expression)) {
+			throw new MissingKeyFilterExpressionException();
 		}
+		StandardEvaluationContext context = new StandardEvaluationContext();
+		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+		return  (request) -> {
+			//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
+			Expression expr = expressionParser.parseExpression(rateLimit.getExpression()); 
+			final String value = expr.getValue(context, request, String.class);
+			return url + "-" + value;
+		};
+
 		
 	}
 	

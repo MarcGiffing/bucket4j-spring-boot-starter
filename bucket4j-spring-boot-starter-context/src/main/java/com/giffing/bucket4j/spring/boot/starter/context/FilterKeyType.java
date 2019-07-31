@@ -5,6 +5,7 @@ package com.giffing.bucket4j.spring.boot.starter.context;
  * define to whom the rate limit should be applied. 
  *
  */
+@Deprecated
 public enum FilterKeyType {
 	
 	/**

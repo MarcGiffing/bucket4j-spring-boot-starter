@@ -7,7 +7,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
 
 public class RateLimit {
 	
-	private FilterKeyType filterKeyType = FilterKeyType.DEFAULT;
+	private FilterKeyType filterKeyType;
 	
 	/**
 	 * SpEl condition to check if the rate limit should be executed. If null there is no check. 
@@ -19,7 +19,7 @@ public class RateLimit {
 	 */
 	private String skipCondition;
 	
-	private String expression;
+	private String expression = "1";
 
 	private List<BandWidth> bandwidths = new ArrayList<>();
 	

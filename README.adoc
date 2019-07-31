@@ -120,7 +120,6 @@ bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
 bucket4j.filters[0].metrics.tags[2].key=USERNAME
 bucket4j.filters[0].metrics.tags[2].expression="@securityService.username() != null ? @securityService.username() : 'anonym'"
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
-bucket4j.filters[0].rate-limits[0].filter-key-type=expression [default, ip, expression]
 bucket4j.filters[0].rate-limits[0].expression=getRemoteAddress() # if filter-key-type is expression the key can be retrieved by an Spring Expression Language
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
@@ -226,7 +225,6 @@ bucket4j:
         - key: URL
           expression: request.getRequestURI()  
     rate-limits:
-    - filter-key-type: expression
       execute-condition:  "@securityService.username() == 'admin'"
       expression: "@securityService.username()?: getRemoteAddr()"
       bandwidths:
@@ -249,7 +247,6 @@ bucket4j:
   - cache-name: buckets 
     url: .*
     rate-limits:
-    - filter-key-type: default 
       bandwidths: 
       - capacity: 5 
         time: 10
@@ -268,21 +265,18 @@ bucket4j:
     filter-method: servlet 
     url: .*
     rate-limits:
-    - filter-key-type: expression
       execute-condition:  @securityService.notSignedIn() # only for not logged in users
       expression: "getRemoteAddr()"
       bandwidths:
       - capacity: 10
         time: 1
         unit: minutes
-    - filter-key-type: expression
       execute-condition: "@securityService.username() != 'admin'" # strategy is only evaluate first. so the user must be logged in and user is not admin 
       expression: @securityService.username()
       bandwidths:
       - capacity: 1000
         time: 1
         unit: minutes
-    - filter-key-type: expression
       execute-condition:  "@securityService.username() == 'admin'"  # user is admin
       expression: @securityService.username()
       bandwidths:
@@ -302,7 +296,6 @@ bucket4j:
   - cache-name: buckets # create new servlet filter with bucket4j configuration
     url: /admin*
     rate-limits:
-    - filter-key-type: default # filter all requests independently from the source
       bandwidths: # maximum of 5 requests within 10 seconds
       - capacity: 5 
         time: 10
@@ -310,7 +303,7 @@ bucket4j:
   - cache-name: buckets 
     url: /public*
     rate-limits:
-    - filter-key-type: ip # IP based filter
+    - expression: getRemoteAddress() # IP based filter
       bandwidths: # maximum of 5 requests within 10 seconds
       - capacity: 5 
         time: 10
@@ -318,9 +311,8 @@ bucket4j:
   - cache-name: buckets 
     url: /users*
     rate-limits:
-    - filter-key-type: expression  # expression based filter key evaluation
-    	  skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
-    	  expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
+	  skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
+	  expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
       bandwidths: 
     - capacity: 100
       time: 1
