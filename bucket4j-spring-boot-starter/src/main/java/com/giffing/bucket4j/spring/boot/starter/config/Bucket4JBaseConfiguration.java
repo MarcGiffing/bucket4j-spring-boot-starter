@@ -34,6 +34,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import com.giffing.bucket4j.spring.boot.starter.exception.FilterKeyTypeDeprectatedException;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
@@ -43,6 +44,7 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
+import io.github.bucket4j.Refill;
 import io.github.bucket4j.grid.ProxyManager;
 
 /**
@@ -130,7 +132,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		for (BandWidth bandWidth : rl.getBandwidths()) {
 				Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
 				if(bandWidth.getFixedRefillInterval() > 0) {
-					bucket4jBandWidth = bucket4jBandWidth.withFixedRefillInterval(Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit()));
+					bucket4jBandWidth = Bandwidth.classic(bandWidth.getCapacity(), Refill.intervally(bandWidth.getCapacity(), Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit())));
 				}
 				configBuilder = configBuilder.addLimit(bucket4jBandWidth);
 		};
