@@ -1,9 +1,0 @@
-/target/
-/.settings/
-.classpath
-.project
-.idea/
-*.iml
-.factorypath
-.apt_generated
-.springBeans

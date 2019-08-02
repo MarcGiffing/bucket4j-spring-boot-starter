@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.springboot2.actuator;
+package com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator;
 
 import java.util.ArrayList;
 import java.util.List;

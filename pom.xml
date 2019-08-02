@@ -19,8 +19,6 @@
 
 	<modules>
 		<module>bucket4j-spring-boot-starter-context</module>
-		<module>bucket4j-spring-boot-starter-springboot1</module>
-		<module>bucket4j-spring-boot-starter-springboot2</module>
 		<module>bucket4j-spring-boot-starter</module>
 	</modules>
 
@@ -56,16 +54,6 @@
 			<dependency>
 				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 				<artifactId>bucket4j-spring-boot-starter-context</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-				<artifactId>bucket4j-spring-boot-starter-springboot1</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-				<artifactId>bucket4j-spring-boot-starter-springboot2</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.springboot2.actuator;
+package com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
