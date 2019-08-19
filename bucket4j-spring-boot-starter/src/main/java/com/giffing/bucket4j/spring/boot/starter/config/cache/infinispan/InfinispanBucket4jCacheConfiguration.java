@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 
+@Configuration
 @ConditionalOnClass({ CacheContainer.class })
 @ConditionalOnBean(CacheContainer.class)
 public class InfinispanBucket4jCacheConfiguration {
