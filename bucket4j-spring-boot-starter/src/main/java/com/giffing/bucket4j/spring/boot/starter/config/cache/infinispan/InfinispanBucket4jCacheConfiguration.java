@@ -17,6 +17,7 @@ public class InfinispanBucket4jCacheConfiguration {
 		this.cacheContainer = cacheContainer;
 	}
 	
+	@Bean
 	public AsyncCacheResolver infinispanCacheResolver() {
 		return new InfinispanCacheResolver(cacheContainer);
 	}
