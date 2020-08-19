@@ -56,6 +56,8 @@ your project. Additionally you need to add a https://www.jcp.org/en/jsr/detail?i
 </dependency>
 ----
 
+> Don't forget to enable the caching feature by adding the @EnableCaching annotation to any of the configuration classes.
+
 The configuration can be done in the application.properties / application.yml. 
 The following configuration limits all requests independently from the user. It allows a maximum of 5 requests within 10 seconds independently from the user.
 
