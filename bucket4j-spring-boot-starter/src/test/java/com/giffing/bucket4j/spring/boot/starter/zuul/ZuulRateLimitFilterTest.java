@@ -1,6 +1,6 @@
-package com.giffing.bucket4j.spring.boot.starter.zuul;
+ package com.giffing.bucket4j.spring.boot.starter.zuul;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -32,7 +32,7 @@ public class ZuulRateLimitFilterTest {
 	private ConsumptionProbeHolder consumptionProbeHolder;
 	private ConsumptionProbe consumptionProbe;
 	
-	@Before
+	@BeforeEach
     public void setup() {
 		consumptionProbeHolder = Mockito.mock(ConsumptionProbeHolder.class);
 		consumptionProbe = Mockito.mock(ConsumptionProbe.class);

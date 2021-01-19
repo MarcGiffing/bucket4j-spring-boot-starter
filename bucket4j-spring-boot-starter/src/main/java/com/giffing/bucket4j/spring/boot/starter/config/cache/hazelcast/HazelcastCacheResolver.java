@@ -1,7 +1,9 @@
+
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.grid.GridBucketState;
@@ -23,7 +25,7 @@ public class HazelcastCacheResolver implements AsyncCacheResolver {
 	
 	@Override
 	public ProxyManager<String> resolve(String cacheName) {
-		com.hazelcast.core.IMap<String, GridBucketState> map = hazelcastInstance.getMap(cacheName);
+		IMap<String, GridBucketState> map = hazelcastInstance.getMap(cacheName);
 		return Bucket4j.extension(Hazelcast.class).proxyManagerForMap(map);
 	}
 

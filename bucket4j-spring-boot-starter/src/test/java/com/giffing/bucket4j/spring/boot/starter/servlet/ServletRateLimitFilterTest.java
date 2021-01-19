@@ -1,7 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.servlet;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,8 +10,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
 import com.netflix.zuul.context.RequestContext;
 
 import io.github.bucket4j.ConsumptionProbe;
@@ -38,7 +36,7 @@ public class ServletRateLimitFilterTest {
 	private ConsumptionProbeHolder consumptionProbeHolder;
 	private ConsumptionProbe consumptionProbe;
 	
-	@Before
+	@BeforeEach
     public void setup() {
 		consumptionProbeHolder = Mockito.mock(ConsumptionProbeHolder.class);
 		consumptionProbe = Mockito.mock(ConsumptionProbe.class);
@@ -52,11 +50,11 @@ public class ServletRateLimitFilterTest {
         
         configuration = new FilterConfiguration();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
-        configuration.setUrl("url");
+        configuration.setUrl(".*");
         filter = new ServletRequestFilter(configuration);
     }
 	
-	@Test 
+	@Test
 	public void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws Exception {
 		
         when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);

@@ -19,6 +19,14 @@ public enum FilterMethod {
 	/**
 	 * Spring Boots 5 async WebFilter
 	 */
-	WEBFLUX;
+	WEBFLUX,
+	
+	/**
+	 * Spring Cloud Gateway GlobalFilter
+	 */
+
+	GATEWAY;
+	
+	
 	
 }
