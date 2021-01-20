@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.servlet;
+package com.giffing.bucket4j.spring.boot.starter.filter.servlet;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

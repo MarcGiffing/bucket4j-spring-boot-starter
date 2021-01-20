@@ -39,7 +39,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 
 import io.github.bucket4j.grid.jcache.JCache;
 

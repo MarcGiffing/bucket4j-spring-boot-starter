@@ -32,6 +32,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
 import com.netflix.zuul.context.RequestContext;
 
 import io.github.bucket4j.ConsumptionProbe;
@@ -85,7 +87,7 @@ public class WebfluxRateLimitFilterTest {
         
         AtomicBoolean hasRateLimitError = new AtomicBoolean(false);
 		Mono<Void> result = filter.filter(exchange, chain)
-				.onErrorResume(WebfluxRateLimitException.class, (e) -> {
+				.onErrorResume(ReactiveRateLimitException.class, (e) -> {
 					hasRateLimitError.set(true);
 					return Mono.<Void>empty();
 				});

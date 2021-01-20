@@ -35,7 +35,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.zuul.ZuulRateLimitFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.zuul.ZuulRateLimitFilter;
 import com.netflix.zuul.FilterFactory;
 import com.netflix.zuul.ZuulFilter;
 

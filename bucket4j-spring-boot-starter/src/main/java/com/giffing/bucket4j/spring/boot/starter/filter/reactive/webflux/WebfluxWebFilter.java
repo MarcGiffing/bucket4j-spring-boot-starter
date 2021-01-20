@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.webflux;
+package com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
 
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
@@ -80,7 +81,7 @@ public class WebfluxWebFilter implements WebFilter, Ordered {
 			}
 			
 			if(remainingLimit == null || remainingLimit < 0) {
-	        	return Mono.error(new WebfluxRateLimitException(filterConfig.getHttpResponseBody()));
+	        	return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
 	        }
 			if(remainingLimit != null) {
 				response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);

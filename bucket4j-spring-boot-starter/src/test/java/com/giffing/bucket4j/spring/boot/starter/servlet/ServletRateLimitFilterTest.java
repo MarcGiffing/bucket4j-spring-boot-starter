@@ -21,6 +21,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 import com.netflix.zuul.context.RequestContext;
 
 import io.github.bucket4j.ConsumptionProbe;

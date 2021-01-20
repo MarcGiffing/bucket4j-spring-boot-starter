@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.zuul;
+package com.giffing.bucket4j.spring.boot.starter.filter.zuul;
 
 import java.util.concurrent.TimeUnit;
 
