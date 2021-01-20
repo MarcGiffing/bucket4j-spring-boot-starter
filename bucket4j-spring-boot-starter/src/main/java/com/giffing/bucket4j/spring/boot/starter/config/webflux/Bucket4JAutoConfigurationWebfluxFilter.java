@@ -83,7 +83,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 	}
 
 	@Bean
-	public ExpressionParser webFilterExpressionParser() {
+	public ExpressionParser webfluxFilterExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
 				this.getClass().getClassLoader());
 		ExpressionParser parser = new SpelExpressionParser(config);
@@ -102,7 +102,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 				filterCount.incrementAndGet();
 				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
 						filter.getCacheName()), 
-						webFilterExpressionParser(), 
+						webfluxFilterExpressionParser(), 
 						beanFactory);
 				
 				servletConfigurationHolder().addFilterConfiguration(filter);

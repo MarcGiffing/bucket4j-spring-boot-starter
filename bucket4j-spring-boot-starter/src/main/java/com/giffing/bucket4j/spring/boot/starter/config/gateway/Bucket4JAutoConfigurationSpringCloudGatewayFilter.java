@@ -87,7 +87,7 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 	}
 
 	@Bean
-	public ExpressionParser webFilterExpressionParser() {
+	public ExpressionParser gatewayFilterExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
 				this.getClass().getClassLoader());
 		ExpressionParser parser = new SpelExpressionParser(config);
@@ -106,7 +106,7 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 				filterCount.incrementAndGet();
 				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
 						filter.getCacheName()), 
-						webFilterExpressionParser(), 
+						gatewayFilterExpressionParser(), 
 						beanFactory);
 				
 				gatewayConfigurationHolder().addFilterConfiguration(filter);
