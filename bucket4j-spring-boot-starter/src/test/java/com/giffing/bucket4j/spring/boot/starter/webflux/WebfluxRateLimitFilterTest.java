@@ -37,7 +37,7 @@ import com.netflix.zuul.context.RequestContext;
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
 
-public class WebfluxRateLimitFilterrTest {
+public class WebfluxRateLimitFilterTest {
 
 	private WebfluxWebFilter filter;
 	private FilterConfiguration configuration;
@@ -147,7 +147,7 @@ public class WebfluxRateLimitFilterrTest {
 	private void rateLimitConfig(Long remainingTokens, RateLimitCheck rateLimitCheck) {
 		ConsumptionProbeHolder consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
         ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
-		when(probe.isConsumed()).thenReturn(true);
+		when(probe.isConsumed()).thenReturn(remainingTokens > 0 ? true : false);
 		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
 		when(consumptionHolder.getConsumptionProbeCompletableFuture())
 			.thenReturn(CompletableFuture.completedFuture(probe));
