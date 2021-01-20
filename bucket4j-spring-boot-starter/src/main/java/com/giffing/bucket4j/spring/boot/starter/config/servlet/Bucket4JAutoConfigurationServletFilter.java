@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.servlet;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.Filter;
@@ -7,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -36,6 +36,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRequestFilter;
@@ -58,18 +59,29 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);
 	
-	@Autowired
-	private Bucket4JBootProperties properties;
+	private final Bucket4JBootProperties properties;
 	
-	@Autowired
-	private ConfigurableBeanFactory beanFactory;
+	private final ConfigurableBeanFactory beanFactory;
 	
-	@Autowired
-    private GenericApplicationContext context;
+    private final GenericApplicationContext context;
 	
-	@Autowired
-	private SyncCacheResolver cacheResolver;
+	private final SyncCacheResolver cacheResolver;
 
+	private final List<MetricHandler> metricHandlers;
+	
+	public Bucket4JAutoConfigurationServletFilter(
+			Bucket4JBootProperties properties,
+			ConfigurableBeanFactory beanFactory,
+			GenericApplicationContext context,
+			SyncCacheResolver cacheResolver,
+			List<MetricHandler> metricHandlers) {
+		this.properties = properties;
+		this.beanFactory = beanFactory;
+		this.context = context;
+		this.cacheResolver = cacheResolver;
+		this.metricHandlers = metricHandlers;
+	}
+	
 	@Bean
 	@Qualifier("SERVLET")
 	public Bucket4jConfigurationHolder servletConfigurationHolder() {
@@ -102,5 +114,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 						log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
 					});
 			}
+
+	@Override
+	public List<MetricHandler> getMetricHandlers() {
+		return this.metricHandlers;
+	}
 
 }

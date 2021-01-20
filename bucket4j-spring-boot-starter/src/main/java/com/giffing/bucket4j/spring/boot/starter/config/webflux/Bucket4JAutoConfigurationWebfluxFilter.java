@@ -1,12 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.config.webflux;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -33,6 +33,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfig
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.webflux.WebfluxWebFilter;
@@ -52,18 +53,29 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
 
-	@Autowired
-	private Bucket4JBootProperties properties;
+	private final Bucket4JBootProperties properties;
+	
+	private final ConfigurableBeanFactory beanFactory;
+	
+    private final GenericApplicationContext context;
+	
+	private final AsyncCacheResolver cacheResolver;
 
-	@Autowired
-	private ConfigurableBeanFactory beanFactory;
-
-	@Autowired
-	private GenericApplicationContext context;
-
-	@Autowired
-	private AsyncCacheResolver cacheResolver;
-
+	private final List<MetricHandler> metricHandlers;
+	
+	public Bucket4JAutoConfigurationWebfluxFilter(
+			Bucket4JBootProperties properties,
+			ConfigurableBeanFactory beanFactory,
+			GenericApplicationContext context,
+			AsyncCacheResolver cacheResolver,
+			List<MetricHandler> metricHandlers) {
+		this.properties = properties;
+		this.beanFactory = beanFactory;
+		this.context = context;
+		this.cacheResolver = cacheResolver;
+		this.metricHandlers = metricHandlers;
+	}
+	
 	@Bean
 	@Qualifier("WEBFLUX")
 	public Bucket4jConfigurationHolder servletConfigurationHolder() {
@@ -103,6 +115,10 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 				context.registerBean("bucket4JWebfluxFilter" + filterCount, WebFilter.class, () -> webFilter);
 			});
 		
+	}
+	@Override
+	public List<MetricHandler> getMetricHandlers() {
+		return this.metricHandlers;
 	}
 
 

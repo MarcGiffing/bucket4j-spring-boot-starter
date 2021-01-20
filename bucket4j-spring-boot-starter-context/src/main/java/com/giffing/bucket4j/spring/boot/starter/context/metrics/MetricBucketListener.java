@@ -12,12 +12,12 @@ public class MetricBucketListener implements BucketListener {
 
     private final String name;
 	private final List<MetricTagResult> tags;
-	private final MetricHandler metricHandler;
+	private final List<MetricHandler> metricHandlers;
 	private final List<MetricType> allowedTypes;
 
-    public MetricBucketListener(String name, MetricHandler metricHandler, List<MetricType> allowedTypes, List<MetricTagResult> tags) {
+    public MetricBucketListener(String name, List<MetricHandler> metricHandlers, List<MetricType> allowedTypes, List<MetricTagResult> tags) {
 		this.name = name;
-		this.metricHandler = metricHandler;
+		this.metricHandlers = metricHandlers;
 		this.allowedTypes = allowedTypes;
 		this.tags = tags;
 	}
@@ -25,14 +25,14 @@ public class MetricBucketListener implements BucketListener {
     @Override
     public void onConsumed(long tokens) {
     	if(allowedTypes.contains(MetricType.CONSUMED_COUNTER)) {
-    		metricHandler.handle(MetricType.CONSUMED_COUNTER, name, tokens, tags);
+    		metricHandlers.forEach(metricHandler -> metricHandler.handle(MetricType.CONSUMED_COUNTER, name, tokens, tags));
     	}
     }
 
     @Override
     public void onRejected(long tokens) {
     	if(allowedTypes.contains(MetricType.REJECTED_COUNTER)) {
-    		metricHandler.handle(MetricType.REJECTED_COUNTER, name, tokens, tags);
+    		metricHandlers.forEach(metricHandler -> metricHandler.handle(MetricType.REJECTED_COUNTER, name, tokens, tags));
     	}
     }
 

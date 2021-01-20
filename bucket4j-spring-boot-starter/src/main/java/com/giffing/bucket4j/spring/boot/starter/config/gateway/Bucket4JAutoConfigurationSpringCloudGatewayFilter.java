@@ -1,12 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.config.gateway;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,10 +35,10 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfig
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.gateway.SpringCloudGatewayRateLimitFilter;
-import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
 /**
  * Configures Servlet Filters for Bucket4Js rate limit.
  * 
@@ -52,19 +53,32 @@ import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
 @Import(value = { SpringBootActuatorConfig.class })
 public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
+
+
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
 
-	@Autowired
-	private Bucket4JBootProperties properties;
+	private final Bucket4JBootProperties properties;
 
-	@Autowired
-	private ConfigurableBeanFactory beanFactory;
+	private final ConfigurableBeanFactory beanFactory;
 
-	@Autowired
-	private GenericApplicationContext context;
+	private final GenericApplicationContext context;
 
-	@Autowired
-	private AsyncCacheResolver cacheResolver;
+	private final AsyncCacheResolver cacheResolver;
+
+	private final List<MetricHandler> metricHandlers;
+
+	public Bucket4JAutoConfigurationSpringCloudGatewayFilter(
+			Bucket4JBootProperties properties,
+			ConfigurableBeanFactory beanFactory,
+			GenericApplicationContext context,
+			AsyncCacheResolver cacheResolver,
+			List<MetricHandler> metricHandlers) {
+		this.properties = properties;
+		this.beanFactory = beanFactory;
+		this.context = context;
+		this.cacheResolver = cacheResolver;
+		this.metricHandlers = metricHandlers;
+	}
 
 	@Bean
 	@Qualifier("GATEWAY")
@@ -105,6 +119,11 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 				context.registerBean("bucket4JGatewayFilter" + filterCount, GlobalFilter.class, () -> webFilter);
 			});
 		
+	}
+
+	@Override
+	public List<MetricHandler> getMetricHandlers() {
+		return this.metricHandlers;
 	}
 
 

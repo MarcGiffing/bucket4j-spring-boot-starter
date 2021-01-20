@@ -10,15 +10,12 @@ import java.util.regex.PatternSyntaxException;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.DummyMetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
@@ -49,14 +46,9 @@ import io.github.bucket4j.grid.ProxyManager;
  * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
  * the {@link Bucket4JAutoConfigurationZuul} configuration classes
  */
-@Component
 public abstract class Bucket4JBaseConfiguration<R> {
 	
-	//TODO it should work without registrating a dummy metric handler
-	@Bean
-	public MetricHandler dummyMetricHandler() {
-		return new DummyMetricHandler();
-	}
+	public abstract List<MetricHandler> getMetricHandlers();
 	
 	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, 
 			ProxyManager<String> buckets, 
@@ -80,7 +72,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		
 		config.getRateLimits().forEach(rl -> {
 			
-			MetricHandler metricHandler = beanFactory.getBean(MetricHandler.class);
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			
 			RateLimitCheck<R> rlc = (servletRequest, async) -> {
@@ -103,7 +94,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 
 		        	MetricBucketListener metricBucketListener = new MetricBucketListener(
 							config.getCacheName(),
-							metricHandler, 
+							getMetricHandlers(), 
 							filterConfig.getMetrics().getTypes(),
 							metricTagResults);
 					

@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.zuul;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
@@ -7,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -19,12 +19,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
@@ -32,6 +32,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.zuul.ZuulRateLimitFilter;
@@ -55,18 +56,28 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration<Htt
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationZuul.class);
 
-	@Autowired
-	private Bucket4JBootProperties properties;
-
-	@Autowired
-	private ConfigurableBeanFactory beanFactory;
+	private final Bucket4JBootProperties properties;
 	
-	@Autowired
-    private GenericWebApplicationContext context;
+	private final ConfigurableBeanFactory beanFactory;
 	
-	@Autowired
-	private SyncCacheResolver cacheResolver;
+    private final GenericApplicationContext context;
+	
+	private final SyncCacheResolver cacheResolver;
 
+	private final List<MetricHandler> metricHandlers;
+	
+	public Bucket4JAutoConfigurationZuul(
+			Bucket4JBootProperties properties,
+			ConfigurableBeanFactory beanFactory,
+			GenericApplicationContext context,
+			SyncCacheResolver cacheResolver,
+			List<MetricHandler> metricHandlers) {
+		this.properties = properties;
+		this.beanFactory = beanFactory;
+		this.context = context;
+		this.cacheResolver = cacheResolver;
+		this.metricHandlers = metricHandlers;
+	}
 	@Bean
 	@Qualifier("ZUUL")
 	public Bucket4jConfigurationHolder zuulConfigurationHolder() {
@@ -102,6 +113,10 @@ public class Bucket4JAutoConfigurationZuul extends Bucket4JBaseConfiguration<Htt
 			}).forEach(filter -> {
 				context.registerBean("bucket4JZuulFilter" + filterCount, ZuulRateLimitFilter.class, () -> filter);
 			});
+	}
+	@Override
+	public List<MetricHandler> getMetricHandlers() {
+		return this.metricHandlers;
 	}
 
 }
