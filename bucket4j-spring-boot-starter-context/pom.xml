@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 		<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
-		<version>0.3.0-SNAPSHOT</version>
+		<version>0.3.0</version>
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-context</artifactId>
 
