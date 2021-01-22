@@ -31,8 +31,8 @@
 	</licenses>
 	<scm>
 		<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter/</url>
-		<connection>scm:git:git://github.com/MarcGiffing/bucket4j-spring-boot-starter</connection>
-		<developerConnection>scm:git:git@github.com:MarcGiffing/bucket4j-spring-boot-starter</developerConnection>
+		<connection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git</connection>
+		<developerConnection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git</developerConnection>
 		<tag>bucket4j-spring-boot-starter-parent-0.3.0</tag>
 	</scm>
 
