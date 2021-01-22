@@ -143,7 +143,21 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>scm-tag</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-scm-plugin</artifactId>
+						<version>1.11.2</version>
+						<configuration>
+							<tag>${project.artifactId}-${project.version}</tag>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>deploy</id>
 			<build>
 				<plugins>
 					<plugin>
