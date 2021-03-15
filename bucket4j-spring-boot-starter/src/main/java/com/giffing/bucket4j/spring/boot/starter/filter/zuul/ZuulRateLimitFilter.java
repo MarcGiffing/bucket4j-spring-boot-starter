@@ -41,6 +41,7 @@ public class ZuulRateLimitFilter extends ZuulFilter {
 				} else {
 					context.setResponseStatusCode(HttpStatus.TOO_MANY_REQUESTS.value());
 					context.addZuulResponseHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+					filterConfig.getHttpResponseHeaders().forEach(context::addZuulResponseHeader);
 					context.setResponseBody(filterConfig.getHttpResponseBody());
 					context.setSendZuulResponse(false);
 					break;
