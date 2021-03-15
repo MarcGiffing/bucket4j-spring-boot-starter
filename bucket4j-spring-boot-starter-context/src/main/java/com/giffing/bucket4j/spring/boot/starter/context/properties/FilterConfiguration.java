@@ -2,6 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
@@ -28,6 +29,8 @@ public class FilterConfiguration<R> {
 	 * The HTTP response body which should be returned when limiting the rate.
 	 */
 	private String httpResponseBody;
+
+	private Map<String, String> httpResponseHeaders;
 
 	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
 	
@@ -71,6 +74,14 @@ public class FilterConfiguration<R> {
 
 	public void setHttpResponseBody(String httpResponseBody) {
 		this.httpResponseBody = httpResponseBody;
+	}
+
+	public Map<String, String> getHttpResponseHeaders() {
+		return httpResponseHeaders;
+	}
+
+	public void setHttpResponseHeaders(Map<String, String> httpResponseHeaders) {
+		this.httpResponseHeaders = httpResponseHeaders;
 	}
 
 	public Metrics getMetrics() {

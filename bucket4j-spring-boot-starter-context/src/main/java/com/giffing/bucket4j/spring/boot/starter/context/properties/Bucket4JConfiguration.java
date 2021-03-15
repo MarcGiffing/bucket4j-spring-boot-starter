@@ -1,7 +1,9 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.core.Ordered;
 
@@ -44,7 +46,8 @@ public class Bucket4JConfiguration {
 	 * The HTTP content which should be used in case of rate limiting
 	 */
 	private String httpResponseBody = "{ \"message\": \"Too many requests!\" }";
-	
+
+	private Map<String, String> httpResponseHeaders = new HashMap<>();
 	
 	public Bucket4JConfiguration() {
 	}
@@ -103,6 +106,14 @@ public class Bucket4JConfiguration {
 
 	public void setHttpResponseBody(String httpResponseBody) {
 		this.httpResponseBody = httpResponseBody;
+	}
+
+	public Map<String, String> getHttpResponseHeaders() {
+		return httpResponseHeaders;
+	}
+
+	public void setHttpResponseHeaders(Map<String, String> httpResponseHeaders) {
+		this.httpResponseHeaders = httpResponseHeaders;
 	}
 
 	public Metrics getMetrics() {
