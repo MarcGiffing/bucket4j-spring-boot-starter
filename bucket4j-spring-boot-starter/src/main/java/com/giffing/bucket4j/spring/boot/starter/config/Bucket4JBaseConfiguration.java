@@ -17,7 +17,6 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
@@ -43,8 +42,11 @@ import io.github.bucket4j.Refill;
 import io.github.bucket4j.grid.ProxyManager;
 
 /**
- * Holds helper Methods which are reused by the {@link Bucket4JAutoConfigurationServletFilter} and 
- * the {@link Bucket4JAutoConfigurationZuul} configuration classes
+ * Holds helper Methods which are reused by the 
+ * {@link Bucket4JAutoConfigurationServletFilter}
+ * {@link Bucket4JAutoConfigurationSpringCloudGatewayFilter} 
+ * {@link Bucket4JAutoConfigurationWebfluxFilter} 
+ * configuration classes
  */
 public abstract class Bucket4JBaseConfiguration<R> {
 	

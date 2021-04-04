@@ -8,7 +8,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 /**
- * This class is the main configuration class which is used to build the Servlet Filter or ZuulFilter.
+ * This class is the main configuration class which is used to build the servlet|webflux|gateway request filter
  *
  */
 public class FilterConfiguration<R> {

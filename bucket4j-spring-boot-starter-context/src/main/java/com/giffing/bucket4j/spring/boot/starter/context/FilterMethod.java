@@ -12,11 +12,6 @@ public enum FilterMethod {
 	SERVLET,
 	
 	/**
-	 * ZuulRoute filter 
-	 */
-	ZUUL,
-	
-	/**
 	 * Spring Boots 5 async WebFilter
 	 */
 	WEBFLUX,

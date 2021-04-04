@@ -15,7 +15,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.7.RELEASE</version>
+		<version>2.4.2</version>
 		<relativePath />
 	</parent>
 
@@ -35,16 +35,19 @@
 		<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter/</url>
 		<connection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git</connection>
 		<developerConnection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git</developerConnection>
-		<tag>bucket4j-spring-boot-starter-parent-0.3.0</tag>
+		<tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
 	</scm>
 
 
 	<properties>
-		<revision>0.3.3</revision>
+		<revision>0.3.4</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<bucket4j.version>4.8.0</bucket4j.version>
+		<bucket4j.version>6.2.0</bucket4j.version>
+    <spring.boot.version>2.4.2</spring.boot.version>
+    <spring.cloud.version>3.0.1</spring.cloud.version>
+    <micrometer.version>1.6.5</micrometer.version>
 	</properties>
 
 	<dependencyManagement>
@@ -59,15 +62,20 @@
 				<artifactId>bucket4j-spring-boot-starter-context</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-zuul</artifactId>
-				<version>1.4.3.RELEASE</version>
-			</dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+        <version>${spring.boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-core</artifactId>
+        <version>${micrometer.version}</version>
+      </dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-gateway</artifactId>
-				<version>3.0.0</version>
+        <version>${spring.cloud.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.vladimir-bukhtoyarov</groupId>

@@ -9,7 +9,6 @@ https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-sp
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-ehcache[Ehcache]
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-hazelcast[Hazelcast]
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-caffeine[Caffeine]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-zuul[Zuul]
 * https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-webflux[Webflux (Async)]
 
 = Contents
@@ -108,7 +107,7 @@ spring:
 ----
 bucket4j.enabled=true # enable/disable bucket4j support
 bucket4j.filters[0].cache-name=buckets # the name of the cache key
-bucket4j.filters[0].filter-method=servlet # [servlet,zuul,webflux,gateway]
+bucket4j.filters[0].filter-method=servlet # [servlet,webflux,gateway]
 bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].http-response-headers.<MY_CUSTOM_HEADER>=MY_CUSTOM_HEADER_VALUE # You can add any numbers of custom headers
@@ -150,10 +149,9 @@ The IP filter type limits the access based on the IP address (httpServletRequest
 The expression based filter type provides the most flexible one and uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL). https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
 It provides an easy way to configure the throttling in different environments without writing one line of code.
 
-Depending on the filter method [servlet,zuul,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
+Depending on the filter method [servlet,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
 
 * servlet: javax.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
-* zuul: javax.servlet.http.HttpServletRequest
 * webflux: org.springframework.http.server.reactive.ServerHttpRequest
 * gateway: org.springframework.http.server.reactive.ServerHttpRequest
 
@@ -289,13 +287,13 @@ bucket4j:
           unit: minutes
 ----
 
-Configuration of multiple independently filters (servlet filter or zuul) with specific rate limit configurations.
+Configuration of multiple independently filters (servlet|gateway|webflux filters) with specific rate limit configurations.
 
 [source,yml]
 ----
 bucket4j:
   enabled: true
-  filters: # each config entry creates one servlet filter or zuul filter
+  filters: # each config entry creates one servlet filter or other filter
   - cache-name: buckets # create new servlet filter with bucket4j configuration
     url: /admin*
     rate-limits:
