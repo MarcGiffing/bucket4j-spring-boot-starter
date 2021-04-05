@@ -32,7 +32,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchi
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
@@ -117,9 +116,6 @@ public class SpringCloudGatewayRateLimitFilterTest {
 	@Test
 	public void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
-        RequestContext context = new RequestContext();
-        context.setRequest(request);
-        RequestContext.testSetCurrentContext(context);
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 

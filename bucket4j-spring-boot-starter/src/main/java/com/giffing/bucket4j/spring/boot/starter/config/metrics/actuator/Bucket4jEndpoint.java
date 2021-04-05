@@ -25,10 +25,6 @@ public class Bucket4jEndpoint {
 		private Bucket4jConfigurationHolder servletConfigs;
 		
 		@Autowired(required = false)
-		@Qualifier("ZUUL")
-		private Bucket4jConfigurationHolder zuulConfigs;
-		
-		@Autowired(required = false)
 		@Qualifier("WEBFLUX")
 		private Bucket4jConfigurationHolder webfluxConfigs;
 		
@@ -38,9 +34,6 @@ public class Bucket4jEndpoint {
 			Map<String, Object> result = new HashMap<>();
 			if(servletConfigs != null) {
 				result.put("servlet", servletConfigs.getFilterConfiguration());
-			}
-			if(zuulConfigs != null) {
-				result.put("zuul", zuulConfigs.getFilterConfiguration());
 			}
 			if(webfluxConfigs != null) {
 				result.put("webflux", webfluxConfigs.getFilterConfiguration());

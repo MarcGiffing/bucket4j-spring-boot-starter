@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 
 
 /**
- * Used to check if the rate limit should be performed independently from the Servlet Filter or ZuulFilter.  
+ * Used to check if the rate limit should be performed independently from the servlet|webflux|gateway request filter 
  *
  */
 @FunctionalInterface

@@ -3,8 +3,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration,\
 com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter,\
 com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter,\
-com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter,\
-com.giffing.bucket4j.spring.boot.starter.config.zuul.Bucket4JAutoConfigurationZuul
+com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter
 
 org.springframework.boot.diagnostics.FailureAnalyzer=com.giffing.bucket4j.spring.boot.starter.failureanalyzer.Bucket4JAutoConfigFailureAnalyzer
 

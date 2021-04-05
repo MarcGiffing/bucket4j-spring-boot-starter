@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import io.github.bucket4j.ConsumptionProbe;
 
@@ -52,6 +52,7 @@ public class ServletRateLimitFilterTest {
         configuration = new FilterConfiguration();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
         configuration.setUrl(".*");
+        configuration.setHttpResponseHeaders(new HashMap<String,String>(){} );
         filter = new ServletRequestFilter(configuration);
     }
 	
@@ -96,9 +97,6 @@ public class ServletRateLimitFilterTest {
 	@Test
 	public void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
-        RequestContext context = new RequestContext();
-        context.setRequest(request);
-        RequestContext.testSetCurrentContext(context);
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
