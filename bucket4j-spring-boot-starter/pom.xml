@@ -54,8 +54,8 @@
 		</dependency>
 		<dependency>
       			<groupId>org.springframework.boot</groupId>
-			      <artifactId>spring-boot-starter-actuator</artifactId>
-			      <scope>provided</scope>
+			 <artifactId>spring-boot-starter-actuator</artifactId>
+			 <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
