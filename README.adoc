@@ -122,7 +122,7 @@ bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
 bucket4j.filters[0].metrics.tags[2].key=USERNAME
 bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != null ? @securityService.username() : 'anonym'
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
-bucket4j.filters[0].rate-limits[0].expression=getRemoteAddress() # if filter-key-type is expression the key can be retrieved by an Spring Expression Language
+bucket4j.filters[0].rate-limits[0].expression=getRemoteAddr() # if filter-key-type is expression the key can be retrieved by an Spring Expression Language
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
 bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=10
