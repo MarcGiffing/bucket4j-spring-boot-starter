@@ -295,14 +295,14 @@ bucket4j:
   enabled: true
   filters: # each config entry creates one servlet filter or other filter
   - cache-name: buckets # create new servlet filter with bucket4j configuration
-    url: /admin*
+    url: /admin/.*
     rate-limits:
       bandwidths: # maximum of 5 requests within 10 seconds
       - capacity: 5 
         time: 10
         unit: seconds
   - cache-name: buckets 
-    url: /public*
+    url: /public/.*
     rate-limits:
       - expression: getRemoteAddress() # IP based filter
         bandwidths: # maximum of 5 requests within 10 seconds
@@ -310,7 +310,7 @@ bucket4j:
           time: 10
           unit: seconds
   - cache-name: buckets 
-    url: /users*
+    url: /users/.*
     rate-limits:
       - skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
         expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
