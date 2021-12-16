@@ -1,12 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
+import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.grid.ignite.thick.IgniteProxyManager;
 import org.apache.ignite.Ignite;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-
-import io.github.bucket4j.Bucket4j;
-import io.github.bucket4j.grid.GridBucketState;
-import io.github.bucket4j.grid.ProxyManager;
 
 public class IgniteCacheResolver implements AsyncCacheResolver {
 
@@ -18,8 +16,8 @@ public class IgniteCacheResolver implements AsyncCacheResolver {
 	
 	@Override
 	public ProxyManager<String> resolve(String cacheName) {
-		org.apache.ignite.IgniteCache<String, GridBucketState> cache = ignite.cache(cacheName);
-		return Bucket4j.extension(io.github.bucket4j.grid.ignite.Ignite.class).proxyManagerForCache(cache);
+		org.apache.ignite.IgniteCache<String, byte[]> cache = ignite.cache(cacheName);
+		return new IgniteProxyManager(cache);
 	}
 
 }

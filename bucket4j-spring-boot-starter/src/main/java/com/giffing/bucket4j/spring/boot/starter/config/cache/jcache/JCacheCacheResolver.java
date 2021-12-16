@@ -8,12 +8,12 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 
 import io.github.bucket4j.Bucket4j;
-import io.github.bucket4j.grid.ProxyManager;
-import io.github.bucket4j.grid.jcache.JCache;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 
 /**
  * This class is the JCache (JSR-107) implementation of the {@link CacheResolver}.
- * It uses Bucket4Js {@link JCache} to implement the {@link ProxyManager}.
+ * It uses Bucket4Js {@link JCacheProxyManager} to implement the {@link ProxyManager}.
  *
  */
 public class JCacheCacheResolver implements SyncCacheResolver {
@@ -24,13 +24,13 @@ public class JCacheCacheResolver implements SyncCacheResolver {
 		this.cacheManager = cacheManager;
 	}
 	
-	public ProxyManager<String>  resolve(String cacheName) {
+	public ProxyManager<String> resolve(String cacheName) {
 		Cache springCache = cacheManager.getCache(cacheName);
 		if (springCache == null) {
 			throw new JCacheNotFoundException(cacheName);
 		}
 
-		return Bucket4j.extension(JCache.class).proxyManagerForCache(springCache);
+		return new JCacheProxyManager<String>(springCache);
 	}
 	
 }
