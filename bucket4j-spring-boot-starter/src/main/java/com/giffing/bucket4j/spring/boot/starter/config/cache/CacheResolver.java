@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
-import io.github.bucket4j.grid.ProxyManager;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
 
 /**
  * The CacheResolver is used to resolve Bucket4js {@link ProxyManager} by

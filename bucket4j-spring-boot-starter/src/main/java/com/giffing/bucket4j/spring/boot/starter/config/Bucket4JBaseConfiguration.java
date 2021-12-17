@@ -1,21 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
-import static java.util.stream.Collectors.toList;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
-
 import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter;
@@ -34,14 +18,24 @@ import com.giffing.bucket4j.spring.boot.starter.exception.FilterKeyTypeDeprectat
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
+import io.github.bucket4j.*;
+import io.github.bucket4j.distributed.AsyncBucketProxy;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
 
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
-import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.Refill;
-import io.github.bucket4j.grid.ProxyManager;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -55,7 +49,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	public abstract List<MetricHandler> getMetricHandlers();
 	
 	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, 
-			ProxyManager<String> buckets, 
+			ProxyManager<String> buckets,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
 		
@@ -102,13 +96,14 @@ public abstract class Bucket4JBaseConfiguration<R> {
 							getMetricHandlers(), 
 							filterConfig.getMetrics().getTypes(),
 							metricTagResults);
-					
-					Bucket bucket = buckets.getProxy(key, bucketConfiguration).toListenable( metricBucketListener);
-		        	if(async) {
-		        		return new ConsumptionProbeHolder(bucket.asAsync().tryConsumeAndReturnRemaining(1));
-		        	} else {
-		        		return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(1));
-		        	}
+
+					if (async) {
+						AsyncBucketProxy bucket = buckets.asAsync().builder().build(key, bucketConfiguration).toListenable(metricBucketListener);
+						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(1));
+					} else {
+						Bucket bucket = buckets.builder().build(key, bucketConfiguration).toListenable(metricBucketListener);
+						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(1));
+					}
 		        	
 		        }
 				return null;

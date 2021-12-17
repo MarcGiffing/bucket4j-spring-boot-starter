@@ -1,5 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
+import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 import org.infinispan.Cache;
 import org.infinispan.functional.impl.FunctionalMapImpl;
 import org.infinispan.functional.impl.ReadWriteMapImpl;
@@ -9,8 +11,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 
 import io.github.bucket4j.Bucket4j;
-import io.github.bucket4j.grid.ProxyManager;
-import io.github.bucket4j.grid.infinispan.Infinispan;
 
 /**
  * To use Infinispan you need a special bucket4j-infinispan dependency.
@@ -39,7 +39,7 @@ public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 		}
 
 		FunctionalMapImpl functionalMap = FunctionalMapImpl.create(cache.getAdvancedCache());
-		return Bucket4j.extension(Infinispan.class).proxyManagerForMap(ReadWriteMapImpl.create(functionalMap));
+		return new InfinispanProxyManager<>(ReadWriteMapImpl.create(functionalMap));
 	}
 
 }
