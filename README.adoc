@@ -3,6 +3,12 @@
 
 https://github.com/vladimir-bukhtoyarov/bucket4j
 
+Project version overview:
+
+* 0.4.1 - Bucket4j 7.0.0 - Spring Boot 2.4.1 
+* 0.4.0 - Bucket4j 6.2.0 - Spring Boot 2.4.1 
+
+
 *Examples:*
 https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-spring-boot-starter-examples]
 
