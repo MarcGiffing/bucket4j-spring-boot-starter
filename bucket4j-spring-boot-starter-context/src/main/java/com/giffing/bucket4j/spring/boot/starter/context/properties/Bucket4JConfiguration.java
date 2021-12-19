@@ -47,6 +47,15 @@ public class Bucket4JConfiguration {
 	 */
 	private String httpResponseBody = "{ \"message\": \"Too many requests!\" }";
 
+	/**
+	 * Hides the HTTP response headers 
+	 * x-rate-limit-remaining
+	 * x-rate-limit-retry-after-seconds
+	 * 
+	 * It does not effect custom defined httpResponseHeaders.
+	 */
+	private Boolean hideHttpResponseHeaders = Boolean.FALSE;
+	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 	
 	public Bucket4JConfiguration() {
@@ -122,6 +131,14 @@ public class Bucket4JConfiguration {
 
 	public void setMetrics(Metrics metrics) {
 		this.metrics = metrics;
+	}
+
+	public Boolean getHideHttpResponseHeaders() {
+		return hideHttpResponseHeaders;
+	}
+
+	public void setHideHttpResponseHeaders(Boolean hideHttpResponseHeaders) {
+		this.hideHttpResponseHeaders = hideHttpResponseHeaders;
 	}
 
 }

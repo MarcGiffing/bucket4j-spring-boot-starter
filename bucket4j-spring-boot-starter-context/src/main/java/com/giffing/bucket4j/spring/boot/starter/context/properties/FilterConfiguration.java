@@ -26,6 +26,13 @@ public class FilterConfiguration<R> {
 	private int order;
 	
 	/**
+	 * Hides the HTTP response headers 
+	 * x-rate-limit-remaining
+	 * x-rate-limit-retry-after-seconds
+	 */
+	private Boolean hideHttpResponseHeaders = Boolean.FALSE;
+	
+	/**
 	 * The HTTP response body which should be returned when limiting the rate.
 	 */
 	private String httpResponseBody;
@@ -90,6 +97,14 @@ public class FilterConfiguration<R> {
 
 	public void setMetrics(Metrics metrics) {
 		this.metrics = metrics;
+	}
+
+	public Boolean getHideHttpResponseHeaders() {
+		return hideHttpResponseHeaders;
+	}
+
+	public void setHideHttpResponseHeaders(Boolean hideHttpResponseHeaders) {
+		this.hideHttpResponseHeaders = hideHttpResponseHeaders;
 	}
 
 }

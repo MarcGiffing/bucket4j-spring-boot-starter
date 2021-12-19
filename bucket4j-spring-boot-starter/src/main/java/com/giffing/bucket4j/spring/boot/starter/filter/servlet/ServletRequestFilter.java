@@ -60,7 +60,9 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 		};
 		if(allConsumed) {
 			if(remainingLimit != null) {
-				httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
+				if(!filterConfig.getHideHttpResponseHeaders()) {
+					httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);	
+				}
 			}
 			filterChain.doFilter(httpRequest, httpResponse);
 		}
@@ -69,7 +71,9 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 
 	private void handleHttpResponseOnRateLimiting(HttpServletResponse httpResponse, ConsumptionProbe probe) throws IOException {
 		httpResponse.setStatus(429);
-		httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+		if(!filterConfig.getHideHttpResponseHeaders()) {
+			httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+		}
 		httpResponse.setContentType("application/json");
 		filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 		httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
