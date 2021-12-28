@@ -43,7 +43,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCl
 @AutoConfigureBefore(GatewayAutoConfiguration.class)
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = AsyncCacheResolver.class)
-@Import(value = { SpringBootActuatorConfig.class, Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans.class })
+@Import(value = { Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans.class })
 public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
