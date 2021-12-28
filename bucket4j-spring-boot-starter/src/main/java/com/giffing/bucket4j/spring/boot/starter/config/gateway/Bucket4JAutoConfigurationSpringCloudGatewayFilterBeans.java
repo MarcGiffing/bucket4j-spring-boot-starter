@@ -21,7 +21,6 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans {
 
 	@Bean
 	public ExpressionParser gatewayFilterExpressionParser() {
-		System.out.println("######################-GATEWAY");
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
 				this.getClass().getClassLoader());
 		ExpressionParser parser = new SpelExpressionParser(config);
