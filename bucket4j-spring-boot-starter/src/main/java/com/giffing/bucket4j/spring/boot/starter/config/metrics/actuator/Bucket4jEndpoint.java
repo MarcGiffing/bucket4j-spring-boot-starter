@@ -28,6 +28,10 @@ public class Bucket4jEndpoint {
 		@Qualifier("WEBFLUX")
 		private Bucket4jConfigurationHolder webfluxConfigs;
 		
+		@Autowired(required = false)
+		@Qualifier("GATEWAY")
+		private Bucket4jConfigurationHolder gatewayConfigs;
+		
 		
 		@ReadOperation
 		public Map<String, Object> bucket4jConfig() {
@@ -39,11 +43,13 @@ public class Bucket4jEndpoint {
 				result.put("webflux", webfluxConfigs.getFilterConfiguration());
 			}
 			
+			if(gatewayConfigs != null) {
+				result.put("gateway", gatewayConfigs.getFilterConfiguration());
+			}
+			
 			return result;
 		}
 		
 	}
-	
-	
 
 }
