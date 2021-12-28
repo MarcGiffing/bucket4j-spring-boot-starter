@@ -52,7 +52,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFil
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
-@Import(value = {Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
+@Import(value = {Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>   {
 
@@ -67,34 +67,28 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	private final SyncCacheResolver cacheResolver;
 
 	private final List<MetricHandler> metricHandlers;
+
+	private Bucket4jConfigurationHolder servletConfigurationHolder;
+	
+	private ExpressionParser servletFilterExpressionParser;
 	
 	public Bucket4JAutoConfigurationServletFilter(
 			Bucket4JBootProperties properties,
 			ConfigurableBeanFactory beanFactory,
 			GenericApplicationContext context,
 			SyncCacheResolver cacheResolver,
-			List<MetricHandler> metricHandlers) {
+			List<MetricHandler> metricHandlers,
+			Bucket4jConfigurationHolder servletConfigurationHolder,
+			ExpressionParser servletFilterExpressionParser) {
 		this.properties = properties;
 		this.beanFactory = beanFactory;
 		this.context = context;
 		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
+		this.servletConfigurationHolder =  servletConfigurationHolder;
+		this.servletFilterExpressionParser = servletFilterExpressionParser;
 	}
 	
-	@Bean
-	@Qualifier("SERVLET")
-	public Bucket4jConfigurationHolder servletConfigurationHolder() {
-		return new Bucket4jConfigurationHolder();
-	}
-	
-	@Bean
-	public ExpressionParser servletFilterExpressionParser() {
-		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
-		ExpressionParser parser = new SpelExpressionParser(config);
-		
-		return parser;
-	}
-
 	@Override
 	public void customize(ConfigurableServletWebServerFactory factory) {
 				AtomicInteger filterCount = new AtomicInteger(0);
@@ -105,9 +99,9 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 					.forEach(filter -> {
 						filterCount.incrementAndGet();
 						FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(filter,
-								cacheResolver.resolve(filter.getCacheName()), servletFilterExpressionParser(), beanFactory);
+								cacheResolver.resolve(filter.getCacheName()), servletFilterExpressionParser, beanFactory);
 	
-						servletConfigurationHolder().addFilterConfiguration(filter);
+						servletConfigurationHolder.addFilterConfiguration(filter);
 	
 						context.registerBean("bucket4JServletRequestFilter" + filterCount, Filter.class, () -> new ServletRequestFilter(filterConfig));
 						log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());

@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
@@ -46,7 +47,8 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxW
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = { "enabled" }, matchIfMissing = true)
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = AsyncCacheResolver.class)
-@EnableConfigurationProperties({ Bucket4JBootProperties.class, SpringBootActuatorConfig.class })
+@EnableConfigurationProperties({ Bucket4JBootProperties.class})
+@Import(value = { Bucket4JAutoConfigurationWebfluxFilterBeans.class, SpringBootActuatorConfig.class })
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
@@ -61,32 +63,25 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private final List<MetricHandler> metricHandlers;
 	
+	private final Bucket4jConfigurationHolder servletConfigurationHolder;
+
+	private final ExpressionParser webfluxFilterExpressionParser;
+	
 	public Bucket4JAutoConfigurationWebfluxFilter(
 			Bucket4JBootProperties properties,
 			ConfigurableBeanFactory beanFactory,
 			GenericApplicationContext context,
 			AsyncCacheResolver cacheResolver,
-			List<MetricHandler> metricHandlers) {
+			List<MetricHandler> metricHandlers,
+			Bucket4jConfigurationHolder servletConfigurationHolder,
+			ExpressionParser webfluxFilterExpressionParser) {
 		this.properties = properties;
 		this.beanFactory = beanFactory;
 		this.context = context;
 		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
-	}
-	
-	@Bean
-	@Qualifier("WEBFLUX")
-	public Bucket4jConfigurationHolder servletConfigurationHolder() {
-		return new Bucket4jConfigurationHolder();
-	}
-
-	@Bean
-	public ExpressionParser webfluxFilterExpressionParser() {
-		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
-				this.getClass().getClassLoader());
-		ExpressionParser parser = new SpelExpressionParser(config);
-
-		return parser;
+		this.servletConfigurationHolder = servletConfigurationHolder;
+		this.webfluxFilterExpressionParser = webfluxFilterExpressionParser;
 	}
 	
 	@PostConstruct
@@ -100,10 +95,10 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 				filterCount.incrementAndGet();
 				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
 						filter.getCacheName()), 
-						webfluxFilterExpressionParser(), 
+						webfluxFilterExpressionParser, 
 						beanFactory);
 				
-				servletConfigurationHolder().addFilterConfiguration(filter);
+				servletConfigurationHolder.addFilterConfiguration(filter);
 				
 				WebFilter webFilter = new WebfluxWebFilter(filterConfig);
 		        
