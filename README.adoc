@@ -328,3 +328,10 @@ bucket4j:
           unit: minutes    
 ----
 
+== Programmatically define Cache Provider
+
+Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver 
+or the AsynchCacheResolver for reactive support  by yourself.
+
+Click https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/90[here] is an Example for a SynchSyncCacheResolver 
+for Hazelcast Support without using JCache.
