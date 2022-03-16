@@ -21,7 +21,10 @@ public class Bucket4JBootProperties {
 	
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 	
-	
+	/**
+	 * A list of default metric tags which should be applied to all filters
+	 */
+	private List<MetricTag> defaultMetricTags = new ArrayList<>();
 	
 	public Boolean getEnabled() {
 		return enabled;
@@ -41,6 +44,14 @@ public class Bucket4JBootProperties {
 
 	public void setFilters(List<Bucket4JConfiguration> filters) {
 		this.filters = filters;
+	}
+
+	public List<MetricTag> getDefaultMetricTags() {
+		return defaultMetricTags;
+	}
+
+	public void setDefaultMetricTags(List<MetricTag> defaultMetricTags) {
+		this.defaultMetricTags = defaultMetricTags;
 	}
 
 }

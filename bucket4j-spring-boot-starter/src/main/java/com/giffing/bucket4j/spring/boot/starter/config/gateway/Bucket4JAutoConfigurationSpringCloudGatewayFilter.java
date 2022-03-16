@@ -86,11 +86,13 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 		properties
 			.getFilters()
 			.stream()
-			.filter(filter -> !StringUtils.isEmpty(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.GATEWAY))
+			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.GATEWAY))
 			.map(filter -> {
+				addDefaultMetricTags(properties, filter);
 				filterCount.incrementAndGet();
-				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
-						filter.getCacheName()), 
+				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(
+						filter, 
+						cacheResolver.resolve(filter.getCacheName()), 
 						gatewayFilterExpressionParser, 
 						beanFactory);
 				

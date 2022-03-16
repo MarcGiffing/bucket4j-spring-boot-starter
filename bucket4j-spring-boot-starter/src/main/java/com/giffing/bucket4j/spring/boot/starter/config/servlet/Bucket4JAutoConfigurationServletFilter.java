@@ -95,11 +95,14 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 				properties
 					.getFilters()
 					.stream()
-					.filter(filter -> !StringUtils.isEmpty(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+					.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
 					.forEach(filter -> {
+						addDefaultMetricTags(properties, filter);
 						filterCount.incrementAndGet();
-						FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(filter,
-								cacheResolver.resolve(filter.getCacheName()), servletFilterExpressionParser, beanFactory);
+						FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(
+								filter,
+								cacheResolver.resolve(filter.getCacheName()), 
+								servletFilterExpressionParser, beanFactory);
 	
 						servletConfigurationHolder.addFilterConfiguration(filter);
 	

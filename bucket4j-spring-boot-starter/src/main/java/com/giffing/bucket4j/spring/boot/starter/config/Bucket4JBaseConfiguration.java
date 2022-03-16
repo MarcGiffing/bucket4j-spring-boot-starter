@@ -11,8 +11,10 @@ import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketList
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterKeyTypeDeprectatedException;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
@@ -32,8 +34,10 @@ import org.springframework.util.StringUtils;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -48,7 +52,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	
 	public abstract List<MetricHandler> getMetricHandlers();
 	
-	public FilterConfiguration<R> buildFilterConfig(Bucket4JConfiguration config, 
+	public FilterConfiguration<R> buildFilterConfig(
+			Bucket4JConfiguration config, 
 			ProxyManager<String> buckets,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
@@ -89,7 +94,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        	String key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	BucketConfiguration bucketConfiguration = configurationBuilder.build();
 		        	
-		        	List<MetricTagResult> metricTagResults = getMetricTags(expressionParser, beanFactory, filterConfig,
+		        	List<MetricTagResult> metricTagResults = getMetricTags(
+		        			expressionParser, 
+		        			beanFactory, 
+		        			filterConfig,
 							servletRequest);
 
 		        	MetricBucketListener metricBucketListener = new MetricBucketListener(
@@ -140,7 +148,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		return configBuilder;
 	}
 
-	private List<MetricTagResult> getMetricTags(ExpressionParser expressionParser, 
+	private List<MetricTagResult> getMetricTags(
+			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory beanFactory,
 			FilterConfiguration<R> filterConfig, 
 			R servletRequest) {
@@ -150,7 +159,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			.stream()
 			.map( (metricMetaTag) -> {
 				String expression = metricMetaTag.getExpression();
-				if(StringUtils.isEmpty(expression)) {
+				if(!StringUtils.hasText(expression)) {
 					throw new MissingMetricTagExpressionException(metricMetaTag.getKey());
 				}
 				StandardEvaluationContext context = new StandardEvaluationContext();
@@ -180,7 +189,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	public KeyFilter<R> getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
 		String expression = rateLimit.getExpression();
-		if(StringUtils.isEmpty(expression)) {
+		if(!StringUtils.hasText(expression)) {
 			throw new MissingKeyFilterExpressionException();
 		}
 		StandardEvaluationContext context = new StandardEvaluationContext();
@@ -238,4 +247,17 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		}
 		return null;
 	}
+	
+	protected void addDefaultMetricTags(Bucket4JBootProperties properties, Bucket4JConfiguration filter) {
+		if(!properties.getDefaultMetricTags().isEmpty()) {
+			List<MetricTag> metricTags = filter.getMetrics().getTags();
+			Set<String> filterMetricTagKeys = metricTags.stream().map(MetricTag::getKey).collect(Collectors.toSet());
+			properties.getDefaultMetricTags().forEach(defaultTag -> {
+				if(!filterMetricTagKeys.contains(defaultTag.getKey())) {
+					metricTags.add(defaultTag);
+				}
+			});
+		}
+	}
+	
 }
