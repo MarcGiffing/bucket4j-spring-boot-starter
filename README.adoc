@@ -139,18 +139,6 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval=0
 bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minutes
 ----
 
-=== Filter types (bad name, should be renamed in the feature)
-
-Filter types are predefined configuration option on how to define the key which should be used to limiting the requests.
-
-==== Default
-
-The default options doesn't differentiates between incoming requests (user, ip, etc). Its a general limiting.
-
-==== IP
-
-The IP filter type limits the access based on the IP address (httpServletRequest.getRemoteAddr()). So each IP address will independently throttled.
-
 ==== Expression
 
 The expression based filter type provides the most flexible one and uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL). https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
