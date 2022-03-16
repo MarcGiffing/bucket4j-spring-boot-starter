@@ -118,6 +118,7 @@ bucket4j.filters[0].filter-method=servlet # [servlet,webflux,gateway]
 bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].http-response-headers.<MY_CUSTOM_HEADER>=MY_CUSTOM_HEADER_VALUE # You can add any numbers of custom headers
+bucket4j.filters[0].hide-http-response-headers=true # Hides response headers like x-rate-limit-remaining or x-rate-limit-retry-after-seconds on rate limiting
 bucket4j.filters[0].url=.* # a regular expression
 bucket4j.filters[0].metrics.enabled=true
 bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter 
@@ -142,6 +143,10 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minu
 bucket4j.default-metric-tags[0].key=IP
 bucket4j.default-metric-tags[0].expression=getRemoteAddr()
 bucket4j.default-metric-tags[0].types=REJECTED_COUNTER
+
+# Hide HTTP response headers
+
+
 ----
 
 ==== Expression
