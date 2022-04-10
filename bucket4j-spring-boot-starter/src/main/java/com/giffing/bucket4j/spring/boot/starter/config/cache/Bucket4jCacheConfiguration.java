@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
-
+import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.RedisBucket4jConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -11,11 +11,13 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.Hazelcast
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.InfinispanJCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 
-
 @Configuration
 @AutoConfigureAfter(CacheAutoConfiguration.class)
-@Import(value = {JCacheBucket4jConfiguration.class, InfinispanJCacheBucket4jConfiguration.class, HazelcastBucket4jCacheConfiguration.class})
+@Import(value = {
+        JCacheBucket4jConfiguration.class,
+        InfinispanJCacheBucket4jConfiguration.class,
+        HazelcastBucket4jCacheConfiguration.class,
+        RedisBucket4jConfiguration.class
+})
 public class Bucket4jCacheConfiguration {
-
-
 }
