@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
@@ -19,16 +18,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.SpelCompilerMode;
-import org.springframework.expression.spel.SpelParserConfiguration;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
@@ -44,7 +37,6 @@ import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFil
 
 /**
  * Configures {@link Filter}s for Bucket4Js rate limit.
- * 
  */
 @Configuration
 @ConditionalOnClass({ Filter.class, JCacheProxyManager.class })
@@ -53,7 +45,6 @@ import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFil
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @Import(value = {Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>   {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);
