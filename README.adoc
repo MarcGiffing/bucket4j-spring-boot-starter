@@ -230,7 +230,7 @@ bucket4j:
         - key: USERNAME
           expression: "@securityService.username() != null ? @securityService.username() : 'anonym'"
         - key: URL
-          expression: request.getRequestURI()  
+          expression: getRequestURI()
     rate-limits:
       - execute-condition:  "@securityService.username() == 'admin'"
         expression: "@securityService.username()?: getRemoteAddr()"
