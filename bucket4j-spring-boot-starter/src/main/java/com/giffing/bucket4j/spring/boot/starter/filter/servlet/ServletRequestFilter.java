@@ -61,7 +61,8 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 		if(allConsumed) {
 			if(remainingLimit != null) {
 				if(!filterConfig.getHideHttpResponseHeaders()) {
-					httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);	
+					httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
+					filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 				}
 			}
 			filterChain.doFilter(httpRequest, httpResponse);
@@ -73,9 +74,9 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 		httpResponse.setStatus(429);
 		if(!filterConfig.getHideHttpResponseHeaders()) {
 			httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
+			filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 		}
 		httpResponse.setContentType("application/json");
-		filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 		httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
 	}
 
