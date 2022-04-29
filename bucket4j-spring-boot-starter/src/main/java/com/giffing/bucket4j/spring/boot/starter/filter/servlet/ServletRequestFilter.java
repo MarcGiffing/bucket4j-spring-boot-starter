@@ -62,7 +62,6 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 			if(remainingLimit != null) {
 				if(!filterConfig.getHideHttpResponseHeaders()) {
 					httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
-					filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 				}
 			}
 			filterChain.doFilter(httpRequest, httpResponse);

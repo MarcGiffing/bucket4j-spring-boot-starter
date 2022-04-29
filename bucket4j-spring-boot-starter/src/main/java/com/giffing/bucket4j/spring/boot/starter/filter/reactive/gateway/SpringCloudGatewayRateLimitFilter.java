@@ -97,7 +97,6 @@ public class SpringCloudGatewayRateLimitFilter implements GlobalFilter, Ordered 
 			if(remainingLimit != null) {
 				if(!filterConfig.getHideHttpResponseHeaders()) {
 					response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
-					filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);
 				}
 			}
 			return chain.filter(exchange);
