@@ -92,7 +92,10 @@ public class SpringCloudGatewayRateLimitFilter implements GlobalFilter, Ordered 
 				remainingLimit = reduced.join();
 			}
 			if(remainingLimit == null || remainingLimit < 0) {
-	        	return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
+				if(!filterConfig.getHideHttpResponseHeaders()) {
+					filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
+				}
+				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
 	        }
 			if(remainingLimit != null) {
 				if(!filterConfig.getHideHttpResponseHeaders()) {
