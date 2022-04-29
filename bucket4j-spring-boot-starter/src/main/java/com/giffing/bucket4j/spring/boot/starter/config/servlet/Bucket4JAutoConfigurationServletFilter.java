@@ -6,15 +6,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
-import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
@@ -35,6 +36,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 
+import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+
 /**
  * Configures {@link Filter}s for Bucket4Js rate limit.
  */
@@ -42,6 +45,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFil
 @ConditionalOnClass({ Filter.class, JCacheProxyManager.class })
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
+@AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @Import(value = {Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
