@@ -43,6 +43,11 @@ public class Bucket4JConfiguration {
 	private Metrics metrics = new Metrics();
 	
 	/**
+	 * The HTTP Content-Type which should be returned
+	 */
+	private String httpContentType = "application/json";
+	
+	/**
 	 * The HTTP content which should be used in case of rate limiting
 	 */
 	private String httpResponseBody = "{ \"message\": \"Too many requests!\" }";
@@ -139,6 +144,14 @@ public class Bucket4JConfiguration {
 
 	public void setHideHttpResponseHeaders(Boolean hideHttpResponseHeaders) {
 		this.hideHttpResponseHeaders = hideHttpResponseHeaders;
+	}
+
+	public String getHttpContentType() {
+		return httpContentType;
+	}
+
+	public void setHttpContentType(String httpContentType) {
+		this.httpContentType = httpContentType;
 	}
 
 }

@@ -68,6 +68,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setUrl(StringUtils.trimWhitespace(config.getUrl()));
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
+		filterConfig.setHttpContentType(config.getHttpContentType());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
 		filterConfig.setHideHttpResponseHeaders(config.getHideHttpResponseHeaders());
 		filterConfig.setHttpResponseHeaders(config.getHttpResponseHeaders());

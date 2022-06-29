@@ -75,7 +75,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 			httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
 			filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 		}
-		httpResponse.setContentType("application/json");
+		httpResponse.setContentType(filterConfig.getHttpContentType());
 		httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
 	}
 

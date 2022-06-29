@@ -33,6 +33,11 @@ public class FilterConfiguration<R> {
 	private Boolean hideHttpResponseHeaders = Boolean.FALSE;
 	
 	/**
+	 * The HTTP Content-Type which should be returned when limiting the rate
+	 */
+	private String httpContentType;
+	
+	/**
 	 * The HTTP response body which should be returned when limiting the rate.
 	 */
 	private String httpResponseBody;
@@ -105,6 +110,14 @@ public class FilterConfiguration<R> {
 
 	public void setHideHttpResponseHeaders(Boolean hideHttpResponseHeaders) {
 		this.hideHttpResponseHeaders = hideHttpResponseHeaders;
+	}
+
+	public String getHttpContentType() {
+		return httpContentType;
+	}
+
+	public void setHttpContentType(String httpContentType) {
+		this.httpContentType = httpContentType;
 	}
 
 }
