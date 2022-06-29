@@ -19,6 +19,19 @@ public class Bucket4JBootProperties {
 	 */
 	private Boolean enabled = true;
 	
+	/**
+	 * Sets the cache implementation which should be auto configured.
+	 * This property can be used if multiple caches are configured by the starter 
+	 * and you have to choose one due to a startup error.
+	 * <ul>
+	 * 	<li>jcache</li>
+	 *  <li>hazelcast</li>
+	 *  <li>ignite</li>
+	 *  <li>redis</li>
+	 * </ul>
+	 */
+	private String cacheToUse;
+	
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 	
 	/**
@@ -52,6 +65,14 @@ public class Bucket4JBootProperties {
 
 	public void setDefaultMetricTags(List<MetricTag> defaultMetricTags) {
 		this.defaultMetricTags = defaultMetricTags;
+	}
+
+	public String getCacheToUse() {
+		return cacheToUse;
+	}
+
+	public void setCacheToUse(String cacheToUse) {
+		this.cacheToUse = cacheToUse;
 	}
 
 }
