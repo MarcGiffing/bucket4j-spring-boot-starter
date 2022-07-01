@@ -8,10 +8,8 @@ public class MissingMetricTagExpressionException extends Bucket4jGeneralExceptio
 
 	private static final long serialVersionUID = 1L;
 	
-	private final String tagname;
-	
 	public MissingMetricTagExpressionException(String key) {
-		this.tagname = key;
+		super(key);
 	}
 
 }

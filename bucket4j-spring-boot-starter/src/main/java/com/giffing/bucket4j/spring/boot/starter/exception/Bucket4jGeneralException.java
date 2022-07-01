@@ -11,5 +11,13 @@ import com.giffing.bucket4j.spring.boot.starter.failureanalyzer.Bucket4JAutoConf
 public abstract class Bucket4jGeneralException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
+	
+	protected Bucket4jGeneralException() {
+		super();
+	}
+	
+	protected Bucket4jGeneralException(String message) {
+		super(message);
+	}
 
 }

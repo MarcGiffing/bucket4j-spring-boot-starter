@@ -50,7 +50,7 @@ public class WebfluxWebFilter implements WebFilter, Ordered {
 			        }));
 				}
 				
-			};
+			}
 			
 			CompletableFuture<Long> reduced = rateLimitFutures
 				.stream()
@@ -81,15 +81,13 @@ public class WebfluxWebFilter implements WebFilter, Ordered {
 			}
 			
 			if(remainingLimit == null || remainingLimit < 0) {
-				if(!filterConfig.getHideHttpResponseHeaders()) {
+				if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 					filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
 				}
 				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
 	        }
-			if(remainingLimit != null) {
-				if(!filterConfig.getHideHttpResponseHeaders()) {
-					response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
-				}
+			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
+				response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
 			}
 			return chain.filter(exchange);
 		}

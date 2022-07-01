@@ -36,7 +36,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCl
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
 
-public class SpringCloudGatewayRateLimitFilterTest {
+class SpringCloudGatewayRateLimitFilterTest {
 
 	private GlobalFilter filter;
 	private FilterConfiguration configuration;
@@ -74,7 +74,8 @@ public class SpringCloudGatewayRateLimitFilterTest {
         filter = new SpringCloudGatewayRateLimitFilter(configuration);
     }
 
-	@Test void should_throw_rate_limit_exception_with_no_remaining_tokens() {
+	@Test 
+	void should_throw_rate_limit_exception_with_no_remaining_tokens() {
 		
 		configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
@@ -93,7 +94,7 @@ public class SpringCloudGatewayRateLimitFilterTest {
 	}
 	
 	@Test
-	public void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
+	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
@@ -114,7 +115,7 @@ public class SpringCloudGatewayRateLimitFilterTest {
 	}
 
 	@Test
-	public void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
+	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);

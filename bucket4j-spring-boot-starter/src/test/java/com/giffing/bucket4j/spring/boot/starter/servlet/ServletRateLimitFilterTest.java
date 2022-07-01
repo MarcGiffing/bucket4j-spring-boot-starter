@@ -26,7 +26,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFil
 
 import io.github.bucket4j.ConsumptionProbe;
 
-public class ServletRateLimitFilterTest {
+class ServletRateLimitFilterTest {
 
 	private ServletRequestFilter filter;
 	private FilterConfiguration configuration;
@@ -57,7 +57,7 @@ public class ServletRateLimitFilterTest {
     }
 	
 	@Test
-	public void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws Exception {
+	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws Exception {
 		
         when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
         when(rateLimitCheck2.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
@@ -75,7 +75,7 @@ public class ServletRateLimitFilterTest {
 	}
 	
 	@Test
-	public void should_execute_first_check_when_using_RateLimitConditionMatchingStrategy_All_but_first_is_not_consumed() throws Exception {
+	void should_execute_first_check_when_using_RateLimitConditionMatchingStrategy_All_but_first_is_not_consumed() throws Exception {
 		
         when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
         when(rateLimitCheck2.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);
@@ -95,9 +95,7 @@ public class ServletRateLimitFilterTest {
 	}
 
 	@Test
-	public void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
-        
+	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() throws Exception {
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
         when(rateLimitCheck1.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionProbeHolder);

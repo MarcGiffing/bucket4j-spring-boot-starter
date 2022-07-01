@@ -30,6 +30,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
     	this.filterConfig = filterConfig;
     }
     
+    @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 		return !request.getRequestURI().matches(filterConfig.getUrl());
 	}
@@ -37,8 +38,6 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
@@ -49,7 +48,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 					remainingLimit = getRemainingLimit(remainingLimit, probe);
 				} else{	
 					allConsumed = false;
-					handleHttpResponseOnRateLimiting(httpResponse, probe);
+					handleHttpResponseOnRateLimiting(response, probe);
 					break;
 				}
 				if(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST)) {
@@ -57,21 +56,20 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 				}
 			}
 			
-		};
+		}
+        
 		if(allConsumed) {
-			if(remainingLimit != null) {
-				if(!filterConfig.getHideHttpResponseHeaders()) {
-					httpResponse.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
-				}
+			if(remainingLimit != null && Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
+				response.setHeader("X-Rate-Limit-Remaining", "" + remainingLimit);
 			}
-			filterChain.doFilter(httpRequest, httpResponse);
+			filterChain.doFilter(request, response);
 		}
         
 	}
 
 	private void handleHttpResponseOnRateLimiting(HttpServletResponse httpResponse, ConsumptionProbe probe) throws IOException {
 		httpResponse.setStatus(429);
-		if(!filterConfig.getHideHttpResponseHeaders()) {
+		if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 			httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
 			filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);
 		}

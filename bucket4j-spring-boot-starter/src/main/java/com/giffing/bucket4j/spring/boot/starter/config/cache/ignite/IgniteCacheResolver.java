@@ -17,7 +17,7 @@ public class IgniteCacheResolver implements AsyncCacheResolver {
 	@Override
 	public ProxyManager<String> resolve(String cacheName) {
 		org.apache.ignite.IgniteCache<String, byte[]> cache = ignite.cache(cacheName);
-		return new IgniteProxyManager(cache);
+		return new IgniteProxyManager<>(cache);
 	}
 
 }

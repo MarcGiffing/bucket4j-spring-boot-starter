@@ -3,14 +3,10 @@ package com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
@@ -62,7 +58,7 @@ public class SpringCloudGatewayRateLimitFilter implements GlobalFilter, Ordered 
 			        }));
 				}
 				
-			};
+			}
 			
 			CompletableFuture<Long> reduced = rateLimitFutures
 				.stream()
@@ -92,15 +88,13 @@ public class SpringCloudGatewayRateLimitFilter implements GlobalFilter, Ordered 
 				remainingLimit = reduced.join();
 			}
 			if(remainingLimit == null || remainingLimit < 0) {
-				if(!filterConfig.getHideHttpResponseHeaders()) {
+				if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 					filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
 				}
 				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
 	        }
-			if(remainingLimit != null) {
-				if(!filterConfig.getHideHttpResponseHeaders()) {
-					response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
-				}
+			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
+				response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
 			}
 			return chain.filter(exchange);
 		}

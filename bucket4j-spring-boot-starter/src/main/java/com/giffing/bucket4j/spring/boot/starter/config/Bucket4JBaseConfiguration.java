@@ -1,5 +1,23 @@
 package com.giffing.bucket4j.spring.boot.starter.config;
 
+import static java.util.stream.Collectors.toList;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
+
 import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter;
@@ -19,26 +37,14 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
-import io.github.bucket4j.*;
+
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.ConfigurationBuilder;
+import io.github.bucket4j.Refill;
 import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -131,14 +137,14 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	}
 
 	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
-		ConfigurationBuilder configBuilder = Bucket4j.configurationBuilder();
+		ConfigurationBuilder configBuilder = BucketConfiguration.builder();
 		for (BandWidth bandWidth : rl.getBandwidths()) {
 				Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
 				if(bandWidth.getFixedRefillInterval() > 0) {
 					bucket4jBandWidth = Bandwidth.classic(bandWidth.getCapacity(), Refill.intervally(bandWidth.getCapacity(), Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit())));
 				}
 				configBuilder = configBuilder.addLimit(bucket4jBandWidth);
-		};
+		}
 		return configBuilder;
 	}
 
@@ -151,7 +157,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		List<MetricTagResult> metricTagResults = filterConfig
 			.getMetrics().getTags()
 			.stream()
-			.map( (metricMetaTag) -> {
+			.map( metricMetaTag -> {
 				String expression = metricMetaTag.getExpression();
 				if(!StringUtils.hasText(expression)) {
 					throw new MissingMetricTagExpressionException(metricMetaTag.getKey());
@@ -188,7 +194,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		}
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-		return  (request) -> {
+		return  request -> {
 			//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
 			Expression expr = expressionParser.parseExpression(rateLimit.getExpression()); 
 			final String value = expr.getValue(context, request, String.class);
@@ -211,10 +217,9 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		
 		if(rateLimit.getSkipCondition() != null) {
-			return  (request) -> {
+			return  request -> {
 				Expression expr = expressionParser.parseExpression(rateLimit.getSkipCondition()); 
-				Boolean value = expr.getValue(context, request, Boolean.class);
-				return value;
+				return expr.getValue(context, request, Boolean.class);
 			};
 		}
 		return null;
@@ -233,10 +238,9 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		
 		if(rateLimit.getExecuteCondition() != null) {
-			return (request) -> {
+			return request -> {
 				Expression expr = expressionParser.parseExpression(rateLimit.getExecuteCondition()); 
-				Boolean value = expr.getValue(context, request, Boolean.class);
-				return value;
+				return expr.getValue(context, request, Boolean.class);
 			};
 		}
 		return null;

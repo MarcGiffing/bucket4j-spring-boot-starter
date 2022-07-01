@@ -7,7 +7,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 
@@ -25,12 +24,12 @@ public class JCacheCacheResolver implements SyncCacheResolver {
 	}
 	
 	public ProxyManager<String> resolve(String cacheName) {
-		Cache springCache = cacheManager.getCache(cacheName);
+		Cache<String, byte[]> springCache = cacheManager.getCache(cacheName);
 		if (springCache == null) {
 			throw new JCacheNotFoundException(cacheName);
 		}
 
-		return new JCacheProxyManager<String>(springCache);
+		return new JCacheProxyManager<>(springCache);
 	}
 	
 }

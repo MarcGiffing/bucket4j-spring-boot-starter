@@ -22,9 +22,7 @@ public class Bucket4JAutoConfigurationServletFilterBeans {
 	@Bean
 	public ExpressionParser servletFilterExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
-		ExpressionParser parser = new SpelExpressionParser(config);
-		
-		return parser;
+		return new SpelExpressionParser(config);
 	}
 	
 }

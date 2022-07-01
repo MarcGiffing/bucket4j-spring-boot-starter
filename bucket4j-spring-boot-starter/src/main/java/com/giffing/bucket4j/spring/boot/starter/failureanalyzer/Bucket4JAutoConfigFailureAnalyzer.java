@@ -14,7 +14,7 @@ import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpres
  */
 public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<Bucket4jGeneralException>{
 
-	public static String newline = System.getProperty("line.separator");
+	public static final String NEW_LINE = System.getProperty("line.separator");
 	
 	@Override
 	protected FailureAnalysis analyze(Throwable rootFailure, Bucket4jGeneralException cause) {
@@ -25,20 +25,20 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
 			JCacheNotFoundException ex = (JCacheNotFoundException) cause;
 			descriptionMessage = "The cache name name defined in the property is not configured in the caching provider";
 			
-			actionMessage = "Cache name: " + ex.getCacheName() + newline
+			actionMessage = "Cache name: " + ex.getCacheName() + NEW_LINE
 					+ "Please configure your caching provider (ehcache, hazelcast, ...)";
 		}
 		
 		if(cause instanceof MissingKeyFilterExpressionException) {
 			descriptionMessage = "You've set the 'filter-key-type' to 'expression' but didn't set the property 'expression'";
-			actionMessage = "Please set the property 'expression' in your configuration file with a valid expression (see Spring Expression Language)" + newline;
+			actionMessage = "Please set the property 'expression' in your configuration file with a valid expression (see Spring Expression Language)" + NEW_LINE;
 		}
 		
 		if( cause instanceof FilterURLInvalidException) {
 			FilterURLInvalidException e = (FilterURLInvalidException) cause;
-			descriptionMessage = "You've set an invalid regular expression in the 'filter'" + newline +
+			descriptionMessage = "You've set an invalid regular expression in the 'filter'" + NEW_LINE +
 					"Description: " + e.getDescription();
-			actionMessage = "To Filter for all requests type .* or remove the property 'bucket4j.filters.url' completly." + newline;
+			actionMessage = "To Filter for all requests type .* or remove the property 'bucket4j.filters.url' completly." + NEW_LINE;
 		}
 		
 		return new FailureAnalysis(descriptionMessage, actionMessage, cause);

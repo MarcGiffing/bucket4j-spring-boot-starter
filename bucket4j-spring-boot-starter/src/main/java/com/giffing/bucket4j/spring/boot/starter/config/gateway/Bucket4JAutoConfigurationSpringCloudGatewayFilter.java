@@ -102,9 +102,9 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 		        
 		        log.info("create-gateway-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
 		        return webFilter;
-			}).forEach(webFilter -> {
-				context.registerBean("bucket4JGatewayFilter" + filterCount, GlobalFilter.class, () -> webFilter);
-			});
+			}).forEach(webFilter ->
+				context.registerBean("bucket4JGatewayFilter" + filterCount, GlobalFilter.class, () -> webFilter)
+			);
 		
 	}
 

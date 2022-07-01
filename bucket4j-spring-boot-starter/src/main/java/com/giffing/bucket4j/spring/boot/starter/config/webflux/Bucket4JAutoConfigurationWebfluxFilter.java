@@ -103,9 +103,9 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		        
 		        log.info("create-webflux-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
 		        return webFilter;
-			}).forEach(webFilter -> {
-				context.registerBean("bucket4JWebfluxFilter" + filterCount, WebFilter.class, () -> webFilter);
-			});
+			}).forEach(webFilter -> 
+				context.registerBean("bucket4JWebfluxFilter" + filterCount, WebFilter.class, () -> webFilter)
+			);
 		
 	}
 	@Override

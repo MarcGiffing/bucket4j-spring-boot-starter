@@ -38,7 +38,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxW
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
 
-public class WebfluxRateLimitFilterTest {
+class WebfluxRateLimitFilterTest {
 
 	private WebfluxWebFilter filter;
 	private FilterConfiguration configuration;
@@ -95,7 +95,7 @@ public class WebfluxRateLimitFilterTest {
 	}
 	
 	@Test
-	public void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
+	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
@@ -116,7 +116,7 @@ public class WebfluxRateLimitFilterTest {
 	}
 
 	@Test
-	public void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
+	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);

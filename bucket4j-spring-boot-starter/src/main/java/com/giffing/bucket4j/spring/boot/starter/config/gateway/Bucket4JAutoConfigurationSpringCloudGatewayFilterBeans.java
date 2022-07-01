@@ -21,11 +21,10 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans {
 
 	@Bean
 	public ExpressionParser gatewayFilterExpressionParser() {
-		SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
+		SpelParserConfiguration config = new SpelParserConfiguration(
+				SpelCompilerMode.IMMEDIATE,
 				this.getClass().getClassLoader());
-		ExpressionParser parser = new SpelExpressionParser(config);
-
-		return parser;
+		return new SpelExpressionParser(config);
 	}
 	
 }
