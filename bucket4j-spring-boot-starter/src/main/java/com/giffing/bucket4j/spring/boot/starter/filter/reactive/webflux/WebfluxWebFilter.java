@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
@@ -15,9 +17,9 @@ import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
 
 import io.github.bucket4j.ConsumptionProbe;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class WebfluxWebFilter implements WebFilter, Ordered {
@@ -84,7 +86,10 @@ public class WebfluxWebFilter implements WebFilter, Ordered {
 				if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 					filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
 				}
-				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
+				response.setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
+				response.getHeaders().set("Content-Type", filterConfig.getHttpContentType());
+				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes());
+				return response.writeWith(Flux.just(buffer));
 	        }
 			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 				response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
