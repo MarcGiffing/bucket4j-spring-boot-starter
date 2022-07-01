@@ -4,7 +4,6 @@ import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
 import com.giffing.bucket4j.spring.boot.starter.exception.Bucket4jGeneralException;
-import com.giffing.bucket4j.spring.boot.starter.exception.FilterKeyTypeDeprectatedException;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
@@ -41,13 +40,6 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
 					"Description: " + e.getDescription();
 			actionMessage = "To Filter for all requests type .* or remove the property 'bucket4j.filters.url' completly." + newline;
 		}
-		
-		if( cause instanceof FilterKeyTypeDeprectatedException) {
-			FilterKeyTypeDeprectatedException e = (FilterKeyTypeDeprectatedException) cause;
-			descriptionMessage = "The filter key type support is deprecated. The expression type is set as default" + newline;
-			actionMessage = "If you've set the filter key type to IP then use getRemoteAddress() for the expression." + newline;
-		}
-		
 		
 		return new FailureAnalysis(descriptionMessage, actionMessage, cause);
 	}

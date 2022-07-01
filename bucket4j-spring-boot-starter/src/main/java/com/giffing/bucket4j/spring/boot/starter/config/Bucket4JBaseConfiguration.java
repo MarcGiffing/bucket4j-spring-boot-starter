@@ -16,7 +16,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfi
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.FilterKeyTypeDeprectatedException;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
@@ -57,12 +56,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			ProxyManager<String> buckets,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
-		
-		config.getRateLimits().forEach(r -> {
-			if(r.getFilterKeyType() != null) {
-				throw new FilterKeyTypeDeprectatedException();
-			}
-		});
 		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
 		filterConfig.setUrl(StringUtils.trimWhitespace(config.getUrl()));

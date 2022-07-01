@@ -3,11 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giffing.bucket4j.spring.boot.starter.context.FilterKeyType;
-
 public class RateLimit {
-	
-	private FilterKeyType filterKeyType;
 	
 	/**
 	 * SpEl condition to check if the rate limit should be executed. If null there is no check. 
@@ -51,14 +47,6 @@ public class RateLimit {
 		this.bandwidths = bandwidths;
 	}
 	
-	public FilterKeyType getFilterKeyType() {
-		return filterKeyType;
-	}
-
-	public void setFilterKeyType(FilterKeyType filterKeyType) {
-		this.filterKeyType = filterKeyType;
-	}
-
 	public String getExecuteCondition() {
 		return executeCondition;
 	}
