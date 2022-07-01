@@ -36,36 +36,26 @@ public class MetricBucketListener implements BucketListener {
     	}
     }
 
-    @Override
-    public void onParked(long nanos) {
-    }
+	public String getName() {
+		return name;
+	}
 
-    public long getConsumed() {
-        return 0;
-    }
-
-    public long getRejected() {
-        return 0;
-    }
-
-    public long getParkedNanos() {
-        return 0;
-    }
-
-    public long getInterrupted() {
-        return 0;
-    }
+	@Override
+	public void onParked(long nanos) {
+		// TODO check if we should provide this information
+		
+	}
 
 	@Override
 	public void onInterrupted(InterruptedException e) {
+		// TODO check if we should provide this information
+		
 	}
 
 	@Override
 	public void onDelayed(long nanos) {
-	}
-
-	public String getName() {
-		return name;
+		// TODO check if we should provide this information
+		
 	}
 
 }
