@@ -17,6 +17,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
 
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Flux;
@@ -93,10 +94,15 @@ public class SpringCloudGatewayRateLimitFilter implements GlobalFilter, Ordered 
 				if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 					filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
 				}
-				response.setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
-				response.getHeaders().set("Content-Type", filterConfig.getHttpContentType());
-				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes());
-				return response.writeWith(Flux.just(buffer));
+				
+				if(filterConfig.getHttpResponseBody() != null) {
+					response.setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
+					response.getHeaders().set("Content-Type", filterConfig.getHttpContentType());
+					DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes());
+					return response.writeWith(Flux.just(buffer));	
+				} else {
+					return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
+				}
 	        }
 			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 				response.getHeaders().set("X-Rate-Limit-Remaining", "" + remainingLimit);
