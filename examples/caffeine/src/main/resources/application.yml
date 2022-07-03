@@ -1,0 +1,31 @@
+debug: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+spring:
+  cache:
+    jcache:
+      provider: org.ehcache.jsr107.EhcacheCachingProvider
+    cache-names:
+    - buckets
+    caffeine:
+      spec: maximumSize=1000000,expireAfterAccess=3600s
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: buckets
+    url: .*
+    http-response-headers:
+      XXX: YYY
+      AAA: BBB
+    rate-limits:
+    - bandwidths:
+      - capacity: 5
+        time: 1
+        unit: minutes
+        fixed-refill-interval: 1
+        fixed-refill-interval-unit: minutes

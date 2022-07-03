@@ -1,0 +1,25 @@
+debug: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+bucket4j:
+  enabled: true
+  filters:
+  - metrics:
+      types:
+      - consumed-counter
+      - rejected-counter
+  - cache-name: buckets
+    filter-method: webflux
+    url: .*
+    http-content-type: application/json;charset=UTF-8
+    http-response-body: '{ "name": "hello"}'
+    http-response-headers:      HELLO: WORLD
+    filter-order: 1
+    rate-limits:
+    - bandwidths:
+      - capacity: 5
+        time: 10
+        unit: seconds
