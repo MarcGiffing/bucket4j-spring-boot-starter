@@ -1,6 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public class FilterConfiguration<R> {
 	 */
 	private String httpResponseBody;
 
-	private Map<String, String> httpResponseHeaders;
+	private Map<String, String> httpResponseHeaders = new HashMap<>();
 
 	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
 	
