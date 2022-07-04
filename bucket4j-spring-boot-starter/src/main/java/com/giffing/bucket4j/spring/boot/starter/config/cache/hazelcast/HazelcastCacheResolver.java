@@ -4,6 +4,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
@@ -15,15 +16,15 @@ import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
  */
 public class HazelcastCacheResolver implements AsyncCacheResolver {
 
-	private HazelcastInstance hazelcastInstance;
+	private HazelcastCacheManager hazelcastCacheManager;
 
-	public HazelcastCacheResolver(HazelcastInstance hazelcastInstance) {
-		this.hazelcastInstance = hazelcastInstance;
+	public HazelcastCacheResolver(HazelcastCacheManager hazelcastCacheManager) {
+		this.hazelcastCacheManager = hazelcastCacheManager;
 	}
 	
 	@Override
 	public ProxyManager<String> resolve(String cacheName) {
-		IMap<String, byte[]> map = hazelcastInstance.getMap(cacheName);
+		IMap<String, byte[]> map = hazelcastCacheManager.getHazelcastInstance().getMap(cacheName);
 		return new HazelcastProxyManager<>(map);
 	}
 

@@ -11,6 +11,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 
 /**
  * Configures the asynchronous support for Hazelcast. The synchronous support of Hazelcast
@@ -18,20 +19,20 @@ import com.hazelcast.core.HazelcastInstance;
  * to access the {@link HazelcastInstance} to retrieve the cache.
  */
 @Configuration
-@ConditionalOnClass({ HazelcastInstance.class })
-@ConditionalOnBean(HazelcastInstance.class)
+@ConditionalOnClass({ HazelcastCacheManager.class })
+@ConditionalOnBean(HazelcastCacheManager.class)
 @ConditionalOnMissingBean(AsyncCacheResolver.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "hazelcast", matchIfMissing = true)
 public class HazelcastBucket4jCacheConfiguration {
 	
-	private HazelcastInstance hazelcastInstance;
+	private HazelcastCacheManager hazelcastCacheManager;
 	
-	public HazelcastBucket4jCacheConfiguration(HazelcastInstance hazelcastInstance) {
-		this.hazelcastInstance = hazelcastInstance;
+	public HazelcastBucket4jCacheConfiguration(HazelcastCacheManager hazelcastCacheManager) {
+		this.hazelcastCacheManager = hazelcastCacheManager;
 	}
 	
 	@Bean
 	public AsyncCacheResolver hazelcastCacheResolver() {
-		return new HazelcastCacheResolver(hazelcastInstance);
+		return new HazelcastCacheResolver(hazelcastCacheManager);
 	}
 }
