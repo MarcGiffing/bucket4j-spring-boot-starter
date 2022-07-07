@@ -113,7 +113,7 @@ spring:
 [source, properties]
 ----
 bucket4j.enabled=true # enable/disable bucket4j support
-bucket4j.cace-to-use= # If you use multiple caching implementation in your project and you want to choose a specific one you can set the cache here (jcache, hazelcast, ignite, redis)
+bucket4j.cache-to-use= # If you use multiple caching implementation in your project and you want to choose a specific one you can set the cache here (jcache, hazelcast, ignite, redis)
 bucket4j.filters[0].cache-name=buckets # the name of the cache key
 bucket4j.filters[0].filter-method=servlet # [servlet,webflux,gateway]
 bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
