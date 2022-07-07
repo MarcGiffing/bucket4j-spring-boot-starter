@@ -10,6 +10,10 @@
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-example-ehcache</artifactId>
 
+	<properties>
+		<maven.deploy.skip>false</maven.deploy.skip>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>

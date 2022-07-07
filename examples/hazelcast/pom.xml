@@ -11,6 +11,10 @@
 	<artifactId>bucket4j-spring-boot-starter-example-hazelcast</artifactId>
 
 
+	<properties>
+		<maven.deploy.skip>false</maven.deploy.skip>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -10,8 +10,11 @@
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-example-caffeine</artifactId>
 
-	<dependencies>
+	<properties>
+		<maven.deploy.skip>false</maven.deploy.skip>
+	</properties>
 
+	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
