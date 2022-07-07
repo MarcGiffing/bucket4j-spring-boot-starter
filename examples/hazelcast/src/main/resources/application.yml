@@ -1,13 +1,9 @@
-management:
-  security:
-    enabled: false
+debug: true
 spring:
-  main:    allow-bean-definition-overriding: true
   cache:
     type: jcache
-    jcache:
-      provider: com.hazelcast.cache.impl.HazelcastServerCachingProvider
-      config: classpath:hazelcast.xml
+    jcache:      provider: com.hazelcast.cache.impl.HazelcastServerCachingProvider
+  main:    allow-bean-definition-overriding: true
 bucket4j:
   enabled: true
   filters:
