@@ -9,7 +9,7 @@
 	<version>${revision}</version>
 	<packaging>pom</packaging>
 
-	<name>bucket4j-spring-boot-starter</name>
+	<name>bucket4j-spring-boot-starter-parent</name>
 	<description>Spring Boot Starter für Bucket4J</description>
 
 	<parent>
