@@ -15,7 +15,7 @@
 
 	<properties>
 		<spring-cloud.version>2021.0.3</spring-cloud.version>
-		<maven.deploy.skip>false</maven.deploy.skip>
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
 	<dependencies>
