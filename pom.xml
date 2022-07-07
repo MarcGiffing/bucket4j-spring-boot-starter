@@ -155,6 +155,10 @@
 		</profile>
 		<profile>
 			<id>deploy</id>
+			<modules>
+				<module>bucket4j-spring-boot-starter-context</module>
+				<module>bucket4j-spring-boot-starter</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
