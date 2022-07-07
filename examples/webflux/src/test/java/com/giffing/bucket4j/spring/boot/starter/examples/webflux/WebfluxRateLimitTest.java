@@ -17,7 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("webflux") // Like this
-public class WebfluxRateLimitTest {
+class WebfluxRateLimitTest {
 
 	@Autowired
     ApplicationContext context;
@@ -33,7 +33,7 @@ public class WebfluxRateLimitTest {
     }
 
 	@Test
-	public void helloTest() throws Exception {
+	void helloTest() throws Exception {
 		String url = "/hello";
 		IntStream.rangeClosed(1, 5)
 			.boxed()
@@ -47,7 +47,7 @@ public class WebfluxRateLimitTest {
 
 	
 	@Test
-	public void worldTest() throws Exception {
+	void worldTest() throws Exception {
 		String url = "/world";
 		IntStream.rangeClosed(1, 10)
 			.boxed()

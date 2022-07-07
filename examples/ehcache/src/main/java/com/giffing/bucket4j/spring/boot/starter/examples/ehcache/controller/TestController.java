@@ -21,7 +21,6 @@ public class TestController {
 	
 	@GetMapping("unsecure")
 	public ResponseEntity unsecure() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return ResponseEntity.ok().build();
 	}
 	

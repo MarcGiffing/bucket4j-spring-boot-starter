@@ -25,13 +25,13 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("servlet") // Like this
-public class ServletRateLimitTest {
+class ServletRateLimitTest {
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Test
-	public void helloTest() throws Exception {
+	void helloTest() throws Exception {
 		String url = "/hello";
 		IntStream.rangeClosed(1, 5)
 			.boxed()
@@ -45,7 +45,7 @@ public class ServletRateLimitTest {
 
 	
 	@Test
-	public void worldTest() throws Exception {
+	void worldTest() throws Exception {
 		String url = "/world";
 		IntStream.rangeClosed(1, 10)
 			.boxed()
