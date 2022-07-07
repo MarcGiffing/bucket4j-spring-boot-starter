@@ -9,7 +9,7 @@ management:
 spring:
   cache:
     jcache:
-      provider: org.ehcache.jsr107.EhcacheCachingProvider
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
     cache-names:
     - buckets
     caffeine:
