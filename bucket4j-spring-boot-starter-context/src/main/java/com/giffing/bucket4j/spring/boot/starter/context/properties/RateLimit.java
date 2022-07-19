@@ -14,8 +14,18 @@ public class RateLimit {
 	 * SpEl condition to check if the rate-limit should apply. If null there is no check.
 	 */
 	private String skipCondition;
-	
+
 	private String expression = "1";
+
+	private Integer cost = 1;
+
+	public Integer getCost() {
+		return cost;
+	}
+
+	public void setCost(Integer cost) {
+		this.cost = cost;
+	}
 
 	private List<BandWidth> bandwidths = new ArrayList<>();
 	
@@ -46,7 +56,7 @@ public class RateLimit {
 	public void setBandwidths(List<BandWidth> bandwidths) {
 		this.bandwidths = bandwidths;
 	}
-	
+
 	public String getExecuteCondition() {
 		return executeCondition;
 	}
@@ -54,5 +64,5 @@ public class RateLimit {
 	public void setExecuteCondition(String executeCondition) {
 		this.executeCondition = executeCondition;
 	}
-	
+
 }
