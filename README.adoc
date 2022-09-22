@@ -5,18 +5,21 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 
 Project version overview:
 
+* 0.7.0 - Bucket4j 7.5.0 - Spring Boot 2.7.x
+* 0.6.1 - Bucket4j 7.0.0 - Spring Boot 2.6.x
+* 0.5.0 - Bucket4j 7.0.0 - Spring Boot 2.6.1
 * 0.5.0 - Bucket4j 7.0.0 - Spring Boot 2.6.1 
 * 0.4.1 - Bucket4j 7.0.0 - Spring Boot 2.4.1 
 * 0.4.0 - Bucket4j 6.2.0 - Spring Boot 2.4.1 
 
 
 *Examples:*
-https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples[bucket4j-spring-boot-starter-examples]
 
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-ehcache[Ehcache]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-hazelcast[Hazelcast]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-caffeine[Caffeine]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter-examples/tree/master/bucket4j-spring-boot-starter-example-webflux[Webflux (Async)]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/ehcache[Ehcache]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/hazelcast[Hazelcast]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/caffeine[Caffeine]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/webflux[Webflux (Async)]
+* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/gateway[Spring Cloud Gateway (Async)]
 
 = Contents
 
