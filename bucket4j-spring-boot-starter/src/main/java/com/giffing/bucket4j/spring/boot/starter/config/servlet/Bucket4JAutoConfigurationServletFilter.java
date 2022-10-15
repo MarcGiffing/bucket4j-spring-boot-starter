@@ -1,7 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.servlet;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +24,7 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.util.StringUtils;
@@ -28,6 +32,8 @@ import org.springframework.util.StringUtils;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.refresh.ApplicationRefreshConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.refresh.Bucket4jRefreshEvent;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
@@ -48,7 +54,7 @@ import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
-@Import(value = {Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
+@Import(value = {Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class, ApplicationRefreshConfiguration.class })
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>   {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationServletFilter.class);
@@ -86,25 +92,75 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Override
 	public void customize(ConfigurableServletWebServerFactory factory) {
-				AtomicInteger filterCount = new AtomicInteger(0);
-				properties
-					.getFilters()
-					.stream()
-					.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
-					.forEach(filter -> {
-						addDefaultMetricTags(properties, filter);
-						filterCount.incrementAndGet();
-						FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(
-								filter,
-								cacheResolver.resolve(filter.getCacheName()), 
-								servletFilterExpressionParser, beanFactory);
+		AtomicInteger filterCount = new AtomicInteger(0);
+		properties
+			.getFilters()
+			.stream()
+			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+			.forEach(filter -> {
+				addDefaultMetricTags(properties, filter);
+				Integer filterIndex = filterCount.incrementAndGet();
+				FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(
+						filter,
+						cacheResolver.resolve(filter.getCacheName()), 
+						servletFilterExpressionParser, beanFactory);
+
+				servletConfigurationHolder.addFilterConfiguration(filter);
+				context.registerBean("bucket4JServletRequestFilter" + filterIndex, Filter.class, () -> new ServletRequestFilter(filterConfig, filterIndex));
+				log.info("create-servlet-filter;{};{};{}", filterIndex, filter.getCacheName(), filter.getUrl());
+			});
+	}
 	
-						servletConfigurationHolder.addFilterConfiguration(filter);
 	
-						context.registerBean("bucket4JServletRequestFilter" + filterCount, Filter.class, () -> new ServletRequestFilter(filterConfig));
-						log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
-					});
+	/**
+	 * Handles the {@link Bucket4jRefreshEvent} and updates the Bucket4j configuration of all
+	 * {@link ServletRequestFilter}s.
+	 * 
+	 * @param event
+	 */
+	@EventListener(Bucket4jRefreshEvent.class)
+	public void handleBucket4jRefreshEvent(Bucket4jRefreshEvent event) {
+		Map<String, ServletRequestFilter> filters = context.getBeansOfType(ServletRequestFilter.class);
+		
+		// FILTER out FilterMethod.SERVLET to reset it with the new configuration
+		servletConfigurationHolder.setFilterConfiguration(
+				servletConfigurationHolder
+				.getFilterConfiguration()
+				.stream()
+				.filter(f -> !f.getFilterMethod().equals(FilterMethod.SERVLET))
+				.collect(Collectors.toList())
+				);
+		
+		AtomicInteger filterCount = new AtomicInteger(0);
+		properties
+		.getFilters()
+		.stream()
+		.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+		.forEach(filter -> {
+			addDefaultMetricTags(properties, filter);
+			Integer filterIndex = filterCount.incrementAndGet();
+			java.util.Optional<ServletRequestFilter> servletRequestFilter = filters
+				.entrySet()
+				.stream()
+				.filter( entry -> entry.getValue().getFilterIndex().equals(filterIndex))
+				.map(Entry::getValue)
+				.findFirst();
+			
+			if(servletRequestFilter.isPresent()) {
+				
+				FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(
+						filter,
+						cacheResolver.resolve(filter.getCacheName()), 
+						servletFilterExpressionParser, beanFactory);
+				servletConfigurationHolder.addFilterConfiguration(filter);
+				servletRequestFilter.get().updateFilterConfig(filterConfig);
+				log.info("update-servlet-filter;{};{};{}", filterIndex, filter.getCacheName(), filter.getUrl());
 			}
+			
+		});
+	}
+	
+	
 
 	@Override
 	public List<MetricHandler> getMetricHandlers() {

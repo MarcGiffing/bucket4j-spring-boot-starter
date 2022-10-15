@@ -53,7 +53,7 @@ class ServletRateLimitFilterTest {
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
         configuration.setUrl(".*");
         configuration.setHttpResponseHeaders(new HashMap<String,String>(){} );
-        filter = new ServletRequestFilter(configuration);
+        filter = new ServletRequestFilter(configuration, 1);
     }
 	
 	@Test

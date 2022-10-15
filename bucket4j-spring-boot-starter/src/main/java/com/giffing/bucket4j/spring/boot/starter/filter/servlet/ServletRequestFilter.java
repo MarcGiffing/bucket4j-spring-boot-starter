@@ -26,7 +26,14 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 
 	private FilterConfiguration<HttpServletRequest> filterConfig;
 	
-    public ServletRequestFilter(FilterConfiguration<HttpServletRequest> filterConfig) {
+	private final Integer filterIndex;
+	
+    public ServletRequestFilter(FilterConfiguration<HttpServletRequest> filterConfig, Integer filterIndex) {
+    	this.filterConfig = filterConfig;
+    	this.filterIndex = filterIndex;
+    }
+    
+    public synchronized void updateFilterConfig(FilterConfiguration<HttpServletRequest> filterConfig) {
     	this.filterConfig = filterConfig;
     }
     
@@ -92,5 +99,9 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 	@Override
 	public int getOrder() {
 		return filterConfig.getOrder();
+	}
+
+	public Integer getFilterIndex() {
+		return filterIndex;
 	}
 }
