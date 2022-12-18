@@ -108,10 +108,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 
 					if (async) {
 						AsyncBucketProxy bucket = buckets.asAsync().builder().build(key, bucketConfiguration).toListenable(metricBucketListener);
-						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(1));
+						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(rl.getCost()));
 					} else {
 						Bucket bucket = buckets.builder().build(key, bucketConfiguration).toListenable(metricBucketListener);
-						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(1));
+						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(rl.getCost()));
 					}
 		        	
 		        }
