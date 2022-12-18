@@ -10,6 +10,9 @@ import org.springframework.core.Ordered;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
+import lombok.Data;
+
+@Data
 public class Bucket4JConfiguration {
 
 	/**
@@ -63,95 +66,4 @@ public class Bucket4JConfiguration {
 	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 	
-	public Bucket4JConfiguration() {
-	}
-	
-	public String getCacheName() {
-		return cacheName;
-	}
-
-	public void setCacheName(String cacheName) {
-		this.cacheName = cacheName;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public int getFilterOrder() {
-		return filterOrder;
-	}
-
-	public void setFilterOrder(int filterOrder) {
-		this.filterOrder = filterOrder;
-	}
-
-	public FilterMethod getFilterMethod() {
-		return filterMethod;
-	}
-
-	public void setFilterMethod(FilterMethod filterMethod) {
-		this.filterMethod = filterMethod;
-	}
-
-	public List<RateLimit> getRateLimits() {
-		return rateLimits;
-	}
-
-	public void setRateLimits(List<RateLimit> rateLimits) {
-		this.rateLimits = rateLimits;
-	}
-
-	public RateLimitConditionMatchingStrategy getStrategy() {
-		return strategy;
-	}
-
-	public void setStrategy(RateLimitConditionMatchingStrategy strategy) {
-		this.strategy = strategy;
-	}
-
-	public String getHttpResponseBody() {
-		return httpResponseBody;
-	}
-
-	public void setHttpResponseBody(String httpResponseBody) {
-		this.httpResponseBody = httpResponseBody;
-	}
-
-	public Map<String, String> getHttpResponseHeaders() {
-		return httpResponseHeaders;
-	}
-
-	public void setHttpResponseHeaders(Map<String, String> httpResponseHeaders) {
-		this.httpResponseHeaders = httpResponseHeaders;
-	}
-
-	public Metrics getMetrics() {
-		return metrics;
-	}
-
-	public void setMetrics(Metrics metrics) {
-		this.metrics = metrics;
-	}
-
-	public Boolean getHideHttpResponseHeaders() {
-		return hideHttpResponseHeaders;
-	}
-
-	public void setHideHttpResponseHeaders(Boolean hideHttpResponseHeaders) {
-		this.hideHttpResponseHeaders = hideHttpResponseHeaders;
-	}
-
-	public String getHttpContentType() {
-		return httpContentType;
-	}
-
-	public void setHttpContentType(String httpContentType) {
-		this.httpContentType = httpContentType;
-	}
-
 }

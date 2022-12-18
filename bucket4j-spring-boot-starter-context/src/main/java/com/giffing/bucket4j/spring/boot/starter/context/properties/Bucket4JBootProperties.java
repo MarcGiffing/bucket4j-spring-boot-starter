@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import lombok.Data;
+
 /**
  * Holds all the relevant starter properties which can be configured with
  * Spring Boots application.properties / application.yml configuration files. 
  */
+@Data
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 public class Bucket4JBootProperties {
 
@@ -39,40 +42,9 @@ public class Bucket4JBootProperties {
 	 */
 	private List<MetricTag> defaultMetricTags = new ArrayList<>();
 	
-	public Boolean getEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(Boolean enabled) {
-		this.enabled = enabled;
-	}
-
+	
 	public static String getPropertyPrefix() {
 		return PROPERTY_PREFIX;
-	}
-
-	public List<Bucket4JConfiguration> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(List<Bucket4JConfiguration> filters) {
-		this.filters = filters;
-	}
-
-	public List<MetricTag> getDefaultMetricTags() {
-		return defaultMetricTags;
-	}
-
-	public void setDefaultMetricTags(List<MetricTag> defaultMetricTags) {
-		this.defaultMetricTags = defaultMetricTags;
-	}
-
-	public String getCacheToUse() {
-		return cacheToUse;
-	}
-
-	public void setCacheToUse(String cacheToUse) {
-		this.cacheToUse = cacheToUse;
 	}
 
 }

@@ -44,8 +44,8 @@
 			<artifactId>cache-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.github.vladimir-bukhtoyarov</groupId>
-			<artifactId>bucket4j-hazelcast</artifactId>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk8-hazelcast</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.hazelcast</groupId>
