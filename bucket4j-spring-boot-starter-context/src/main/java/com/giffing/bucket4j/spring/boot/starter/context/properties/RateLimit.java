@@ -3,6 +3,9 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+
+@Data
 public class RateLimit {
 	
 	/**
@@ -15,44 +18,11 @@ public class RateLimit {
 	 */
 	private String skipCondition;
 	
-	private String expression = "1";
-
-	private List<BandWidth> bandwidths = new ArrayList<>();
-	
 	/**
 	 * SPEL expression to dynamic evaluate filter key 
 	 */
-	
-	public String getExpression() {
-		return expression;
-	}
+	private String expression = "1";
 
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
-
-	public String getSkipCondition() {
-		return skipCondition;
-	}
-
-	public void setSkipCondition(String skipCondition) {
-		this.skipCondition = skipCondition;
-	}
-	
-	public List<BandWidth> getBandwidths() {
-		return bandwidths;
-	}
-
-	public void setBandwidths(List<BandWidth> bandwidths) {
-		this.bandwidths = bandwidths;
-	}
-	
-	public String getExecuteCondition() {
-		return executeCondition;
-	}
-
-	public void setExecuteCondition(String executeCondition) {
-		this.executeCondition = executeCondition;
-	}
+	private List<BandWidth> bandwidths = new ArrayList<>();
 	
 }

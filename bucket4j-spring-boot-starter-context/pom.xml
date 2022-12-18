@@ -3,10 +3,9 @@
 	<parent>
 		<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 		<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
-    		<version>${revision}</version>
+		<version>${revision}</version>
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-context</artifactId>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -15,12 +14,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-core</artifactId>
+			<artifactId>bucket4j_jdk8-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-jcache</artifactId>
+			<artifactId>bucket4j_jdk8-jcache</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -28,5 +27,28 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.24</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

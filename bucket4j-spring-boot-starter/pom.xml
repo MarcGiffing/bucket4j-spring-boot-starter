@@ -70,15 +70,15 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-core</artifactId>
+			<artifactId>bucket4j_jdk8-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-jcache</artifactId>
+			<artifactId>bucket4j_jdk8-jcache</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-hazelcast</artifactId>
+			<artifactId>bucket4j_jdk8-hazelcast</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -93,7 +93,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-ignite</artifactId>
+			<artifactId>bucket4j_jdk8-ignite</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -104,7 +104,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-infinispan</artifactId>
+			<artifactId>bucket4j_jdk8-infinispan</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -137,5 +137,28 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.24</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

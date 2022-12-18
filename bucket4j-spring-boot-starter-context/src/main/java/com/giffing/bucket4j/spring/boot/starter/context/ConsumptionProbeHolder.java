@@ -3,7 +3,10 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.bucket4j.ConsumptionProbe;
+import lombok.Data;
 
+
+@Data
 public class ConsumptionProbeHolder {
 
 	private ConsumptionProbe consumptionProbe;
@@ -18,23 +21,4 @@ public class ConsumptionProbeHolder {
 		this.consumptionProbeCompletableFuture = consumptionProbeCompletableFuture;
 	}
 
-	public ConsumptionProbe getConsumptionProbe() {
-		return consumptionProbe;
-	}
-
-	public void setConsumptionProbe(ConsumptionProbe consumptionProbe) {
-		this.consumptionProbe = consumptionProbe;
-	}
-
-	public CompletableFuture<ConsumptionProbe> getConsumptionProbeCompletableFuture() {
-		return consumptionProbeCompletableFuture;
-	}
-
-	public void setConsumptionProbeCompletableFuture(
-			CompletableFuture<ConsumptionProbe> consumptionProbeCompletableFuture) {
-		this.consumptionProbeCompletableFuture = consumptionProbeCompletableFuture;
-	}
-	
-	
-	
 }

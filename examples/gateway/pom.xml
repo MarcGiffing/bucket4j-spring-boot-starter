@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-hazelcast</artifactId>
+			<artifactId>bucket4j_jdk8-hazelcast</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.hazelcast</groupId>
