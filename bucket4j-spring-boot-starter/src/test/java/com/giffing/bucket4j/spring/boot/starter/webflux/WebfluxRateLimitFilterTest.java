@@ -110,9 +110,9 @@ class WebfluxRateLimitFilterTest {
 		Mono<Void> result = filter.filter(exchange, chain);
 		Assertions.assertNull(result, "No error expected");
         
-		verify(rateLimitCheck1, times(1)).rateLimit(any(), Mockito.anyBoolean());
-        verify(rateLimitCheck2, times(1)).rateLimit(any(), Mockito.anyBoolean());
-        verify(rateLimitCheck3, times(1)).rateLimit(any(), Mockito.anyBoolean());
+		verify(rateLimitCheck1, times(1)).rateLimit(any());
+        verify(rateLimitCheck2, times(1)).rateLimit(any());
+        verify(rateLimitCheck3, times(1)).rateLimit(any());
 	}
 
 	@Test
@@ -137,9 +137,9 @@ class WebfluxRateLimitFilterTest {
         List<String> values = captor.getAllValues();
 //        assertThat(values.stream().findFirst().get(), equalTo("30"));
         
-        verify(rateLimitCheck1, times(1)).rateLimit(any(), Mockito.anyBoolean());
-        verify(rateLimitCheck2, times(1)).rateLimit(any(), Mockito.anyBoolean());
-        verify(rateLimitCheck3, times(1)).rateLimit(any(), Mockito.anyBoolean());
+        verify(rateLimitCheck1, times(1)).rateLimit(any());
+        verify(rateLimitCheck2, times(1)).rateLimit(any());
+        verify(rateLimitCheck3, times(1)).rateLimit(any());
 	}
 
 	private void rateLimitConfig(Long remainingTokens, RateLimitCheck rateLimitCheck) {
@@ -149,7 +149,7 @@ class WebfluxRateLimitFilterTest {
 		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
 		when(consumptionHolder.getConsumptionProbeCompletableFuture())
 			.thenReturn(CompletableFuture.completedFuture(probe));
-        when(rateLimitCheck.rateLimit(any(), Mockito.anyBoolean())).thenReturn(consumptionHolder);
+        when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
 	}
 	
 }

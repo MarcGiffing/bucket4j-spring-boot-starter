@@ -41,7 +41,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
-        	ConsumptionProbeHolder probeHolder = rl.rateLimit(request, false);
+        	ConsumptionProbeHolder probeHolder = rl.rateLimit(request);
 			if (probeHolder != null && probeHolder.getConsumptionProbe() != null) {
 				ConsumptionProbe probe = probeHolder.getConsumptionProbe();
 				if(probe.isConsumed()) {

@@ -4,9 +4,12 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 
+import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 
@@ -23,13 +26,17 @@ public class JCacheCacheResolver implements SyncCacheResolver {
 		this.cacheManager = cacheManager;
 	}
 	
-	public ProxyManager<String> resolve(String cacheName) {
+	public ProxyManagerWrapper resolve(String cacheName) {
 		Cache<String, byte[]> springCache = cacheManager.getCache(cacheName);
 		if (springCache == null) {
 			throw new JCacheNotFoundException(cacheName);
 		}
 
-		return new JCacheProxyManager<>(springCache);
+		JCacheProxyManager<String> jCacheProxyManager = new JCacheProxyManager<>(springCache);
+		return (key, numTokens, bucketConfiguration, metricsListener) -> {
+			Bucket bucket = jCacheProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
+		};
 	}
 	
 }

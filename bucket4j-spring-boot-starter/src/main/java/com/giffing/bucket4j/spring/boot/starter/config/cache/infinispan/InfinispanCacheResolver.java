@@ -8,7 +8,10 @@ import org.infinispan.functional.impl.ReadWriteMapImpl;
 import org.infinispan.manager.CacheContainer;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 
+import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 
@@ -21,9 +24,13 @@ public class InfinispanCacheResolver implements AsyncCacheResolver {
 	}
 	
 	@Override
-	public ProxyManager<String> resolve(String cacheName) {
+	public ProxyManagerWrapper resolve(String cacheName) {
 		Cache<String, byte[]> cache = cacheContainer.getCache(cacheName);
-		return new InfinispanProxyManager<>(toMap(cache));
+		InfinispanProxyManager<String> infinispanProxyManager = new InfinispanProxyManager<>(toMap(cache));
+		return (key, numTokens, bucketConfiguration, metricsListener) -> {
+			AsyncBucketProxy bucket = infinispanProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
+			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
+		};
 	}
 
 	private static FunctionalMap.ReadWriteMap<String, byte[]> toMap(Cache<String, byte[]> cache) {

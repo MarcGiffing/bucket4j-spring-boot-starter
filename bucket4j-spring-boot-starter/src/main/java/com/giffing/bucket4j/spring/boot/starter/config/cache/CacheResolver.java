@@ -12,6 +12,6 @@ import io.github.bucket4j.distributed.proxy.ProxyManager;
  */
 public abstract interface CacheResolver {
 
-	ProxyManager<String> resolve(String cacheName);
+	ProxyManagerWrapper resolve(String cacheName);
 	
 }

@@ -18,6 +18,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter;
@@ -59,7 +60,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	
 	public FilterConfiguration<R> buildFilterConfig(
 			Bucket4JConfiguration config, 
-			ProxyManager<String> buckets,
+			ProxyManagerWrapper proxyWrapper,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
 		
@@ -79,7 +80,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			
-			RateLimitCheck<R> rlc = (servletRequest, async) -> {
+			RateLimitCheck<R> rlc = (servletRequest) -> {
 				
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
@@ -106,13 +107,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 							filterConfig.getMetrics().getTypes(),
 							metricTagResults);
 
-					if (async) {
-						AsyncBucketProxy bucket = buckets.asAsync().builder().build(key, bucketConfiguration).toListenable(metricBucketListener);
-						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(rl.getCost()));
-					} else {
-						Bucket bucket = buckets.builder().build(key, bucketConfiguration).toListenable(metricBucketListener);
-						return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(rl.getCost()));
-					}
+		        	return proxyWrapper.tryConsumeAndReturnRemaining(key, rl.getCost(), bucketConfiguration, metricBucketListener);
 		        	
 		        }
 				return null;

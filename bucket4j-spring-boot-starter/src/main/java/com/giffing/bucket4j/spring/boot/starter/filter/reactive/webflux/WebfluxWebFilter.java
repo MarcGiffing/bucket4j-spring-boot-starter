@@ -40,7 +40,7 @@ public class WebfluxWebFilter implements WebFilter, Ordered {
 		if (request.getURI().getPath().matches(filterConfig.getUrl())) {
 		
 	        for (RateLimitCheck<ServerHttpRequest> rl : filterConfig.getRateLimitChecks()) {
-				ConsumptionProbeHolder probeHolder = rl.rateLimit(request, true);
+				ConsumptionProbeHolder probeHolder = rl.rateLimit(request);
 				if(probeHolder != null && probeHolder.getConsumptionProbeCompletableFuture() != null ) {
 					
 					CompletableFuture<ConsumptionProbe> limitCheckingFuture = probeHolder.getConsumptionProbeCompletableFuture();

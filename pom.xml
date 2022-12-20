@@ -3,33 +3,27 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 	<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
 	<version>${revision}</version>
 	<packaging>pom</packaging>
-
 	<name>bucket4j-spring-boot-starter-parent</name>
 	<description>Spring Boot Starter für Bucket4J</description>
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.6</version>
 		<relativePath />
 	</parent>
-
 	<modules>
 		<module>bucket4j-spring-boot-starter-context</module>
 		<module>bucket4j-spring-boot-starter</module>
-		
 		<module>examples/caffeine</module>
 		<module>examples/ehcache</module>
 		<module>examples/hazelcast</module>
 		<module>examples/webflux</module>
 		<module>examples/gateway</module>
 	</modules>
-
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
 	<licenses>
 		<license>
@@ -43,8 +37,6 @@
 		<developerConnection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git</developerConnection>
 		<tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
 	</scm>
-
-
 	<properties>
 		<revision>0.8.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,7 +45,6 @@
 		<bucket4j.version>8.1.0</bucket4j.version>
 		<spring-cloud-starter-gateway.version>3.1.4</spring-cloud-starter-gateway.version>
 	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -88,6 +79,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
+				<artifactId>bucket4j_jdk8-redis</artifactId>
+				<version>${bucket4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.bucket4j</groupId>
 				<artifactId>bucket4j_jdk8-ignite</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
@@ -98,7 +94,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -126,7 +121,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -137,7 +131,6 @@
 			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-
 	<profiles>
 		<profile>
 			<id>scm-tag</id>
@@ -228,6 +221,4 @@
 			</build>
 		</profile>
 	</profiles>
-
-
 </project>

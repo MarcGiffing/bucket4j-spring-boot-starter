@@ -14,6 +14,6 @@ public interface RateLimitCheck<R> {
 	 * 
 	 * @return null if no rate limit should be performed. (maybe skipped or shouldn't be executed).
 	 */
-	ConsumptionProbeHolder rateLimit(R request, boolean async);
+	ConsumptionProbeHolder rateLimit(R request);
 	
 }

@@ -5,9 +5,13 @@ import org.infinispan.functional.impl.FunctionalMapImpl;
 import org.infinispan.functional.impl.ReadWriteMapImpl;
 import org.infinispan.manager.CacheContainer;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 
@@ -31,14 +35,18 @@ public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 		this.cacheContainer = cacheContainer;
 	}
 
-	public ProxyManager<String> resolve(String cacheName) {
+	public ProxyManagerWrapper resolve(String cacheName) {
 		Cache<String, byte[]> cache = cacheContainer.getCache(cacheName);
 		if (cache == null) {
 			throw new JCacheNotFoundException(cacheName);
 		}
 
 		FunctionalMapImpl<String, byte[]> functionalMap = FunctionalMapImpl.create(cache.getAdvancedCache());
-		return new InfinispanProxyManager<>(ReadWriteMapImpl.create(functionalMap));
+		InfinispanProxyManager<String> infinispanProxyManager = new InfinispanProxyManager<>(ReadWriteMapImpl.create(functionalMap));
+		return (key, numTokens, bucketConfiguration, metricsListener) -> {
+			Bucket bucket = infinispanProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
+		};
 	}
 
 }
