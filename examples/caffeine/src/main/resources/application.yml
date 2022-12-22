@@ -23,8 +23,9 @@ bucket4j:
       AAA: BBB
     rate-limits:
     - bandwidths:
-      - capacity: 5
+      - capacity: 10
+        refill-capacity: 1
         time: 1
-        unit: minutes
-        fixed-refill-interval: 1
-        fixed-refill-interval-unit: minutes
+        unit: seconds
+        initial-capacity: 20
+        refill-speed: interval

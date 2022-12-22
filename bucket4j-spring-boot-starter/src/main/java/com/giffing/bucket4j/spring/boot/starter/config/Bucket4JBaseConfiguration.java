@@ -132,11 +132,24 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
 		ConfigurationBuilder configBuilder = BucketConfiguration.builder();
 		for (BandWidth bandWidth : rl.getBandwidths()) {
-				Bandwidth bucket4jBandWidth = Bandwidth.simple(bandWidth.getCapacity(), Duration.of(bandWidth.getTime(), bandWidth.getUnit()));
-				if(bandWidth.getFixedRefillInterval() > 0) {
-					bucket4jBandWidth = Bandwidth.classic(bandWidth.getCapacity(), Refill.intervally(bandWidth.getCapacity(), Duration.of(bandWidth.getFixedRefillInterval(), bandWidth.getFixedRefillIntervalUnit())));
-				}
-				configBuilder = configBuilder.addLimit(bucket4jBandWidth);
+			Bandwidth bucket4jBandWidth = null;
+			long capacity = bandWidth.getCapacity();
+			long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
+			Duration refillDuration = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
+			switch(bandWidth.getRefillSpeed()) {
+				case GREEDY:
+					bucket4jBandWidth = Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillDuration));
+					break;
+				case INTERVAL:
+					bucket4jBandWidth = Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillDuration));
+					break;
+				default:
+					throw new IllegalStateException("Unsupported Refill type: " + bandWidth.getRefillSpeed());
+			}
+			if(bandWidth.getInitialCapacity() != null) {
+				bucket4jBandWidth = bucket4jBandWidth.withInitialTokens(bandWidth.getInitialCapacity());
+			}
+			configBuilder = configBuilder.addLimit(bucket4jBandWidth);
 		}
 		return configBuilder;
 	}

@@ -2,6 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.time.temporal.ChronoUnit;
 
+import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
+
 import lombok.Data;
 
 /**
@@ -12,10 +14,15 @@ import lombok.Data;
 public class BandWidth {
 
 	private long capacity;
+	
+	private Long refillCapacity;
+	
 	private long time;
+	
 	private ChronoUnit unit;
-
-	private long fixedRefillInterval = 0;
-	private ChronoUnit fixedRefillIntervalUnit = ChronoUnit.MINUTES;
-
+	
+	private Long initialCapacity;
+	
+	private RefillSpeed refillSpeed = RefillSpeed.GREEDY;
+	
 }

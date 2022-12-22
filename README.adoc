@@ -141,10 +141,11 @@ bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consum
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
 bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=10
+bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-capacity= # default is capacity
 bucket4j.filters[0].rate-limits[0].bandwidths[0].time=1
 bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=minutes
-bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval=0
-bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minutes
+bucket4j.filters[0].rate-limits[0].bandwidths[0].initial-capacity= # Optional initial tokens
+bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,interval]
 
 # Optional default metric tags for all filters
 bucket4j.default-metric-tags[0].key=IP
