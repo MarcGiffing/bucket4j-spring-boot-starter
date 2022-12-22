@@ -105,7 +105,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 							filterConfig.getMetrics().getTypes(),
 							metricTagResults);
 
-		        	return proxyWrapper.tryConsumeAndReturnRemaining(key, rl.getCost(), bucketConfiguration, metricBucketListener);
+		        	return proxyWrapper.tryConsumeAndReturnRemaining(key, rl.getNumTokens(), bucketConfiguration, metricBucketListener);
 		        	
 		        }
 				return null;

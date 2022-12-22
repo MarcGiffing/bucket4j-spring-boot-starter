@@ -18,12 +18,15 @@ public class RateLimit {
 	 */
 	private String skipCondition;
 
-  /**
+	/**
 	 * SPEL expression to dynamic evaluate filter key 
 	 */
 	private String expression = "1";
 
-	private Integer cost = 1;
+	/**
+	 * The number of tokens that should be consumed 
+	 */
+	private Integer numTokens = 1;
 
 	private List<BandWidth> bandwidths = new ArrayList<>();
 
