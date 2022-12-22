@@ -23,7 +23,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfi
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
@@ -40,12 +39,10 @@ import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpres
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
 
 import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.Refill;
-import io.github.bucket4j.distributed.AsyncBucketProxy;
-import io.github.bucket4j.distributed.proxy.ProxyManager;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -54,6 +51,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager;
  * {@link Bucket4JAutoConfigurationWebfluxFilter} 
  * configuration classes
  */
+@Slf4j
 public abstract class Bucket4JBaseConfiguration<R> {
 	
 	public abstract List<MetricHandler> getMetricHandlers();
@@ -77,7 +75,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		throwExceptionOnInvalidFilterUrl(filterConfig);
 		
 		config.getRateLimits().forEach(rl -> {
-			
+			log.debug("RL: {}",rl.toString());
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			
 			RateLimitCheck<R> rlc = (servletRequest) -> {

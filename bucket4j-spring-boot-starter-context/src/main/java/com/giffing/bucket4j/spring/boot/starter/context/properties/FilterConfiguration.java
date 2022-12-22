@@ -9,12 +9,14 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * This class is the main configuration class which is used to build the servlet|webflux|gateway request filter
  *
  */
 @Data
+@ToString
 public class FilterConfiguration<R> {
 
 	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;

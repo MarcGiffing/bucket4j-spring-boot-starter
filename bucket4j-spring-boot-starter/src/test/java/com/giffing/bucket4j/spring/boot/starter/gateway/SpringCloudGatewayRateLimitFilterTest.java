@@ -23,7 +23,6 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
@@ -67,6 +66,7 @@ class SpringCloudGatewayRateLimitFilterTest {
         when(exchange.getResponse()).thenReturn(serverHttpResponse);
         
 		chain = Mockito.mock(GatewayFilterChain.class);
+		when(chain.filter(exchange)).thenReturn(Mono.empty());
         
         configuration = new FilterConfiguration();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
@@ -96,7 +96,7 @@ class SpringCloudGatewayRateLimitFilterTest {
 	@Test
 	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
         
-        configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
+        configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
 
         rateLimitConfig(30L, rateLimitCheck1);
         rateLimitConfig(0L, rateLimitCheck2);
@@ -106,8 +106,10 @@ class SpringCloudGatewayRateLimitFilterTest {
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         
-		Mono<Void> result = filter.filter(exchange, chain);
-		Assertions.assertNull(result, "No error expected");
+        Assertions.assertThrows(ReactiveRateLimitException.class, () -> {
+        	Mono<Void> result = filter.filter(exchange, chain);
+    		result.block();	
+        });
         
 		verify(rateLimitCheck1, times(1)).rateLimit(any());
         verify(rateLimitCheck2, times(1)).rateLimit(any());
@@ -116,8 +118,6 @@ class SpringCloudGatewayRateLimitFilterTest {
 
 	@Test
 	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
-        
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
         rateLimitConfig(30L, rateLimitCheck1);
@@ -129,12 +129,12 @@ class SpringCloudGatewayRateLimitFilterTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         
 		Mono<Void> result = filter.filter(exchange, chain);
-		Assertions.assertNull(result, "The result must be null");
+		result.block();
         
         verify(httpHeaders, times(1)).set(any(), captor.capture());
 
         List<String> values = captor.getAllValues();
-//        assertThat(values.stream().findFirst().get(), equalTo("30"));
+        Assertions.assertEquals("30", values.stream().findFirst().get());
         
         verify(rateLimitCheck1, times(1)).rateLimit(any());
         verify(rateLimitCheck2, times(1)).rateLimit(any());

@@ -1,8 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.webflux;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -41,7 +38,7 @@ import reactor.core.publisher.Mono;
 class WebfluxRateLimitFilterTest {
 
 	private WebfluxWebFilter filter;
-	private FilterConfiguration configuration;
+	private FilterConfiguration<ServerHttpRequest> configuration;
 	private RateLimitCheck rateLimitCheck1;
 	private RateLimitCheck rateLimitCheck2;
 	private RateLimitCheck rateLimitCheck3;
@@ -69,8 +66,9 @@ class WebfluxRateLimitFilterTest {
         when(exchange.getResponse()).thenReturn(serverHttpResponse);
         
 		chain = Mockito.mock(WebFilterChain.class);
+		when(chain.filter(exchange)).thenReturn(Mono.empty());
         
-        configuration = new FilterConfiguration();
+        configuration = new FilterConfiguration<>();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
         configuration.setUrl(".*");
         filter = new WebfluxWebFilter(configuration);
@@ -97,7 +95,7 @@ class WebfluxRateLimitFilterTest {
 	@Test
 	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
         
-        configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
+        configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
 
         rateLimitConfig(30L, rateLimitCheck1);
         rateLimitConfig(0L, rateLimitCheck2);
@@ -105,11 +103,12 @@ class WebfluxRateLimitFilterTest {
 
         HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         
-		Mono<Void> result = filter.filter(exchange, chain);
-		Assertions.assertNull(result, "No error expected");
-        
+        Assertions.assertThrows(ReactiveRateLimitException.class, () -> {
+        	Mono<Void> result = filter.filter(exchange, chain);
+    		result.block();	
+        });
+		
 		verify(rateLimitCheck1, times(1)).rateLimit(any());
         verify(rateLimitCheck2, times(1)).rateLimit(any());
         verify(rateLimitCheck3, times(1)).rateLimit(any());
@@ -117,7 +116,6 @@ class WebfluxRateLimitFilterTest {
 
 	@Test
 	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/url");
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
@@ -127,15 +125,15 @@ class WebfluxRateLimitFilterTest {
         
         HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         
-		Mono<Void> result = filter.filter(exchange, chain);
-		Assertions.assertNull(result, "The result must be null");
+    	Mono<Void> result = filter.filter(exchange, chain);
+		result.block();
         
+		final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(httpHeaders, times(1)).set(any(), captor.capture());
 
         List<String> values = captor.getAllValues();
-//        assertThat(values.stream().findFirst().get(), equalTo("30"));
+        Assertions.assertEquals("30", values.stream().findFirst().get());
         
         verify(rateLimitCheck1, times(1)).rateLimit(any());
         verify(rateLimitCheck2, times(1)).rateLimit(any());

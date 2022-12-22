@@ -11,8 +11,10 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class Bucket4JConfiguration {
 
 	/**

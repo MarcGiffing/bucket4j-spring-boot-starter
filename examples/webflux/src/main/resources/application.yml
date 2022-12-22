@@ -1,3 +1,7 @@
+logging:
+  level:
+    com.giffing.bucket4j.spring.boot.starter: debug
+
 management:
   endpoints:
     web:
