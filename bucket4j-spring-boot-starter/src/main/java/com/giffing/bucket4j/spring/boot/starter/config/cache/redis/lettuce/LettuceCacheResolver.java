@@ -7,15 +7,11 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 
-import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
-import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager;
-import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager.JedisBasedProxyManagerBuilder;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
-import redis.clients.jedis.JedisPool;
 
 /**
  * This class is the Redis implementation of the {@link CacheResolver}.
