@@ -6,13 +6,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 
-import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager.JedisBasedProxyManagerBuilder;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
-import redis.clients.jedis.JedisPool;
 
 @Configuration
 @ConditionalOnClass(LettuceBasedProxyManager.class)
@@ -21,7 +19,7 @@ import redis.clients.jedis.JedisPool;
 public class LettuceBucket4jConfiguration {
 
 	@Bean
-	public SyncCacheResolver bucket4RedisResolver(RedisClient redisClient) {
+	public AsyncCacheResolver bucket4RedisResolver(RedisClient redisClient) {
 		return new LettuceCacheResolver(redisClient);
 	}
 }

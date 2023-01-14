@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
@@ -19,7 +19,7 @@ import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
 public class RedissonBucket4jConfiguration {
 
 	@Bean
-	public SyncCacheResolver bucket4RedisResolver(CommandExecutor commandExecutor) {
+	public AsyncCacheResolver bucket4RedisResolver(CommandExecutor commandExecutor) {
 		return new RedissonCacheResolver(commandExecutor);
 	}
 }

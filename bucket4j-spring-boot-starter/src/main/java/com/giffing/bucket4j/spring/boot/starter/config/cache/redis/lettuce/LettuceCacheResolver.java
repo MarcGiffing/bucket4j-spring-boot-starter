@@ -2,9 +2,9 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
 import java.time.Duration;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 
 import io.github.bucket4j.distributed.AsyncBucketProxy;
@@ -17,7 +17,7 @@ import io.lettuce.core.RedisClient;
  * This class is the Redis implementation of the {@link CacheResolver}.
  *
  */
-public class LettuceCacheResolver implements SyncCacheResolver {
+public class LettuceCacheResolver implements AsyncCacheResolver {
 	
 	private final RedisClient redisClient;
 	

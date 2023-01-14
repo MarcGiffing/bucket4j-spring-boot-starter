@@ -4,9 +4,9 @@ import java.time.Duration;
 
 import org.redisson.command.CommandExecutor;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 
 import io.github.bucket4j.distributed.AsyncBucketProxy;
@@ -18,7 +18,7 @@ import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
  * This class is the Redis implementation of the {@link CacheResolver}.
  *
  */
-public class RedissonCacheResolver implements SyncCacheResolver {
+public class RedissonCacheResolver implements AsyncCacheResolver {
 	
 	private final CommandExecutor commandExecutor;
 	
