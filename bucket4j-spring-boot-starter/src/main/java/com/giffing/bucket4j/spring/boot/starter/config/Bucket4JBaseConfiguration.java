@@ -135,13 +135,13 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			Bandwidth bucket4jBandWidth = null;
 			long capacity = bandWidth.getCapacity();
 			long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
-			Duration refillDuration = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
+			Duration refillPeriod = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
 			switch(bandWidth.getRefillSpeed()) {
 				case GREEDY:
-					bucket4jBandWidth = Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillDuration));
+					bucket4jBandWidth = Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillPeriod));
 					break;
 				case INTERVAL:
-					bucket4jBandWidth = Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillDuration));
+					bucket4jBandWidth = Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillPeriod));
 					break;
 				default:
 					throw new IllegalStateException("Unsupported Refill type: " + bandWidth.getRefillSpeed());
