@@ -23,7 +23,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 @ConditionalOnClass({ CacheContainer.class, Caching.class, JCacheCacheManager.class })
 @ConditionalOnBean(CacheContainer.class)
 @ConditionalOnMissingBean(SyncCacheResolver.class)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "jcache", matchIfMissing = true)
+@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "jcache-ignite", matchIfMissing = true)
 public class InfinispanJCacheBucket4jConfiguration {
 
 	private CacheContainer cacheContainer;
