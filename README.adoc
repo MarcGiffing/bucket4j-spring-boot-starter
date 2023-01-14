@@ -1,4 +1,8 @@
 
+:url: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master
+:url-examples: {url}/examples
+:url-config-cache: {url}/com/giffing/bucket4j/spring/boot/starter/config/cache
+
 = Spring Boot Starter for Bucket4j
 
 https://github.com/vladimir-bukhtoyarov/bucket4j
@@ -7,25 +11,21 @@ Project version overview:
 
 * 0.8.0 - Bucket4j 8.1.0 - Spring Boot 2.7.x
 * 0.7.0 - Bucket4j 7.5.0 - Spring Boot 2.7.x
-* 0.6.1 - Bucket4j 7.0.0 - Spring Boot 2.6.x
-* 0.5.0 - Bucket4j 7.0.0 - Spring Boot 2.6.1
-* 0.5.0 - Bucket4j 7.0.0 - Spring Boot 2.6.1 
-* 0.4.1 - Bucket4j 7.0.0 - Spring Boot 2.4.1 
-* 0.4.0 - Bucket4j 6.2.0 - Spring Boot 2.4.1 
-
 
 *Examples:*
 
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/ehcache[Ehcache]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/hazelcast[Hazelcast]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/caffeine[Caffeine]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/webflux[Webflux (Async)]
-* https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master/examples/gateway[Spring Cloud Gateway (Async)]
+* {url-examples}/ehcache[Ehcache]
+* {url-examples}/hazelcast[Hazelcast]
+* {url-examples}/caffeine[Caffeine]
+* {url-examples}/webflux[Webflux (Async)]
+* {url-examples}/gateway[Spring Cloud Gateway (Async)]
 
 = Contents
 
 * <<introduction>>
+* <<migration_guide>>
 * <<getting_started>>
+* <<refill_speed>>
 * <<bucket4j_complete_properties>>
 * <<monitoring>>
 * <<configuration_examples>>
@@ -42,13 +42,50 @@ It can be used limit the rate of access to your REST APIs.
 
 The benefit of this project is the configuration of Bucket4j via Spring Boots *properties* or *yaml* files. You don't
 have to write a single line of code.
-.
+
+[[migration_guide]]
+== Migration Guide
+
+This section is meant to help you migrate your application to new version of this starter project.
+
+=== Spring Boot Starter Bucket4j 0.8
+
+==== Compatibility to Java 8
+
+The version 0.8 tries to be compatible with Java 8 as long as Bucket4j is supporting Java 8. With the release
+of Bucket4j 8.0.0 Bucket4j decided to migrate to Java 11 but provides dedicated artifacts for Java 8. 
+The project is switching to the dedicated artifacts which supports Java 8. You can read more about
+it https://github.com/bucket4j/bucket4j#java-compatibility-matrix[here]. 
+
+==== Explicit Configuration of the Refill Speed - API Break
+
+The refill speed of the Buckets can now configured explicitly with the Enum RefillSpeed. You can choose between 
+a greedy or interval refill see the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
+
+Before 0.8 the refill speed was configured implicitly by setting the fixed-refill-interval property explicit.
+
+[source, properties]
+----
+bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval=0
+bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minutes
+----
+
+These properties are removed and replaced by the following configuration:
+
+[source, properties]
+----
+bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=interval
+----
+
+You can read more about the refill speed configuration here <<refill_speed>>
 
 [[getting_started]]
 == Getting started
 
 To use the rate limit in your project you have to add the Bucket4j Spring Boot Starter dependency in 
-your project. Additionally you need to add a https://www.jcp.org/en/jsr/detail?id=107[JSR 107] provider like Ehcache or Hazelcast which will be auto configured with the https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[Spring Boot Starter Cache].
+your project. Additionally you have to choose a caching provider <<cache_overview>>.
+
+The next example uses https://www.jcp.org/en/jsr/detail?id=107[JSR 107] Ehcache which will be auto configured with the https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[Spring Boot Starter Cache].
 
 [source, xml]
 ----
@@ -110,6 +147,79 @@ spring:
 </config>
 ----
 
+[[cache_overview]]
+=== Overview Cache Autoconfiguration
+
+The following list contains the Caching implementation which will be autoconfigured by this starter.
+
+[cols="1,1,1"]
+|===
+|*Reactive*
+|*Name*
+|*cache-to-use*
+
+|N
+|{url-config-cache}/jcache/JCacheBucket4jConfiguration.java[JSR 107 -JCache]
+|jcache
+
+|Yes
+|{url-config-cache}/ignite/IgniteBucket4jCacheConfiguration.java[Ignite]
+|jcache-ignite
+
+|Yes
+|{url-config-cache}/hazelcast/HazelcastBucket4jCacheConfiguration.java[Hazelcast]
+|hazelcast
+
+|Yes
+|{url-config-cache}/infinispan/InfinispanBucket4jCacheConfiguration.java[Infinispan]
+|infinispan
+
+|No
+|{url-config-cache}/redis/jedis/JedisBucket4jConfiguration.java[Redis-Jedis]
+|redis-jedis
+
+|Yes
+|{url-config-cache}/redis/lettuce/LettuceBucket4jConfiguration.java[Redis-Lettuce]
+|redis-lettuce
+
+|Yes
+|{url-config-cache}/redis/redission/RedissonBucket4jConfiguration.java[Redis-Redisson]
+|redis-redisson
+
+|No
+|{url-config-cache}/redis/springdata/RedisSpringDataBucket4jConfiguration.java[Redis-SpringData]
+|redis-springdata
+
+|===
+
+Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver 
+or the AsynchCacheResolver by yourself.
+
+You can enable the cache auto configuration explicitly by using the *cache-to-use* property name or setting 
+it to an invalid value to disable all auto configurations. 
+
+[source, properties]
+----
+bucket4j.cache-to-use=jcache # 
+---- 
+
+[[refill_speed]]
+== Refill Speed
+
+The refill speed defines the period of the regeneration of consumed tokens.
+This starter supports two types of token regeneration. The refill speed can be set with the following 
+property:
+
+[source, properties]
+----
+bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,interval]
+----
+
+* *greedy*: This is the default refill speed and tries to add tokens as soon as possible.
+* *interval*: You can alternatively chose *interval* for the token regeneration which refills the token in a fixed interval.
+
+You can read more about the refill speed in the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
+
 [[bucket4j_complete_properties]]
 == Bucket4j properties
 
@@ -136,7 +246,7 @@ bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
 bucket4j.filters[0].metrics.tags[2].key=USERNAME
 bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != null ? @securityService.username() : 'anonym'
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
-bucket4j.filters[0].rate-limits[0].expression=getRemoteAddr()
+bucket4j.filters[0].rate-limits[0].expression=getRemoteAddr() # defines the cache key
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
@@ -153,14 +263,14 @@ bucket4j.default-metric-tags[0].expression=getRemoteAddr()
 bucket4j.default-metric-tags[0].types=REJECTED_COUNTER
 
 # Hide HTTP response headers
-
-
 ----
 
-==== Expression
+==== Expression - Cache Key
 
-The expression based filter type provides the most flexible one and uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL). https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
-It provides an easy way to configure the throttling in different environments without writing one line of code.
+To differentiate incoming request you can provide an expression which is used as a key resolver for the underlying cache.
+
+The expression uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL) which
+provides the most flexible solution to determine the cache key written in one line of code. https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
 
 Depending on the filter method [servlet,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
 
@@ -217,9 +327,9 @@ The *first* is the default strategy. This the default strategy which only execut
 The *all* strategy executes all rate limit independently. 
 
 [[monitoring]]
-== Monitoring - Spring Boot 2 Actuator
+== Monitoring - Spring Boot Actuator
 
-Spring Boot 2 ships with a great support for collecting metrics. This project automatically provides metric information about the consumed and rejected buckets. You can extend these information with configurable https://micrometer.io/docs/concepts#_tag_naming[custom tags] like the username or the IP-Address which can then be evaluated in a monitoring system like prometheus/grafana.
+Spring Boot ships with a great support for collecting metrics. This project automatically provides metric information about the consumed and rejected buckets. You can extend these information with configurable https://micrometer.io/docs/concepts#_tag_naming[custom tags] like the username or the IP-Address which can then be evaluated in a monitoring system like prometheus/grafana.
 
 [source,yml]
 ----
@@ -335,11 +445,3 @@ bucket4j:
           time: 1
           unit: minutes    
 ----
-
-== Programmatically define Cache Provider
-
-Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver 
-or the AsynchCacheResolver for reactive support  by yourself.
-
-Click https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/90[here] is an Example for a SynchSyncCacheResolver 
-for Hazelcast Support without using JCache.
