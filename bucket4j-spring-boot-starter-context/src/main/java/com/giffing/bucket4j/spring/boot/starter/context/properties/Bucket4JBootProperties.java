@@ -3,7 +3,10 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 import lombok.Data;
 
@@ -13,6 +16,7 @@ import lombok.Data;
  */
 @Data
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
+@Validated
 public class Bucket4JBootProperties {
 
 	public static final String PROPERTY_PREFIX = "bucket4j";
@@ -20,6 +24,7 @@ public class Bucket4JBootProperties {
 	/**
 	 * Enables or disables the Bucket4j Spring Boot Starter.
 	 */
+	@NotNull
 	private Boolean enabled = true;
 	
 	/**

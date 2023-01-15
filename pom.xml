@@ -38,7 +38,7 @@
 		<tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
 	</scm>
 	<properties>
-		<revision>0.8.0-RC1</revision>
+		<revision>0.8.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>

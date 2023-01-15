@@ -11,10 +11,6 @@ spring:  cache:    type: hazelcast
 bucket4j:
   enabled: true
   filters:
-  - metrics:
-      types:
-      - consumed-counter
-      - rejected-counter
   - cache-name: buckets
     filter-method: webflux
     url: .*

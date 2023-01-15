@@ -194,15 +194,15 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	 */
 	public KeyFilter<R> getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		
-		String expression = rateLimit.getExpression();
-		if(!StringUtils.hasText(expression)) {
+		String cacheKeyexpression = rateLimit.getCacheKey();
+		if(!StringUtils.hasText(cacheKeyexpression)) {
 			throw new MissingKeyFilterExpressionException();
 		}
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		return  request -> {
 			//TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-			Expression expr = expressionParser.parseExpression(rateLimit.getExpression()); 
+			Expression expr = expressionParser.parseExpression(cacheKeyexpression); 
 			final String value = expr.getValue(context, request, String.class);
 			return url + "-" + value;
 		};

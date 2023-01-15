@@ -57,6 +57,27 @@ of Bucket4j 8.0.0 Bucket4j decided to migrate to Java 11 but provides dedicated 
 The project is switching to the dedicated artifacts which supports Java 8. You can read more about
 it https://github.com/bucket4j/bucket4j#java-compatibility-matrix[here]. 
 
+==== Rename property expression to cache-key
+
+The property *..rate-limits[0].expression* is renamed to *..rate-limits[0].cache-key*.
+An Exception is thrown on startup if the *expression* property is configured.
+
+To ensure that the property is not filled falsely the property is marked with *@Null*. This change requires 
+a Bean Validation implementation.
+
+==== JSR 380 - Bean Validation implementation required
+
+To ensure that the Bucket4j property configuration is correct an Validation API implementation is required. 
+You can add the Spring Boot Starter Validation which will automatically configures one.
+
+[source, xml]
+----
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+----
+
 ==== Explicit Configuration of the Refill Speed - API Break
 
 The refill speed of the Buckets can now configured explicitly with the Enum RefillSpeed. You can choose between 
@@ -246,7 +267,7 @@ bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
 bucket4j.filters[0].metrics.tags[2].key=USERNAME
 bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != null ? @securityService.username() : 'anonym'
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
-bucket4j.filters[0].rate-limits[0].expression=getRemoteAddr() # defines the cache key
+bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
@@ -265,7 +286,7 @@ bucket4j.default-metric-tags[0].types=REJECTED_COUNTER
 # Hide HTTP response headers
 ----
 
-==== Expression - Cache Key
+==== Cache Key
 
 To differentiate incoming request you can provide an expression which is used as a key resolver for the underlying cache.
 
@@ -277,6 +298,9 @@ Depending on the filter method [servlet,webflux,gateway] different SpEL root obj
 * servlet: javax.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
 * webflux: org.springframework.http.server.reactive.ServerHttpRequest
 * gateway: org.springframework.http.server.reactive.ServerHttpRequest
+
+The configured URL which is used for filtering is added to the cache-key to provide a unique cache-key for multiple URL.
+You can read more about it https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/19[here].
 
 *Limiting based on IP-Address*:
 [source]

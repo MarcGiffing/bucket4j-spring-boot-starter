@@ -23,6 +23,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
@@ -33,7 +37,6 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	
 	<build>
 		<plugins>
 			<plugin>

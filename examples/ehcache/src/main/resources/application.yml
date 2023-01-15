@@ -41,13 +41,13 @@ bucket4j:
           expression: getRequestURI()
     rate-limits:
     - execute-condition:  "@securityService.username() == 'admin'"
-      expression: "@securityService.username()?: getRemoteAddr()"
+      cache-key: "@securityService.username()?: getRemoteAddr()"
       bandwidths:
       - capacity: 30
         time: 1
         unit: minutes
     - execute-condition: "@securityService.username() != 'admin'"
-      expression: "@securityService.username()?: getRemoteAddr()"
+      cache-key: "@securityService.username()?: getRemoteAddr()"
       bandwidths:
       - capacity: 5
         time: 1
