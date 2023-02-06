@@ -295,7 +295,7 @@ provides the most flexible solution to determine the cache key written in one li
 
 Depending on the filter method [servlet,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
 
-* servlet: javax.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
+* servlet: jakarta.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
 * webflux: org.springframework.http.server.reactive.ServerHttpRequest
 * gateway: org.springframework.http.server.reactive.ServerHttpRequest
 

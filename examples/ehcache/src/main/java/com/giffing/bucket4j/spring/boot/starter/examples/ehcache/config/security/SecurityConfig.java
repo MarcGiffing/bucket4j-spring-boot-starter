@@ -1,26 +1,32 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.ehcache.config.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/unsecure").permitAll();
-		http.authorizeRequests().antMatchers("/login").permitAll();
-		http.authorizeRequests().antMatchers("/secure").hasAnyRole("ADMIN", "USER");
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests().requestMatchers("/unsecure").permitAll();
+		http.authorizeHttpRequests().requestMatchers("/login").permitAll();
+		http.authorizeHttpRequests().requestMatchers("/secure").hasAnyRole("ADMIN", "USER");
+		return http.build();
 	}
 
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser("admin").password("123").roles("ADMIN");
+	@Bean
+	public UserDetailsService inMemoryUser() throws Exception {
+		UserDetails user = User.builder()
+				.username("admin")
+				.password("123")
+				.roles("ADMIN")
+				.build();
+		return new InMemoryUserDetailsManager(user);
 	}
-
 }
