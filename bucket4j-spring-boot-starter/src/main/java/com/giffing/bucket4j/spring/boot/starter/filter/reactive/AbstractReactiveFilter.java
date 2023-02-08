@@ -90,7 +90,7 @@ public class AbstractReactiveFilter {
 				filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
 			}
 			if(filterConfig.getHttpResponseBody() != null) {
-				response.setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
+				response.setStatusCode(filterConfig.getHttpStatusCode());
 				response.getHeaders().set("Content-Type", filterConfig.getHttpContentType());
 				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes());
 				return response.writeWith(Flux.just(buffer));	

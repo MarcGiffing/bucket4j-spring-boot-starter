@@ -16,6 +16,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchi
 
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 @Data
 @ToString
@@ -80,5 +81,10 @@ public class Bucket4JConfiguration {
 	private Boolean hideHttpResponseHeaders = Boolean.FALSE;
 	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
+
+	/**
+	 * The HTTP status code which should be returned when limiting the rate.
+	 */
+	private HttpStatus httpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
 	
 }
