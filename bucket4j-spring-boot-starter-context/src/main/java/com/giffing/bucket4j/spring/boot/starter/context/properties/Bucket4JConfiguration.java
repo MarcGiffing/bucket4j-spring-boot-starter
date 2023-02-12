@@ -56,13 +56,17 @@ public class Bucket4JConfiguration {
 	@NotEmpty
 	private List<RateLimit> rateLimits = new ArrayList<>();
 	
-	private Metrics metrics = new Metrics();
-	
 	/**
 	 * The HTTP Content-Type which should be returned
 	 */
 	@NotBlank
 	private String httpContentType = "application/json";
+	
+	/**
+	 * The HTTP status code which should be returned when limiting the rate.
+	 */
+	@NotNull
+	private HttpStatus httpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
 	
 	/**
 	 * The HTTP content which should be used in case of rate limiting
@@ -81,10 +85,8 @@ public class Bucket4JConfiguration {
 	private Boolean hideHttpResponseHeaders = Boolean.FALSE;
 	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
-
-	/**
-	 * The HTTP status code which should be returned when limiting the rate.
-	 */
-	private HttpStatus httpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
+	
+	private Metrics metrics = new Metrics();
+	
 	
 }
