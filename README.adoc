@@ -187,9 +187,13 @@ The following list contains the Caching implementation which will be autoconfigu
 |{url-config-cache}/ignite/IgniteBucket4jCacheConfiguration.java[Ignite]
 |jcache-ignite
 
-|Yes
-|{url-config-cache}/hazelcast/HazelcastBucket4jCacheConfiguration.java[Hazelcast]
-|hazelcast
+|no
+|{url-config-cache}/hazelcast/HazelcastSpringBucket4jCacheConfiguration.java[Hazelcast]
+|hazelcast-spring
+
+|yes
+|{url-config-cache}/hazelcast/HazelcastReactiveBucket4jCacheConfiguration.java[Hazelcast]
+|hazelcast-reactive
 
 |Yes
 |{url-config-cache}/infinispan/InfinispanBucket4jCacheConfiguration.java[Infinispan]

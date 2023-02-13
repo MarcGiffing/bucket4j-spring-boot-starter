@@ -4,6 +4,8 @@ import org.redisson.command.CommandExecutor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +15,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
 
 @Configuration
+@ConditionalOnWebApplication(type = Type.REACTIVE)
 @ConditionalOnClass(RedissonBasedProxyManager.class)
 @ConditionalOnBean(CommandExecutor.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "redis-redisson", matchIfMissing = true)
