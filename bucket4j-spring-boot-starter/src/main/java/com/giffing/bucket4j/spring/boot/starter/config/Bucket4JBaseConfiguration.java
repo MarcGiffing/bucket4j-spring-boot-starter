@@ -50,7 +50,7 @@ import org.springframework.util.StringUtils;
  * {@link Bucket4JAutoConfigurationWebfluxFilter} 
  * configuration classes
  */
-SuppressWarnings
+@Slf4j
 public abstract class Bucket4JBaseConfiguration<R> {
 	
 	public abstract List<MetricHandler> getMetricHandlers();

@@ -30,7 +30,8 @@ public class TestController {
 		Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
         GrantedAuthority grantedAuthority = new GrantedAuthority() {
             //anonymous inner type
-            @Override public String getAuthority() {
+            @Override 
+            public String getAuthority() {
                 return "ROLE_USER";
             }
         }; 

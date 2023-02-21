@@ -25,7 +25,8 @@ public class RedisSpringDataCacheResolver implements SyncCacheResolver {
 		this.redisCommands = redisCommands;
 	}
 	
-	@Override public ProxyManagerWrapper resolve(String cacheName) {
+	@Override 
+	public ProxyManagerWrapper resolve(String cacheName) {
 		final ProxyManager<byte[]> proxyManager =  SpringDataRedisBasedProxyManager.builderFor(redisCommands)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();

@@ -25,7 +25,8 @@ public class JedisCacheResolver implements SyncCacheResolver {
 		this.pool = pool;
 	}
 	
-	@Override public ProxyManagerWrapper resolve(String cacheName) {
+	@Override 
+	public ProxyManagerWrapper resolve(String cacheName) {
 		final ProxyManager<byte[]> proxyManager =  JedisBasedProxyManager.builderFor(pool)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();

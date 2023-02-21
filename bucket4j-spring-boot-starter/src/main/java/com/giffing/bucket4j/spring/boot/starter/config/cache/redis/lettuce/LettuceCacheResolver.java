@@ -25,7 +25,8 @@ public class LettuceCacheResolver implements AsyncCacheResolver {
 		this.redisClient = redisClient;
 	}
 	
-	@Override public ProxyManagerWrapper resolve(String cacheName) {
+	@Override 
+	public ProxyManagerWrapper resolve(String cacheName) {
 		final ProxyManager<byte[]> proxyManager =  LettuceBasedProxyManager.builderFor(redisClient)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();

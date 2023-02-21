@@ -21,11 +21,11 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-SuppressWarnings
-SuppressWarnings
+@Data
+@Slf4j
 public class AbstractReactiveFilter {
 	
-	private final FilterConfiguration<ServerHttpRequest> SuppressWarnings
+	private final FilterConfiguration<ServerHttpRequest> filterConfig;
 	
 	public AbstractReactiveFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
 		this.filterConfig = filterConfig;
@@ -57,7 +57,9 @@ public class AbstractReactiveFilter {
 	}
 
 	protected boolean shouldTakeMoreConsumptionProbe(AtomicInteger consumptionProbeCounter) {
-		boolean shouldTakeMore = filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.ALL) || (filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST) && consumptionProbeCounter.get() == 1);
+		boolean shouldTakeMore = filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.ALL) 
+				|| 
+				(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST) && consumptionProbeCounter.get() == 1);
 		log.debug("take-more-probes:{};probe-index:{};matching-strategy:{}", shouldTakeMore, consumptionProbeCounter.get(), filterConfig.getStrategy());
 		return shouldTakeMore;
 	}
