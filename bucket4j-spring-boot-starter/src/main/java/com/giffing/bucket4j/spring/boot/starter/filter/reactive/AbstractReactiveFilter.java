@@ -1,22 +1,23 @@
 package com.giffing.bucket4j.spring.boot.starter.filter.reactive;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import io.github.bucket4j.ConsumptionProbe;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-
-import io.github.bucket4j.ConsumptionProbe;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -56,7 +57,9 @@ public class AbstractReactiveFilter {
 	}
 
 	protected boolean shouldTakeMoreConsumptionProbe(AtomicInteger consumptionProbeCounter) {
-		boolean shouldTakeMore = filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.ALL) || filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST) && consumptionProbeCounter.get() == 1;
+		boolean shouldTakeMore = filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.ALL) 
+				|| 
+				(filterConfig.getStrategy().equals(RateLimitConditionMatchingStrategy.FIRST) && consumptionProbeCounter.get() == 1);
 		log.debug("take-more-probes:{};probe-index:{};matching-strategy:{}", shouldTakeMore, consumptionProbeCounter.get(), filterConfig.getStrategy());
 		return shouldTakeMore;
 	}
@@ -92,7 +95,7 @@ public class AbstractReactiveFilter {
 			if(filterConfig.getHttpResponseBody() != null) {
 				response.setStatusCode(filterConfig.getHttpStatusCode());
 				response.getHeaders().set("Content-Type", filterConfig.getHttpContentType());
-				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes());
+				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes(UTF_8));
 				return response.writeWith(Flux.just(buffer));	
 			} else {
 				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
