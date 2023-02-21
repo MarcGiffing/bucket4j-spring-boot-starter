@@ -1,0 +1,31 @@
+logging:
+  level:
+    com.giffing.bucket4j.spring.boot.starter: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+spring:
+  cache:
+    type: infinispan
+infinispan:
+  embedded:
+    config-xml: infinispan.xml
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: buckets
+    filter-method: webflux
+    url: .*
+    http-content-type: application/json;charset=UTF-8
+    http-response-body: '{ "name": "hello"}'
+    http-response-headers:
+      HELLO: WORLD
+    filter-order: 1
+    rate-limits:
+    - bandwidths:
+      - capacity: 5
+        time: 10
+        unit: seconds
