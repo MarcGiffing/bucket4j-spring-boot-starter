@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanBucket4jCacheConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.springdata.Re
 @Import(value = {
         JCacheBucket4jConfiguration.class,
         InfinispanJCacheBucket4jConfiguration.class,
+        InfinispanBucket4jCacheConfiguration.class,
         HazelcastReactiveBucket4jCacheConfiguration.class,
         HazelcastSpringBucket4jCacheConfiguration.class,
         JedisBucket4jConfiguration.class,

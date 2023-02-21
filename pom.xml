@@ -23,6 +23,7 @@
 		<module>examples/hazelcast</module>
 		<module>examples/webflux</module>
 		<module>examples/gateway</module>
+		<module>examples/webflux-infinispan</module>
 	</modules>
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
 	<licenses>
