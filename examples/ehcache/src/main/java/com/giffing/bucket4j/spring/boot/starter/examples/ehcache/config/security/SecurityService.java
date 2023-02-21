@@ -13,7 +13,7 @@ public class SecurityService {
 			return null;
 		}
 		String name = authentication.getName();
-		if(name == "anonymousUser") {
+		if("anonymousUser".equals(name)) {
 			return null;
 		}
 		return name;
