@@ -6,7 +6,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchi
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import io.github.bucket4j.ConsumptionProbe;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.Data;
