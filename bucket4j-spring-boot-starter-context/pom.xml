@@ -19,12 +19,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-core</artifactId>
+			<artifactId>bucket4j-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-jcache</artifactId>
+			<artifactId>bucket4j-jcache</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

@@ -9,6 +9,7 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 
 Project version overview:
 
+* 0.9.0 - Bucket4j 8.1.0 - Spring Boot 3.0.x
 * 0.8.0 - Bucket4j 8.1.0 - Spring Boot 2.7.x
 * 0.7.0 - Bucket4j 7.5.0 - Spring Boot 2.7.x
 
@@ -47,6 +48,13 @@ have to write a single line of code.
 == Migration Guide
 
 This section is meant to help you migrate your application to new version of this starter project.
+
+=== Spring Boot Starter Bucket4j 0.9
+
+* Upgrade to Spring Boot 3
+* Spring Boot 3 requires Java 17 so use at least Java 17
+* Replaced Java 8 compatible Bucket4j dependencies
+* Exclude example webflux-infinispan due to startup problems
 
 === Spring Boot Starter Bucket4j 0.8
 

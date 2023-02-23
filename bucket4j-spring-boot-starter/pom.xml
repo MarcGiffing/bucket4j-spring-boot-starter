@@ -64,20 +64,20 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-core</artifactId>
+			<artifactId>bucket4j-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-jcache</artifactId>
+			<artifactId>bucket4j-jcache</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-hazelcast</artifactId>
+			<artifactId>bucket4j-hazelcast</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-redis</artifactId>
+			<artifactId>bucket4j-redis</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -108,7 +108,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-ignite</artifactId>
+			<artifactId>bucket4j-ignite</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -119,12 +119,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j_jdk8-infinispan</artifactId>
+			<artifactId>bucket4j-infinispan</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-core</artifactId>
+			<artifactId>infinispan-core-jakarta</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

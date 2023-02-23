@@ -23,7 +23,10 @@
 		<module>examples/hazelcast</module>
 		<module>examples/webflux</module>
 		<module>examples/gateway</module>
+		<!--
+		Spring Boot 3 not Supported!?
 		<module>examples/webflux-infinispan</module>
+		-->
 	</modules>
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
 	<licenses>
@@ -39,12 +42,12 @@
 		<tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
 	</scm>
 	<properties>
-		<revision>0.9.0-SNAPSHOT</revision>
+		<revision>0.9.0-RC1-SNAPSHOT</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
+		<java.version>17</java.version>
 		<bucket4j.version>8.1.0</bucket4j.version>
-		<spring-cloud-starter-gateway.version>3.1.5</spring-cloud-starter-gateway.version>
+		<spring-cloud-starter-gateway.version>4.0.2</spring-cloud-starter-gateway.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -65,32 +68,32 @@
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j_jdk8-core</artifactId>
+				<artifactId>bucket4j-core</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j_jdk8-jcache</artifactId>
+				<artifactId>bucket4j-jcache</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j_jdk8-hazelcast</artifactId>
+				<artifactId>bucket4j-hazelcast</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j_jdk8-redis</artifactId>
+				<artifactId>bucket4j-redis</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j_jdk8-ignite</artifactId>
+				<artifactId>bucket4j-ignite</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j_jdk8-infinispan</artifactId>
+				<artifactId>bucket4j-infinispan</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 		</dependencies>
