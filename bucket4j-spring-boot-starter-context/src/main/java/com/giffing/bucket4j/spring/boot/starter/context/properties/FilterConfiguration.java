@@ -10,6 +10,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchi
 
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 /**
  * This class is the main configuration class which is used to build the servlet|webflux|gateway request filter
@@ -47,6 +48,11 @@ public class FilterConfiguration<R> {
 	 * The HTTP response body which should be returned when limiting the rate.
 	 */
 	private String httpResponseBody;
+
+	/**
+	 * The HTTP status code which should be returned when limiting the rate.
+	 */
+	private HttpStatus httpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
 	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 

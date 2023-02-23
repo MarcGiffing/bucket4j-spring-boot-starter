@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
+package com.giffing.bucket4j.spring.boot.starter.examples.webflux;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

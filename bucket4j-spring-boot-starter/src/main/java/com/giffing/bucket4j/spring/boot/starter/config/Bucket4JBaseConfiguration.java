@@ -2,22 +2,6 @@ package com.giffing.bucket4j.spring.boot.starter.config;
 
 import static java.util.stream.Collectors.toList;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
@@ -37,12 +21,27 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
-
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.Refill;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -68,6 +67,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpContentType(config.getHttpContentType());
 		filterConfig.setHttpResponseBody(config.getHttpResponseBody());
+		filterConfig.setHttpStatusCode(config.getHttpStatusCode());
 		filterConfig.setHideHttpResponseHeaders(config.getHideHttpResponseHeaders());
 		filterConfig.setHttpResponseHeaders(config.getHttpResponseHeaders());
 		filterConfig.setMetrics(config.getMetrics());

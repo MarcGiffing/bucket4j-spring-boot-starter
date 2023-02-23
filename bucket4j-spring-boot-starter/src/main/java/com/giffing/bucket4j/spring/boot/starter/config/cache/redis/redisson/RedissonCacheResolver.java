@@ -26,6 +26,7 @@ public class RedissonCacheResolver implements AsyncCacheResolver {
 		this.commandExecutor = commandExecutor;
 	}
 	
+	@Override 
 	public ProxyManagerWrapper resolve(String cacheName) {
 		final ProxyManager<String> proxyManager =  RedissonBasedProxyManager.builderFor(commandExecutor)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))

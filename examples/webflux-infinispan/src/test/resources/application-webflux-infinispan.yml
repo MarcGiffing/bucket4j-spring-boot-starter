@@ -1,0 +1,25 @@
+spring:
+  cache:
+    type: infinispan
+infinispan:
+  embedded:
+    config-xml: infinispan.xml
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: buckets_test
+    filter-method: webflux
+    url: ^(/hello).*
+    rate-limits:
+    - bandwidths:
+      - capacity: 5
+        time: 10
+        unit: seconds
+  - cache-name: buckets_test
+    filter-method: webflux
+    url: ^(/world).*
+    rate-limits:
+    - bandwidths:
+      - capacity: 10
+        time: 10
+        unit: seconds

@@ -1,4 +1,6 @@
-spring:  cache:    type: jcache    jcache:      provider: com.hazelcast.cache.impl.HazelcastServerCachingProvider      config: classpath:hazelcast.xml
+spring:
+  cache:
+    type: hazelcast
 management:
   endpoints:
     web:

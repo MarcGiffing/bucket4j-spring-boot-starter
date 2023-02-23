@@ -187,9 +187,13 @@ The following list contains the Caching implementation which will be autoconfigu
 |{url-config-cache}/ignite/IgniteBucket4jCacheConfiguration.java[Ignite]
 |jcache-ignite
 
-|Yes
-|{url-config-cache}/hazelcast/HazelcastBucket4jCacheConfiguration.java[Hazelcast]
-|hazelcast
+|no
+|{url-config-cache}/hazelcast/HazelcastSpringBucket4jCacheConfiguration.java[Hazelcast]
+|hazelcast-spring
+
+|yes
+|{url-config-cache}/hazelcast/HazelcastReactiveBucket4jCacheConfiguration.java[Hazelcast]
+|hazelcast-reactive
 
 |Yes
 |{url-config-cache}/infinispan/InfinispanBucket4jCacheConfiguration.java[Infinispan]
@@ -253,19 +257,11 @@ bucket4j.filters[0].cache-name=buckets # the name of the cache key
 bucket4j.filters[0].filter-method=servlet # [servlet,webflux,gateway]
 bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
 bucket4j.filters[0].http-content-type=application/json
+bucket4j.filters[0].http-status-code=TOO_MANY_REQUESTS # Enum value of org.springframework.http.HttpStatus
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].http-response-headers.<MY_CUSTOM_HEADER>=MY_CUSTOM_HEADER_VALUE # You can add any numbers of custom headers
 bucket4j.filters[0].hide-http-response-headers=true # Hides response headers like x-rate-limit-remaining or x-rate-limit-retry-after-seconds on rate limiting
 bucket4j.filters[0].url=.* # a regular expression
-bucket4j.filters[0].metrics.enabled=true
-bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter 
-bucket4j.filters[0].metrics.tags[0].key=IP
-bucket4j.filters[0].metrics.tags[0].expression=getRemoteAddr()
-bucket4j.filters[0].metrics.tags[0].types=REJECTED_COUNTER # (optionial) this tag should for example only be applied for the rejected counter
-bucket4j.filters[0].metrics.tags[1].key=URL
-bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
-bucket4j.filters[0].metrics.tags[2].key=USERNAME
-bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != null ? @securityService.username() : 'anonym'
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
 bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
@@ -277,6 +273,15 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].time=1
 bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=minutes
 bucket4j.filters[0].rate-limits[0].bandwidths[0].initial-capacity= # Optional initial tokens
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,interval]
+bucket4j.filters[0].metrics.enabled=true
+bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter 
+bucket4j.filters[0].metrics.tags[0].key=IP
+bucket4j.filters[0].metrics.tags[0].expression=getRemoteAddr()
+bucket4j.filters[0].metrics.tags[0].types=REJECTED_COUNTER # (optionial) this tag should for example only be applied for the rejected counter
+bucket4j.filters[0].metrics.tags[1].key=URL
+bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
+bucket4j.filters[0].metrics.tags[2].key=USERNAME
+bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != null ? @securityService.username() : 'anonym'
 
 # Optional default metric tags for all filters
 bucket4j.default-metric-tags[0].key=IP

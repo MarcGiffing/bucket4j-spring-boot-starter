@@ -68,7 +68,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 	}
 
 	private void handleHttpResponseOnRateLimiting(HttpServletResponse httpResponse, ConsumptionProbe probe) throws IOException {
-		httpResponse.setStatus(429);
+		httpResponse.setStatus(filterConfig.getHttpStatusCode().value());
 		if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 			httpResponse.setHeader("X-Rate-Limit-Retry-After-Seconds", "" + TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()));
 			filterConfig.getHttpResponseHeaders().forEach(httpResponse::setHeader);

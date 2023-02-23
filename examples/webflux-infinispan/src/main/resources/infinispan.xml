@@ -1,0 +1,10 @@
+<infinispan>
+    <cache-container name="default" statistics="true">
+        <local-cache name="buckets" statistics="true">
+            <memory max-count="1000000"/>
+        </local-cache>
+        <local-cache name="buckets_test" statistics="true">
+            <memory max-count="1000000"/>
+        </local-cache>
+    </cache-container>
+</infinispan>

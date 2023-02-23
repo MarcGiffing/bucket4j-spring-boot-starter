@@ -13,6 +13,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j_jdk8-core</artifactId>
 			<scope>provided</scope>

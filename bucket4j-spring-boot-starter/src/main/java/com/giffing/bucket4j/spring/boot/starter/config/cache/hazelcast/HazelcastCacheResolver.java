@@ -6,8 +6,8 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import com.hazelcast.spring.cache.HazelcastCacheManager;
 
+import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
@@ -19,19 +19,28 @@ import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
  */
 public class HazelcastCacheResolver implements AsyncCacheResolver {
 
-	private HazelcastCacheManager hazelcastCacheManager;
+	private final HazelcastInstance hazelcastInstance;
+	
+	private final boolean async;
 
-	public HazelcastCacheResolver(HazelcastCacheManager hazelcastCacheManager) {
-		this.hazelcastCacheManager = hazelcastCacheManager;
+	public HazelcastCacheResolver(HazelcastInstance hazelcastInstance, boolean async) {
+		this.hazelcastInstance = hazelcastInstance;
+		this.async = async;
 	}
 	
 	@Override
 	public ProxyManagerWrapper resolve(String cacheName) {
-		IMap<String, byte[]> map = hazelcastCacheManager.getHazelcastInstance().getMap(cacheName);
+		IMap<String, byte[]> map = hazelcastInstance.getMap(cacheName);
 		HazelcastProxyManager<String> hazelcastProxyManager = new HazelcastProxyManager<>(map);
 		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			AsyncBucketProxy bucket = hazelcastProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
-			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
+			if(async) {
+				AsyncBucketProxy bucket = hazelcastProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
+				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));	
+			} else {
+				Bucket bucket = hazelcastProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
+			}
+			
 		};
 
 	}
