@@ -1,7 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.servlet;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,12 +8,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,34 +25,30 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfigu
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 
 import io.github.bucket4j.ConsumptionProbe;
+import jakarta.servlet.http.HttpServletRequest;
 
+@ExtendWith(MockitoExtension.class) 
 class ServletRateLimitFilterTest {
 
 	private ServletRequestFilter filter;
-	private FilterConfiguration configuration;
-	private RateLimitCheck rateLimitCheck1;
-	private RateLimitCheck rateLimitCheck2;
-	private RateLimitCheck rateLimitCheck3;
+	private FilterConfiguration<HttpServletRequest> configuration;
+	@Mock private RateLimitCheck<HttpServletRequest> rateLimitCheck1;
+	@Mock private RateLimitCheck<HttpServletRequest> rateLimitCheck2;
+	@Mock private RateLimitCheck<HttpServletRequest> rateLimitCheck3;
 
-	private ConsumptionProbeHolder consumptionProbeHolder;
-	private ConsumptionProbe consumptionProbe;
+	
+	@Mock private ConsumptionProbeHolder consumptionProbeHolder;
+	@Mock private ConsumptionProbe consumptionProbe;
 	
 	@BeforeEach
     public void setup() {
-		consumptionProbeHolder = Mockito.mock(ConsumptionProbeHolder.class);
-		consumptionProbe = Mockito.mock(ConsumptionProbe.class);
-		
 		when(consumptionProbe.isConsumed()).thenReturn(true);
 		when(consumptionProbeHolder.getConsumptionProbe()).thenReturn(consumptionProbe);
-		
-    	rateLimitCheck1 = mock(RateLimitCheck.class);
-        rateLimitCheck2 = mock(RateLimitCheck.class);
-        rateLimitCheck3 = mock(RateLimitCheck.class);
         
-        configuration = new FilterConfiguration();
+        configuration = new FilterConfiguration<>();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
         configuration.setUrl(".*");
-        configuration.setHttpResponseHeaders(new HashMap<String,String>(){} );
+        configuration.setHttpResponseHeaders(Map.of());
         filter = new ServletRequestFilter(configuration);
     }
 	
@@ -78,8 +74,6 @@ class ServletRateLimitFilterTest {
 	void should_execute_first_check_when_using_RateLimitConditionMatchingStrategy_All_but_first_is_not_consumed() throws Exception {
 		
         when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbeHolder);
-        when(rateLimitCheck2.rateLimit(any())).thenReturn(consumptionProbeHolder);
-        when(rateLimitCheck3.rateLimit(any())).thenReturn(consumptionProbeHolder);
         
         when(consumptionProbe.isConsumed()).thenReturn(false);
         
