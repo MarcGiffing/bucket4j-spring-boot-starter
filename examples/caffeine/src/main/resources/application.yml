@@ -22,7 +22,11 @@ bucket4j:
       XXX: YYY
       AAA: BBB
     rate-limits:
-    - bandwidths:
+    - execute-predicates:
+      - name: PATH=/hello
+      - name: METHOD=GET
+      - name: CUSTOM-QUERY=huhu
+      bandwidths:
       - capacity: 10
         refill-capacity: 1
         time: 1
