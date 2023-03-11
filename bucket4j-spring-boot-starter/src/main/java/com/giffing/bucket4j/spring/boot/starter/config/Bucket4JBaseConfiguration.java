@@ -2,6 +2,22 @@ package com.giffing.bucket4j.spring.boot.starter.config;
 
 import static java.util.stream.Collectors.toList;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
+
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
@@ -21,27 +37,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
+
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.Refill;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -61,8 +62,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
 		
+		validate(config);
+		
 		FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
-		filterConfig.setUrl(StringUtils.trimWhitespace(config.getUrl()));
+		filterConfig.setUrl(config.getUrl().strip());
 		filterConfig.setOrder(config.getFilterOrder());
 		filterConfig.setStrategy(config.getStrategy());
 		filterConfig.setHttpContentType(config.getHttpContentType());
@@ -74,6 +77,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		
 		throwExceptionOnInvalidFilterUrl(filterConfig);
 		
+		
 		config.getRateLimits().forEach(rl -> {
 			log.debug("RL: {}",rl.toString());
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
@@ -83,10 +87,17 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
 		        	skipRateLimit = skipCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
+		        	log.debug("skip-rate-limit - skip-condition: {}", skipRateLimit);
 		        } 
 		        
 		        if(rl.getExecuteCondition() != null && !skipRateLimit) {
 		        	skipRateLimit = !executeCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
+		        	log.debug("skip-rate-limit - execute-condition: {}", skipRateLimit);
+		        }
+		        
+		        if(!skipRateLimit && !rl.getExecutePredicates().isEmpty()) {
+		        	skipRateLimit = !predicates(rl, servletRequest);
+		        	log.debug("skip-rate-limit - predicates: {}", skipRateLimit);
 		        }
 		        
 		        if(!skipRateLimit) {
@@ -117,6 +128,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		
 		return filterConfig;
 	}
+	
+	protected abstract void validate(Bucket4JConfiguration config);
+
+	protected abstract boolean predicates(RateLimit rl, R servletRequest);
 
 	private void throwExceptionOnInvalidFilterUrl(FilterConfiguration<R> filterConfig) {
 		try {
@@ -237,7 +252,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	 * @param rateLimit the {@link RateLimit} configuration which holds the execute condition string
 	 * @param expressionParser is used to evaluate the execution expression
 	 * @param beanFactory used to get full access to all java beans in the SpEl
-	 * @return the lamdba condition which will be evaluated lazy - null if there is no condition available.
+	 * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
 	 */
 	public Condition<R> executeCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		StandardEvaluationContext context = new StandardEvaluationContext();

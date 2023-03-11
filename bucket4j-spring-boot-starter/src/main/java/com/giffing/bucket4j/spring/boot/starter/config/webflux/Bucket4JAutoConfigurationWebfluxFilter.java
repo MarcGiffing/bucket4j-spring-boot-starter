@@ -32,7 +32,9 @@ import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHol
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
 
 /**
@@ -111,6 +113,15 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 	@Override
 	public List<MetricHandler> getMetricHandlers() {
 		return this.metricHandlers;
+	}
+
+	@Override
+	protected boolean predicates(RateLimit rl, ServerHttpRequest servletRequest) {
+		return false;
+	}
+
+	@Override
+	protected void validate(Bucket4JConfiguration config) {
 	}
 
 

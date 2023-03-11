@@ -30,7 +30,9 @@ import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHol
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
 /**
  * Configures Servlet Filters for Bucket4Js rate limit.
@@ -111,6 +113,17 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 	@Override
 	public List<MetricHandler> getMetricHandlers() {
 		return this.metricHandlers;
+	}
+
+
+	@Override
+	protected boolean predicates(RateLimit rl, ServerHttpRequest servletRequest) {
+		return false;
+	}
+
+
+	@Override
+	protected void validate(Bucket4JConfiguration config) {
 	}
 
 
