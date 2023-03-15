@@ -18,9 +18,6 @@ bucket4j:
   filters:
   - cache-name: buckets
     url: .*
-    http-response-headers:
-      XXX: YYY
-      AAA: BBB
     rate-limits:
     - execute-predicates:
       - name: PATH=/hello

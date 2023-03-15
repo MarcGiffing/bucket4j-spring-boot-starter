@@ -5,6 +5,7 @@ import org.springframework.boot.diagnostics.FailureAnalysis;
 
 import com.giffing.bucket4j.spring.boot.starter.exception.Bucket4jGeneralException;
 import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateBeanNotFoundException;
+import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
@@ -44,6 +45,11 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
 		if( cause instanceof ExecutePredicateBeanNotFoundException e) {
 			descriptionMessage = "You've configured the '%s=' execution predicate which doesn't exists.".formatted(e.getExecutePredicateName());
 			actionMessage = "Please check if you've spelled it correctly or provide a coressponding ExecutePredicate bean." + NEW_LINE;
+		}
+		
+		if (cause instanceof ExecutePredicateInstantiationException e) {
+			descriptionMessage = "Can't create a new instance for predicate '%s and class %s".formatted(e.getExecutePredicateName(), e.getInstantiationException().getName());
+			actionMessage = "Please provide a default constructor.";
 		}
 		
 		return new FailureAnalysis(descriptionMessage, actionMessage, cause);

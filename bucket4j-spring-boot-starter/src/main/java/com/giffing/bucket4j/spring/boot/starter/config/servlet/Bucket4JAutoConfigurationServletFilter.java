@@ -4,15 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -24,7 +17,6 @@ import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactor
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
@@ -34,23 +26,21 @@ import org.springframework.util.StringUtils;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.MethodExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.PathExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.ServletRequestExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.ServletRequestExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateBeanNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Configures {@link Filter}s for Bucket4Js rate limit.
@@ -131,35 +121,8 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	}
 
 	@Override
-	protected boolean predicates(RateLimit rl, HttpServletRequest servletRequest) {
-		var predicate = rl.getExecutePredicates()
-        		.stream()
-        		.map(p -> createPredicate(p))
-        		.reduce( (p1, p2) -> p1.and(p2))
-        		.get();
-        	return predicate.test(servletRequest);
-	}
-	
-	private Predicate<HttpServletRequest> createPredicate(ExecutePredicateDefinition pd) {
-		var predicate = executePredicates.get(pd.getName());
-		log.debug("create-predicate;name:{};value:{}", pd.getName(), pd.getConfigValue());
-		return predicate.newInstance().setValue(pd.getConfigValue());
-	}
-
-	@Override
-	protected void validate(Bucket4JConfiguration config) {
-		var allExecutePredicateNames = config
-			.getRateLimits()
-			.stream()
-			.map(r -> r.getExecutePredicates())
-			.flatMap(List::stream)
-			.map(x -> x.getName())
-			.distinct().collect(Collectors.toSet());
-		allExecutePredicateNames.forEach(predicateName -> {
-			if(!executePredicates.containsKey(predicateName)) {
-				throw new ExecutePredicateBeanNotFoundException(predicateName);
-			}
-		});
+	protected ExecutePredicate<HttpServletRequest> getExecutePredicateByName(String name) {
+		return executePredicates.getOrDefault(name, null);
 	}
 
 }

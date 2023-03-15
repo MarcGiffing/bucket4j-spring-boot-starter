@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QueryExecutePredicate extends ServletRequestExecutePredicate {
 
+	private String query;
+	
 	@Override
 	public String name() {
 		return "QUERY";
@@ -18,14 +20,15 @@ public class QueryExecutePredicate extends ServletRequestExecutePredicate {
 
 	@Override
 	public boolean test(HttpServletRequest t) {
-		boolean result = t.getParameterMap().containsKey(getValue());
-		log.debug("query-parametetr;value:%s;result:%s".formatted(getValue(), result));
+		boolean result = t.getParameterMap().containsKey(query);
+		log.debug("query-parametetr;value:%s;result:%s".formatted(query, result));
 		return result;
 	}
 
 	@Override
-	public ExecutePredicate<HttpServletRequest> newInstance() {
-		return new QueryExecutePredicate();
+	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
+		this.query = simpleConfig;
+		return this;
 	}
 
 }

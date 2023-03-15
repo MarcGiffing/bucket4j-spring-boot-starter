@@ -2,10 +2,12 @@ package com.giffing.bucket4j.spring.boot.starter.config;
 
 import static java.util.stream.Collectors.toList;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -23,6 +25,8 @@ import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfi
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
@@ -34,6 +38,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfi
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateBeanNotFoundException;
+import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
 import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
 import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
@@ -77,11 +83,10 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		
 		throwExceptionOnInvalidFilterUrl(filterConfig);
 		
-		
 		config.getRateLimits().forEach(rl -> {
 			log.debug("RL: {}",rl.toString());
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
-			
+			Predicate<R> executionPredicate = prepareExecutionPredicates(rl);
 			RateLimitCheck<R> rlc = (servletRequest) -> {
 				
 		        boolean skipRateLimit = false;
@@ -95,8 +100,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        	log.debug("skip-rate-limit - execute-condition: {}", skipRateLimit);
 		        }
 		        
-		        if(!skipRateLimit && !rl.getExecutePredicates().isEmpty()) {
-		        	skipRateLimit = !predicates(rl, servletRequest);
+		        if(!skipRateLimit) {
+		        	skipRateLimit = !executionPredicate.test(servletRequest);
 		        	log.debug("skip-rate-limit - predicates: {}", skipRateLimit);
 		        }
 		        
@@ -129,10 +134,12 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		return filterConfig;
 	}
 	
-	protected abstract void validate(Bucket4JConfiguration config);
+	protected void validate(Bucket4JConfiguration config) {
+		validateExecutePredicates(config);
+	}
 
-	protected abstract boolean predicates(RateLimit rl, R servletRequest);
-
+	protected abstract ExecutePredicate<R> getExecutePredicateByName(String name);
+	
 	private void throwExceptionOnInvalidFilterUrl(FilterConfiguration<R> filterConfig) {
 		try {
 			Pattern.compile(filterConfig.getUrl());
@@ -231,7 +238,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	 * @param rateLimit the {@link RateLimit} configuration which holds the skip condition string
 	 * @param expressionParser is used to evaluate the skip expression
 	 * @param beanFactory used to get full access to all java beans in the SpEl
-	 * @return the lamdba condition which will be evaluated lazy - null if there is no condition available.
+	 * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
 	 */
 	public Condition<R> skipCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
@@ -277,6 +284,42 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				}
 			});
 		}
+	}
+	
+	private void validateExecutePredicates(Bucket4JConfiguration config) {
+		var allExecutePredicateNames = config
+				.getRateLimits()
+				.stream()
+				.map(r -> r.getExecutePredicates())
+				.flatMap(List::stream)
+				.map(x -> x.getName())
+				.distinct().collect(Collectors.toSet());
+			allExecutePredicateNames.forEach(predicateName -> {
+				if(getExecutePredicateByName(predicateName) == null) {
+					throw new ExecutePredicateBeanNotFoundException(predicateName);
+				}
+			});
+	}
+	
+	protected Predicate<R> createExecutionPredicate(ExecutePredicateDefinition pd) {
+		ExecutePredicate<R> predicate = getExecutePredicateByName(pd.getName());
+		log.debug("create-predicate;name:{};value:{}", pd.getName(), pd.getArgs());
+		try {
+			@SuppressWarnings("unchecked")
+			ExecutePredicate<R> newPredicateInstance = predicate.getClass().getDeclaredConstructor().newInstance();
+			return newPredicateInstance.init(pd.getArgs());
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException 
+				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			throw new ExecutePredicateInstantiationException(pd.getName(), predicate.getClass());
+		}
+	}
+	
+	private Predicate<R> prepareExecutionPredicates(RateLimit rl) {
+		return rl.getExecutePredicates()
+        		.stream()
+        		.map(p -> createExecutionPredicate(p))
+        		.reduce( (p1, p2) -> p1.and(p2))
+        		.orElseGet(() -> (R) -> true);
 	}
 	
 }

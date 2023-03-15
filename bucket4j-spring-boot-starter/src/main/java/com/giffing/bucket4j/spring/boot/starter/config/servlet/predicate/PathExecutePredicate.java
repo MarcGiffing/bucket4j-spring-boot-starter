@@ -11,21 +11,24 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class PathExecutePredicate extends ServletRequestExecutePredicate {
 
-	@Override
-	public ExecutePredicate<HttpServletRequest> newInstance() {
-		return new PathExecutePredicate();
-	}
-	
+	private String path;
+
 	@Override
 	public boolean test(HttpServletRequest t) {
-		var result = t.getServletPath().equals(getValue());
-		log.debug("path-predicate;path:{};value:{};result:{}", t.getServletPath(), getValue(), result);
+		var result = t.getServletPath().equals(path);
+		log.debug("path-predicate;path:{};value:{};result:{}", t.getServletPath(), path, result);
 		return result;
 	}
 
 	@Override
 	public String name() {
 		return "PATH";
+	}
+
+	@Override
+	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
+		this.path = simpleConfig;
+		return this;
 	}
 
 }

@@ -10,21 +10,24 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class CustomQueryExecutePredicate extends ServletRequestExecutePredicate {
 
+	private String query;
+	
+	@Override
+	public boolean test(HttpServletRequest t) {
+		boolean result = t.getParameterMap().containsKey(query);
+		System.out.println("query-parametetr;value:%s;result:%s".formatted(query, result));
+		return result;
+	}
+	
 	@Override
 	public String name() {
 		return "CUSTOM-QUERY";
 	}
 
 	@Override
-	public boolean test(HttpServletRequest t) {
-		boolean result = t.getParameterMap().containsKey(getValue());
-		System.out.println("query-parametetr;value:%s;result:%s".formatted(getValue(), result));
-		return result;
-	}
-
-	@Override
-	public ExecutePredicate<HttpServletRequest> newInstance() {
-		return new CustomQueryExecutePredicate();
+	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
+		this.query = simpleConfig;
+		return this;
 	}
 
 }
