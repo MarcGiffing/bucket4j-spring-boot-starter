@@ -1,7 +1,6 @@
 logging:
   level:
     com.giffing.bucket4j.spring.boot.starter: debug
-
 management:
   endpoints:
     web:
@@ -19,7 +18,11 @@ bucket4j:
     http-response-headers:      HELLO: WORLD
     filter-order: 1
     rate-limits:
-    - bandwidths:
+    - execute-predicates:
+      - name: PATH=/hell**
+      - name: METHOD=GET
+      - name: HEADER=User-Agent,.*
+      bandwidths:
       - capacity: 5
         time: 10
         unit: seconds

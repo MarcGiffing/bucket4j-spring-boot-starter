@@ -1,7 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.webflux;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +28,9 @@ import org.springframework.web.server.WebFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.ServletRequestExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
+import com.giffing.bucket4j.spring.boot.starter.config.webflux.predicate.WebfluxExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
@@ -47,7 +52,7 @@ import jakarta.annotation.PostConstruct;
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = AsyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class})
-@Import(value = { Bucket4JAutoConfigurationWebfluxFilterBeans.class, SpringBootActuatorConfig.class })
+@Import(value = { WebfluxExecutePredicateConfiguration.class, Bucket4JAutoConfigurationWebfluxFilterBeans.class, SpringBootActuatorConfig.class })
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
@@ -62,6 +67,8 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private final List<MetricHandler> metricHandlers;
 	
+	private final Map<String, ExecutePredicate<ServerHttpRequest>> executePredicates;
+	
 	private final Bucket4jConfigurationHolder servletConfigurationHolder;
 
 	private final ExpressionParser webfluxFilterExpressionParser;
@@ -72,6 +79,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			GenericApplicationContext context,
 			AsyncCacheResolver cacheResolver,
 			List<MetricHandler> metricHandlers,
+			List<ExecutePredicate<ServerHttpRequest>> executePredicates,
 			Bucket4jConfigurationHolder servletConfigurationHolder,
 			ExpressionParser webfluxFilterExpressionParser) {
 		this.properties = properties;
@@ -79,6 +87,9 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		this.context = context;
 		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
+		this.executePredicates = executePredicates
+				.stream()
+				.collect(Collectors.toMap(ExecutePredicate::name, Function.identity()));
 		this.servletConfigurationHolder = servletConfigurationHolder;
 		this.webfluxFilterExpressionParser = webfluxFilterExpressionParser;
 	}
@@ -116,7 +127,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	@Override
 	protected ExecutePredicate<ServerHttpRequest> getExecutePredicateByName(String name) {
-		throw new UnsupportedOperationException("Execution predicates not supported");
+		return executePredicates.getOrDefault(name, null);
 	}
 
 }

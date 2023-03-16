@@ -26,7 +26,6 @@ import org.springframework.util.StringUtils;
 import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.ServletRequestExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.ServletRequestExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -66,7 +65,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 
 	private final List<MetricHandler> metricHandlers;
 	
-	private final Map<String, ServletRequestExecutePredicate> executePredicates;
+	private final Map<String, ExecutePredicate<HttpServletRequest>> executePredicates;
 	
 	private Bucket4jConfigurationHolder servletConfigurationHolder;
 	
@@ -78,7 +77,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			GenericApplicationContext context,
 			SyncCacheResolver cacheResolver,
 			List<MetricHandler> metricHandlers,
-			List<ServletRequestExecutePredicate> executePredicates,
+			List<ExecutePredicate<HttpServletRequest>> executePredicates,
 			Bucket4jConfigurationHolder servletConfigurationHolder,
 			ExpressionParser servletFilterExpressionParser) {
 		this.properties = properties;
@@ -88,7 +87,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 		this.metricHandlers = metricHandlers;
 		this.executePredicates = executePredicates
 				.stream()
-				.collect(Collectors.toMap(ServletRequestExecutePredicate::name, Function.identity()));
+				.collect(Collectors.toMap(ExecutePredicate::name, Function.identity()));
 		this.servletConfigurationHolder =  servletConfigurationHolder;
 		this.servletFilterExpressionParser = servletFilterExpressionParser;
 	}

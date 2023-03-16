@@ -1,28 +1,22 @@
-package com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate;
+package com.giffing.bucket4j.spring.boot.starter.predicates;
 
 import java.util.Arrays;
-import java.util.Collections;
-
-import org.springframework.stereotype.Component;
+import java.util.List;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 
-import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
-public class HeaderExecutePredicate extends ServletRequestExecutePredicate {
+@Getter
+public abstract class HeaderExecutePredicate<T> extends ExecutePredicate<T> {
 
 	private String headername;
 	
 	private String headerValueRegex;
 
-	@Override
-	public boolean test(HttpServletRequest t) {
-		var headerValues = Collections.list(t.getHeaders(headername))
-					.stream()
-					.toList();
+	public boolean testHeaderValues(List<String> headerValues) {
 		if(headerValues.isEmpty()) {
 			return false;
 		}
@@ -33,7 +27,7 @@ public class HeaderExecutePredicate extends ServletRequestExecutePredicate {
 				.anyMatch(v -> v.matches(headerValueRegex));
 		}
 		
-		log.debug("header-predicate;method:{};value:{},result:{}", t.getMethod(), headerValues, matches);
+		log.debug("header-predicate;header:{};value:{},result:{}", headername, headerValues, matches);
 		return matches;
 	}
 
@@ -43,7 +37,7 @@ public class HeaderExecutePredicate extends ServletRequestExecutePredicate {
 	}
 
 	@Override
-	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
+	public ExecutePredicate<T> parseSimpleConfig(String simpleConfig) {
 		var headerConfig = Arrays.stream(simpleConfig.split(","))
 				.map(String::trim)
 				.toList();
