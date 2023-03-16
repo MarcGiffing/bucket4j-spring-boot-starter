@@ -102,7 +102,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		        
 		        if(!skipRateLimit) {
 		        	skipRateLimit = !executionPredicate.test(servletRequest);
-		        	log.debug("skip-rate-limit - predicates: {}", skipRateLimit);
+		        	log.debug("skip-rate-limit - execute-predicates: {}", skipRateLimit);
 		        }
 		        
 		        if(!skipRateLimit) {
@@ -120,7 +120,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 							getMetricHandlers(), 
 							filterConfig.getMetrics().getTypes(),
 							metricTagResults);
-
+		        	
+		        	log.debug("try-and-consume;key:{};tokens:{}", key, rl.getNumTokens());
 		        	return proxyWrapper.tryConsumeAndReturnRemaining(key, rl.getNumTokens(), bucketConfiguration, metricBucketListener);
 		        	
 		        }

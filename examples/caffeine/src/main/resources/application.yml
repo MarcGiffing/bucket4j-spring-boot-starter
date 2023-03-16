@@ -1,3 +1,6 @@
+logging:
+  level:
+    com.giffing.bucket4j: debug
 management:
   endpoints:
     web:
@@ -19,9 +22,11 @@ bucket4j:
   - cache-name: buckets
     url: .*
     rate-limits:
-    - execute-predicates:
-      - name: PATH=/hello
+    - cache-key: getRemoteAddr() 
+      execute-predicates:
+      - name: PATH=/hell**
       - name: METHOD=GET
+      - name: HEADER=User-Agent,.*
       - name: CUSTOM-QUERY=huhu
       bandwidths:
       - capacity: 10
