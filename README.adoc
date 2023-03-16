@@ -27,6 +27,7 @@ Project version overview:
 * <<migration_guide>>
 * <<getting_started>>
 * <<refill_speed>>
+* <<execution_predicates>>
 * <<bucket4j_complete_properties>>
 * <<monitoring>>
 * <<configuration_examples>>
@@ -253,6 +254,89 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,i
 
 You can read more about the refill speed in the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
 
+
+[[execution_predicates]]
+== Execution Predicates
+
+Execution Predicates can be used to conditionally execute the rate limiting. Each predicate has a unique name and a self-contained configuration.
+The following section describes the build in Execution Predicates and how to use them.
+
+=== Path Execution Predicates
+
+The Path Execution Predicate takes a list of path parameters where any of the paths must match to execute. 
+See https://github.com/spring-projects/spring-framework/blob/main/spring-web/src/main/java/org/springframework/web/util/pattern/PathPattern.java[PathPattern] for the available configuration options. Segments are not evaluated further.
+
+[source, properties]
+----
+bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello,/world,/admin
+----
+Matches the paths '/hello', '/world' or '/admin'.
+
+
+=== Method Execution Predicate
+
+The Method Execution Predicate takes a list of method parameters where any of the methods must match the used HTTP method.
+
+----
+bucket4j.filters[0].rate-limits[0].execute-predicates[0]=METHOD=GET,POST
+----
+Matches if the HTTP method is 'GET' or 'POST'.
+
+=== Query Execution Predicate
+
+The Query Execution Predicate takes a single parameter to check for the existence of the query parameter.
+
+----
+bucket4j.filters[0].rate-limits[0].execute-predicates[0]=QUERY=PARAM_1
+----
+Matches if the query parameter 'PARAM_1' exists.
+
+=== Header Execution Predicate
+
+The Header Execution Predicate takes to parameters.
+
+. First - The name of the Header Parameter which must match exactly
+. Second - An optional regular expression where any existing header under the name must match
+
+----
+bucket4j.filters[0].rate-limits[0].execute-predicates[0]=Content-Type,.*PDF.*
+----
+Matches if the query parameter 'PARAM_1' exists.
+
+=== Custom Execution Predicate
+
+You can also define you own Execution Predicate:
+
+[source, java]
+----
+@Component
+@Slf4j
+public class MyQueryExecutePredicate extends ServletRequestExecutePredicate {
+
+	private String query;
+	
+	public String name() {
+		// The name which can be used on the properties
+		return "MY_QUERY";
+	}
+
+	public boolean test(HttpServletRequest t) {
+	    // the logic to implement the predicate
+		boolean result = t.getParameterMap().containsKey(query);
+		log.debug("my-query-parametetr;value:%s;result:%s".formatted(query, result));
+		return result;
+	}
+
+	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
+		// the configuration which is configured behind the equal sign
+		// MY_QUERY=P_1 -> simpleConfig == "P_1"
+		// 
+		this.query = simpleConfig;
+		return this;
+	}
+}
+----
+
 [[bucket4j_complete_properties]]
 == Bucket4j properties
 
@@ -274,8 +358,8 @@ bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits config
 bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
-bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello # On the HTTP Path
-bucket4j.filters[0].rate-limits[0].execute-predicates[1]=METHOD=/GET # On the HTTP Method
+bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello,/world # On the HTTP Path as a list
+bucket4j.filters[0].rate-limits[0].execute-predicates[1]=METHOD=GET,POST # On the HTTP Method
 bucket4j.filters[0].rate-limits[0].execute-predicates[2]=QUERY=HELLO # Checks for the existence of a Query Parameter
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
 bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=10
