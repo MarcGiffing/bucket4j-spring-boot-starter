@@ -180,8 +180,6 @@ spring:
 </config>
 ----
 
-[[filters]]
-
 [[overview_cache_autoconfiguration]]
 == Overview Cache Autoconfiguration
 
@@ -242,7 +240,9 @@ it to an invalid value to disable all auto configurations.
 bucket4j.cache-to-use=jcache # 
 ---- 
 
+[[filters]]
 == Filter
+
 === Filter strategy
 
 The filter strategy defines how the execution of the rate limits will be performed.
