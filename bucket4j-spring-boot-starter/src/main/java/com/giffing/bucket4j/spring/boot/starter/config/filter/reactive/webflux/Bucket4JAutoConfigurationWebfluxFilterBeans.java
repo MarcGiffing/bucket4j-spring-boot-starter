@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.config.gateway;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -11,16 +11,16 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 
 @Configuration
-public class Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans {
+public class Bucket4JAutoConfigurationWebfluxFilterBeans {
 
 	@Bean
-	@Qualifier("GATEWAY")
-	public Bucket4jConfigurationHolder gatewayConfigurationHolder() {
+	@Qualifier("WEBFLUX")
+	public Bucket4jConfigurationHolder servletConfigurationHolder() {
 		return new Bucket4jConfigurationHolder();
 	}
 
 	@Bean
-	public ExpressionParser gatewayFilterExpressionParser() {
+	public ExpressionParser webfluxFilterExpressionParser() {
 		SpelParserConfiguration config = new SpelParserConfiguration(
 				SpelCompilerMode.IMMEDIATE,
 				this.getClass().getClassLoader());

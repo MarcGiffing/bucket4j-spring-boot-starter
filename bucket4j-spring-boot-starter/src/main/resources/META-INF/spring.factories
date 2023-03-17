@@ -1,1 +1,1 @@
-org.springframework.boot.diagnostics.FailureAnalyzer=com.giffing.bucket4j.spring.boot.starter.failureanalyzer.Bucket4JAutoConfigFailureAnalyzer
+org.springframework.boot.diagnostics.FailureAnalyzer=com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer.Bucket4JAutoConfigFailureAnalyzer

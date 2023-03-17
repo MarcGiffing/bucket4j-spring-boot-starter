@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.config.gateway;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,11 +22,11 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.StringUtils;
 
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
-import com.giffing.bucket4j.spring.boot.starter.config.webflux.predicate.WebfluxExecutePredicateConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;

@@ -1,11 +1,8 @@
-package com.giffing.bucket4j.spring.boot.starter.config.springboot;
+package com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.Bucket4jEndpoint;
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.Bucket4jMetricsConfiguration;
 
 
 @Configuration

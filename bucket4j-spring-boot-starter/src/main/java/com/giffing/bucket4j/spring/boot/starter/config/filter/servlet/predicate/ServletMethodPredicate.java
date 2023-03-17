@@ -1,8 +1,8 @@
-package com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate;
 
 import org.springframework.stereotype.Component;
 
-import com.giffing.bucket4j.spring.boot.starter.predicates.MethodExecutePredicate;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.predicate.MethodExecutePredicate;
 
 import jakarta.servlet.http.HttpServletRequest;
 

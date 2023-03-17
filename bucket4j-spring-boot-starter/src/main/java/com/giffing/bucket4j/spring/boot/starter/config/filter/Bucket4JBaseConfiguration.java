@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.config;
+package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
 import static java.util.stream.Collectors.toList;
 
@@ -22,9 +22,9 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.config.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.servlet.Bucket4JAutoConfigurationServletFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.webflux.Bucket4JAutoConfigurationWebfluxFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.Condition;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;

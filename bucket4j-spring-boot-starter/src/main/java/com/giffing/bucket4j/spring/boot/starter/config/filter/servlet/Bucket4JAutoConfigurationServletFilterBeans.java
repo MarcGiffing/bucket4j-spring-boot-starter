@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.config.servlet;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

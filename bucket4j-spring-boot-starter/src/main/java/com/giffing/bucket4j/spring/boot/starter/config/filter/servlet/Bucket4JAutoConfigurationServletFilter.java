@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.config.servlet;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet;
 
 import java.util.List;
 import java.util.Map;
@@ -23,11 +23,11 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.util.StringUtils;
 
-import com.giffing.bucket4j.spring.boot.starter.config.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.servlet.predicate.ServletRequestExecutePredicateConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.springboot.SpringBootActuatorConfig;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate.ServletRequestExecutePredicateConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;

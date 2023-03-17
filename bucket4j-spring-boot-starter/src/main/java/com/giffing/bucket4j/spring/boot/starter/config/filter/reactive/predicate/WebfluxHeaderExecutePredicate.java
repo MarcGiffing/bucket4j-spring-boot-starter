@@ -1,9 +1,9 @@
-package com.giffing.bucket4j.spring.boot.starter.config.webflux.predicate;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
-import com.giffing.bucket4j.spring.boot.starter.predicates.HeaderExecutePredicate;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.predicate.HeaderExecutePredicate;
 
 @Component
 public class WebfluxHeaderExecutePredicate extends HeaderExecutePredicate<ServerHttpRequest>{

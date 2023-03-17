@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.exception;
 
-import com.giffing.bucket4j.spring.boot.starter.failureanalyzer.Bucket4JAutoConfigFailureAnalyzer;
+import com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer.Bucket4JAutoConfigFailureAnalyzer;
 
 /**
  * All exceptions should be extend from the this base exception. 

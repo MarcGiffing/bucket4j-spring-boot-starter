@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.predicates;
+package com.giffing.bucket4j.spring.boot.starter.config.filter.predicate;
 
 import java.util.Set;
 

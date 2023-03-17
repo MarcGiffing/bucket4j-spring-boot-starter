@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.failureanalyzer;
+package com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer;
 
 import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
