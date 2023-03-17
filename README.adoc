@@ -26,8 +26,11 @@ Project version overview:
 * <<introduction>>
 * <<migration_guide>>
 * <<getting_started>>
+* <<overview_cache_autoconfiguration>>
+* <<filters>>
+* <<cache_key>>
 * <<refill_speed>>
-* <<execution_predicates>>
+* <<skip_execution_predicates>>
 * <<bucket4j_complete_properties>>
 * <<monitoring>>
 * <<configuration_examples>>
@@ -177,8 +180,10 @@ spring:
 </config>
 ----
 
-[[cache_overview]]
-=== Overview Cache Autoconfiguration
+[[filters]]
+
+[[overview_cache_autoconfiguration]]
+== Overview Cache Autoconfiguration
 
 The following list contains the Caching implementation which will be autoconfigured by this starter.
 
@@ -237,6 +242,75 @@ it to an invalid value to disable all auto configurations.
 bucket4j.cache-to-use=jcache # 
 ---- 
 
+== Filter
+=== Filter strategy
+
+The filter strategy defines how the execution of the rate limits will be performed.
+
+[source, properties]
+----
+bucket4j.filters[0].strategy=first # [first, all]
+----
+
+==== first
+
+The *first* is the default strategy. This the default strategy which only executes one rate limit configuration.
+
+==== all
+
+The *all* strategy executes all rate limit independently. 
+
+[[cache_key]]
+== Cache Key
+
+To differentiate incoming request you can provide an expression which is used as a key resolver for the underlying cache.
+
+The expression uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL) which
+provides the most flexible solution to determine the cache key written in one line of code. https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
+
+Depending on the filter method [servlet,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
+
+* servlet: jakarta.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
+* webflux: org.springframework.http.server.reactive.ServerHttpRequest
+* gateway: org.springframework.http.server.reactive.ServerHttpRequest
+
+The configured URL which is used for filtering is added to the cache-key to provide a unique cache-key for multiple URL.
+You can read more about it https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/19[here].
+
+*Limiting based on IP-Address*:
+[source]
+----
+getRemoteAddress()
+----
+
+
+*Limiting based on Username - If not logged in use IP-Address*:
+[source]
+----
+@securityService.username()?: getRemoteAddr()
+----
+[source,java]
+----
+/**
+* You can define custom beans like the SecurityService which can be used in the SpEl expressions.
+**/
+@Service
+public class SecurityService {
+
+	public String username() {
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		if(name == "anonymousUser") {
+			return null;
+		}
+		return name;
+	}
+	
+}
+----
+
+[[cache_overview]]
+
+
 [[refill_speed]]
 == Refill Speed
 
@@ -255,45 +329,48 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,i
 You can read more about the refill speed in the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
 
 
-[[execution_predicates]]
-== Execution Predicates
+[[skip_execution_predicates]]
+== Skip and Execution Predicates
 
-Execution Predicates can be used to conditionally execute the rate limiting. Each predicate has a unique name and a self-contained configuration.
+Skip and Execution Predicates can be used to conditionally skip or execute the rate limiting. Each predicate has a unique name and a self-contained configuration.
 The following section describes the build in Execution Predicates and how to use them.
 
-=== Path Execution Predicates
+=== Path Predicates
 
-The Path Execution Predicate takes a list of path parameters where any of the paths must match to execute. 
+The Path Predicate takes a list of path parameters where any of the paths must match. 
 See https://github.com/spring-projects/spring-framework/blob/main/spring-web/src/main/java/org/springframework/web/util/pattern/PathPattern.java[PathPattern] for the available configuration options. Segments are not evaluated further.
 
 [source, properties]
 ----
+bucket4j.filters[0].rate-limits[0].skip-predicates[0]=PATH=/hello,/world,/admin
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello,/world,/admin
 ----
 Matches the paths '/hello', '/world' or '/admin'.
 
 
-=== Method Execution Predicate
+=== Method Predicate
 
-The Method Execution Predicate takes a list of method parameters where any of the methods must match the used HTTP method.
+The Method Predicate takes a list of method parameters where any of the methods must match the used HTTP method.
 
 ----
+bucket4j.filters[0].rate-limits[0].skip-predicates[0]=METHOD=GET,POST
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=METHOD=GET,POST
 ----
 Matches if the HTTP method is 'GET' or 'POST'.
 
-=== Query Execution Predicate
+=== Query Predicate
 
-The Query Execution Predicate takes a single parameter to check for the existence of the query parameter.
+The Query Predicate takes a single parameter to check for the existence of the query parameter.
 
 ----
+bucket4j.filters[0].rate-limits[0].skip-predicates[0]=QUERY=PARAM_1
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=QUERY=PARAM_1
 ----
 Matches if the query parameter 'PARAM_1' exists.
 
-=== Header Execution Predicate
+=== Header Predicate
 
-The Header Execution Predicate takes to parameters.
+The Header Predicate takes to parameters.
 
 . First - The name of the Header Parameter which must match exactly
 . Second - An optional regular expression where any existing header under the name must match
@@ -303,7 +380,7 @@ bucket4j.filters[0].rate-limits[0].execute-predicates[0]=Content-Type,.*PDF.*
 ----
 Matches if the query parameter 'PARAM_1' exists.
 
-=== Custom Execution Predicate
+=== Custom Predicate
 
 You can also define you own Execution Predicate:
 
@@ -311,7 +388,7 @@ You can also define you own Execution Predicate:
 ----
 @Component
 @Slf4j
-public class MyQueryExecutePredicate extends ServletRequestExecutePredicate {
+public class MyQueryExecutePredicate extends ExecutePredicate<HttpServletRequest> {
 
 	private String query;
 	
@@ -386,69 +463,6 @@ bucket4j.default-metric-tags[0].types=REJECTED_COUNTER
 # Hide HTTP response headers
 ----
 
-==== Cache Key
-
-To differentiate incoming request you can provide an expression which is used as a key resolver for the underlying cache.
-
-The expression uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL) which
-provides the most flexible solution to determine the cache key written in one line of code. https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
-
-Depending on the filter method [servlet,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
-
-* servlet: jakarta.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
-* webflux: org.springframework.http.server.reactive.ServerHttpRequest
-* gateway: org.springframework.http.server.reactive.ServerHttpRequest
-
-The configured URL which is used for filtering is added to the cache-key to provide a unique cache-key for multiple URL.
-You can read more about it https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/19[here].
-
-*Limiting based on IP-Address*:
-[source]
-----
-getRemoteAddress()
-----
-
-
-*Limiting based on Username - If not logged in use IP-Address*:
-[source]
-----
-@securityService.username()?: getRemoteAddr()
-----
-[source,java]
-----
-/**
-* You can define custom beans like the SecurityService which can be used in the SpEl expressions.
-**/
-@Service
-public class SecurityService {
-
-	public String username() {
-		String name = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(name == "anonymousUser") {
-			return null;
-		}
-		return name;
-	}
-	
-}
-----
-
-=== Filter strategy
-
-The filter strategy defines how the execution of the rate limits will be performed.
-
-[source, properties]
-----
-bucket4j.filters[0].strategy=first # [first, all]
-----
-
-==== first
-
-The *first* is the default strategy. This the default strategy which only executes one rate limit configuration.
-
-==== all
-
-The *all* strategy executes all rate limit independently. 
 
 [[monitoring]]
 == Monitoring - Spring Boot Actuator

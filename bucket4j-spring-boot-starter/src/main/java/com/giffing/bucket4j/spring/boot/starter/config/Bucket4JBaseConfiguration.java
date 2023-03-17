@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -87,13 +88,19 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			log.debug("RL: {}",rl.toString());
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			Predicate<R> executionPredicate = prepareExecutionPredicates(rl);
+			Predicate<R> skipPredicate = prepareSkipPredicates(rl);
 			RateLimitCheck<R> rlc = (servletRequest) -> {
 				
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
 		        	skipRateLimit = skipCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
 		        	log.debug("skip-rate-limit - skip-condition: {}", skipRateLimit);
-		        } 
+		        }
+		        
+		        if(!skipRateLimit) {
+		        	skipRateLimit = skipPredicate.test(servletRequest);
+		        	log.debug("skip-rate-limit - skip-predicates: {}", skipRateLimit);
+		        }
 		        
 		        if(rl.getExecuteCondition() != null && !skipRateLimit) {
 		        	skipRateLimit = !executeCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
@@ -136,7 +143,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	}
 	
 	protected void validate(Bucket4JConfiguration config) {
-		validateExecutePredicates(config);
+		validatePredicates(config);
 	}
 
 	protected abstract ExecutePredicate<R> getExecutePredicateByName(String name);
@@ -287,22 +294,23 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		}
 	}
 	
-	private void validateExecutePredicates(Bucket4JConfiguration config) {
-		var allExecutePredicateNames = config
-				.getRateLimits()
-				.stream()
-				.map(r -> r.getExecutePredicates())
-				.flatMap(List::stream)
-				.map(x -> x.getName())
-				.distinct().collect(Collectors.toSet());
-			allExecutePredicateNames.forEach(predicateName -> {
-				if(getExecutePredicateByName(predicateName) == null) {
-					throw new ExecutePredicateBeanNotFoundException(predicateName);
-				}
-			});
+	private Predicate<R> prepareExecutionPredicates(RateLimit rl) {
+		return rl.getExecutePredicates()
+        		.stream()
+        		.map(p -> createPredicate(p))
+        		.reduce( (p1, p2) -> p1.and(p2))
+        		.orElseGet(() -> (R) -> true);
 	}
 	
-	protected Predicate<R> createExecutionPredicate(ExecutePredicateDefinition pd) {
+	private Predicate<R> prepareSkipPredicates(RateLimit rl) {
+		return rl.getSkipPredicates()
+        		.stream()
+        		.map(p -> createPredicate(p))
+        		.reduce( (p1, p2) -> p1.and(p2))
+        		.orElseGet(() -> (R) -> true);
+	}
+	
+	protected Predicate<R> createPredicate(ExecutePredicateDefinition pd) {
 		ExecutePredicate<R> predicate = getExecutePredicateByName(pd.getName());
 		log.debug("create-predicate;name:{};value:{}", pd.getName(), pd.getArgs());
 		try {
@@ -315,12 +323,25 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		}
 	}
 	
-	private Predicate<R> prepareExecutionPredicates(RateLimit rl) {
-		return rl.getExecutePredicates()
-        		.stream()
-        		.map(p -> createExecutionPredicate(p))
-        		.reduce( (p1, p2) -> p1.and(p2))
-        		.orElseGet(() -> (R) -> true);
+	private void validatePredicates(Bucket4JConfiguration config) {
+		var executePredicates = config
+				.getRateLimits()
+				.stream()
+				.map(r -> r.getExecutePredicates());
+		var skipPredicates = config
+				.getRateLimits()
+				.stream()
+				.map(r -> r.getSkipPredicates());
+		
+		var allExecutePredicateNames = Stream.concat(executePredicates, skipPredicates)
+				.flatMap(List::stream)
+				.map(x -> x.getName())
+				.distinct().collect(Collectors.toSet());
+			allExecutePredicateNames.forEach(predicateName -> {
+				if(getExecutePredicateByName(predicateName) == null) {
+					throw new ExecutePredicateBeanNotFoundException(predicateName);
+				}
+			});
 	}
 	
 }

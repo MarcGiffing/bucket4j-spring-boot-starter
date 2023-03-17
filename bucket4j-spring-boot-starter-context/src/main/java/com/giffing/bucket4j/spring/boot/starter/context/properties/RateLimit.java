@@ -29,6 +29,9 @@ public class RateLimit {
 	 * SpEl condition to check if the rate-limit should apply. If null there is no check.
 	 */
 	private String skipCondition;
+	
+	@Valid
+	private List<ExecutePredicateDefinition> skipPredicates = new ArrayList<>();
 
 	/**
 	 * SPEL expression to dynamic evaluate filter key 
