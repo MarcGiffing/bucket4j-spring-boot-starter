@@ -307,7 +307,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
         		.stream()
         		.map(p -> createPredicate(p))
         		.reduce( (p1, p2) -> p1.and(p2))
-        		.orElseGet(() -> (R) -> true);
+        		.orElseGet(() -> (R) -> false);
 	}
 	
 	protected Predicate<R> createPredicate(ExecutePredicateDefinition pd) {
