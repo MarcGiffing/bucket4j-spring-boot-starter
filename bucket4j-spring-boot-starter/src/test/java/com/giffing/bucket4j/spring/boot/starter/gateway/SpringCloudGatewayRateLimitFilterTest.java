@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.gateway;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -106,8 +107,8 @@ class SpringCloudGatewayRateLimitFilterTest {
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         
-        Assertions.assertThrows(ReactiveRateLimitException.class, () -> {
-        	Mono<Void> result = filter.filter(exchange, chain);
+        Mono<Void> result = filter.filter(exchange, chain);
+        assertThrows(ReactiveRateLimitException.class, () -> {
     		result.block();	
         });
         

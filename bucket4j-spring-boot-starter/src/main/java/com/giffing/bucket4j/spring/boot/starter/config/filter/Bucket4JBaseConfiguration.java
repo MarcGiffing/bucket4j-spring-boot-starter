@@ -89,7 +89,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			final ConfigurationBuilder configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			Predicate<R> executionPredicate = prepareExecutionPredicates(rl);
 			Predicate<R> skipPredicate = prepareSkipPredicates(rl);
-			RateLimitCheck<R> rlc = (servletRequest) -> {
+			RateLimitCheck<R> rlc = servletRequest -> {
 				
 		        boolean skipRateLimit = false;
 		        if (rl.getSkipCondition() != null) {
@@ -205,7 +205,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				final String value = expr.getValue(context, servletRequest, String.class);
 				
 				return new MetricTagResult(metricMetaTag.getKey(), value, metricMetaTag.getTypes());
-		}).collect(toList());
+		}).toList();
 		if(metricTagResults == null) {
 			metricTagResults = new ArrayList<>();
 		}
@@ -297,17 +297,17 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	private Predicate<R> prepareExecutionPredicates(RateLimit rl) {
 		return rl.getExecutePredicates()
         		.stream()
-        		.map(p -> createPredicate(p))
-        		.reduce( (p1, p2) -> p1.and(p2))
-        		.orElseGet(() -> (R) -> true);
+        		.map(this::createPredicate)
+        		.reduce( Predicate::and)
+        		.orElseGet(() -> R -> true);
 	}
 	
 	private Predicate<R> prepareSkipPredicates(RateLimit rl) {
 		return rl.getSkipPredicates()
         		.stream()
-        		.map(p -> createPredicate(p))
-        		.reduce( (p1, p2) -> p1.and(p2))
-        		.orElseGet(() -> (R) -> false);
+        		.map(this::createPredicate)
+        		.reduce( Predicate::and)
+        		.orElseGet(() -> R -> false);
 	}
 	
 	protected Predicate<R> createPredicate(ExecutePredicateDefinition pd) {

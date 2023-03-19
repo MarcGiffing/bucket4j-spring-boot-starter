@@ -2,21 +2,21 @@ package com.giffing.bucket4j.spring.boot.starter.filter.reactive;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import io.github.bucket4j.ConsumptionProbe;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
+
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+
+import io.github.bucket4j.ConsumptionProbe;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,7 +43,7 @@ public class AbstractReactiveFilter {
 			.map(rl -> rl.rateLimit(request))
 			.filter(cph -> cph != null && cph.getConsumptionProbeCompletableFuture() != null)
 			.map(cph -> Mono.fromFuture(cph.getConsumptionProbeCompletableFuture()))
-			.collect(Collectors.toList());
+			.toList();
 		
 		AtomicInteger consumptionProbeCounter = new AtomicInteger(0);
 		return Flux

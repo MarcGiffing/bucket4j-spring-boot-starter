@@ -23,11 +23,10 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
 		String descriptionMessage = cause.getMessage();
 		String actionMessage = cause.getMessage();
 		
-		if(cause instanceof JCacheNotFoundException) {
-			JCacheNotFoundException ex = (JCacheNotFoundException) cause;
+		if(cause instanceof JCacheNotFoundException e) {
 			descriptionMessage = "The cache name name defined in the property is not configured in the caching provider";
 			
-			actionMessage = "Cache name: " + ex.getCacheName() + NEW_LINE
+			actionMessage = "Cache name: " + e.getCacheName() + NEW_LINE
 					+ "Please configure your caching provider (ehcache, hazelcast, ...)";
 		}
 		

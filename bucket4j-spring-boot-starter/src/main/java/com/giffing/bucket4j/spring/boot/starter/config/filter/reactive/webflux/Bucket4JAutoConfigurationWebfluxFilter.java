@@ -29,7 +29,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate.ServletRequestExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
