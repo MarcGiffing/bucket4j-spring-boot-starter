@@ -94,25 +94,25 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	@Override
 	public void customize(ConfigurableServletWebServerFactory factory) {
-				AtomicInteger filterCount = new AtomicInteger(0);
-				properties
-					.getFilters()
-					.stream()
-					.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
-					.forEach(filter -> {
-						addDefaultMetricTags(properties, filter);
-						filterCount.incrementAndGet();
-						FilterConfiguration<HttpServletRequest> filterConfig = buildFilterConfig(
-								filter,
-								cacheResolver.resolve(filter.getCacheName()), 
-								servletFilterExpressionParser, beanFactory);
-	
-						servletConfigurationHolder.addFilterConfiguration(filter);
-	
-						context.registerBean("bucket4JServletRequestFilter" + filterCount, Filter.class, () -> new ServletRequestFilter(filterConfig));
-						log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
-					});
-			}
+		var filterCount = new AtomicInteger(0);
+		properties
+			.getFilters()
+			.stream()
+			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+			.forEach(filter -> {
+				addDefaultMetricTags(properties, filter);
+				filterCount.incrementAndGet();
+				var filterConfig = buildFilterConfig(
+						filter,
+						cacheResolver.resolve(filter.getCacheName()), 
+						servletFilterExpressionParser, beanFactory);
+
+				servletConfigurationHolder.addFilterConfiguration(filter);
+
+				context.registerBean("bucket4JServletRequestFilter" + filterCount, Filter.class, () -> new ServletRequestFilter(filterConfig));
+				log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
+			});
+	}
 
 	@Override
 	public List<MetricHandler> getMetricHandlers() {

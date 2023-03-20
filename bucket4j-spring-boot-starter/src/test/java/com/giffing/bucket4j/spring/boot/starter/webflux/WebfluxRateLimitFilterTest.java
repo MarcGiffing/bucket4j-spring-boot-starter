@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.webflux;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,11 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -37,27 +34,34 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxW
 import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
 
-@ExtendWith(MockitoExtension.class) 
 class WebfluxRateLimitFilterTest {
 
 	private WebfluxWebFilter filter;
 	private FilterConfiguration<ServerHttpRequest> configuration;
-	@Mock private RateLimitCheck<ServerHttpRequest> rateLimitCheck1;
-	@Mock private RateLimitCheck<ServerHttpRequest> rateLimitCheck2;
-	@Mock private RateLimitCheck<ServerHttpRequest> rateLimitCheck3;
+	private RateLimitCheck rateLimitCheck1;
+	private RateLimitCheck rateLimitCheck2;
+	private RateLimitCheck rateLimitCheck3;
 
-	@Mock private ServerWebExchange exchange;
-	@Mock private WebFilterChain chain;
+	private ServerWebExchange exchange;
+	private WebFilterChain chain;
 	
 	
-	@Mock private ServerHttpResponse serverHttpResponse;
+	private ServerHttpResponse serverHttpResponse;
 	
 	@BeforeEach
     public void setup() throws URISyntaxException {
+    	rateLimitCheck1 = mock(RateLimitCheck.class);
+        rateLimitCheck2 = mock(RateLimitCheck.class);
+        rateLimitCheck3 = mock(RateLimitCheck.class);
+
+        exchange = Mockito.mock(ServerWebExchange.class);
+        
         ServerHttpRequest serverHttpRequest = Mockito.mock(ServerHttpRequest.class);
         URI uri = new URI("url");
         when(serverHttpRequest.getURI()).thenReturn(uri);
 		when(exchange.getRequest()).thenReturn(serverHttpRequest);
+		
+		serverHttpResponse = Mockito.mock(ServerHttpResponse.class);
         when(exchange.getResponse()).thenReturn(serverHttpResponse);
         
 		chain = Mockito.mock(WebFilterChain.class);
@@ -96,17 +100,17 @@ class WebfluxRateLimitFilterTest {
         rateLimitConfig(0L, rateLimitCheck2);
         rateLimitConfig(0L, rateLimitCheck3);
 
-        var httpHeaders = Mockito.mock(HttpHeaders.class);
+        HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
         
-        Mono<Void> result = filter.filter(exchange, chain);
-        assertThrows(ReactiveRateLimitException.class, () -> {
+        Assertions.assertThrows(ReactiveRateLimitException.class, () -> {
+        	Mono<Void> result = filter.filter(exchange, chain);
     		result.block();	
         });
 		
-		verify(rateLimitCheck1, times(1)).rateLimit(any());
-        verify(rateLimitCheck2, times(1)).rateLimit(any());
-        verify(rateLimitCheck3, times(1)).rateLimit(any());
+		verify(rateLimitCheck1).rateLimit(any());
+        verify(rateLimitCheck2).rateLimit(any());
+        verify(rateLimitCheck3).rateLimit(any());
 	}
 
 	@Test
@@ -118,7 +122,7 @@ class WebfluxRateLimitFilterTest {
         rateLimitConfig(0L, rateLimitCheck2);
         rateLimitConfig(10L, rateLimitCheck3);
         
-        var httpHeaders = Mockito.mock(HttpHeaders.class);
+        HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
         when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
         
     	Mono<Void> result = filter.filter(exchange, chain);
@@ -130,14 +134,14 @@ class WebfluxRateLimitFilterTest {
         List<String> values = captor.getAllValues();
         Assertions.assertEquals("30", values.stream().findFirst().get());
         
-        verify(rateLimitCheck1, times(1)).rateLimit(any());
-        verify(rateLimitCheck2, times(1)).rateLimit(any());
-        verify(rateLimitCheck3, times(1)).rateLimit(any());
+        verify(rateLimitCheck1).rateLimit(any());
+        verify(rateLimitCheck2).rateLimit(any());
+        verify(rateLimitCheck3).rateLimit(any());
 	}
 
-	private void rateLimitConfig(Long remainingTokens, RateLimitCheck<ServerHttpRequest> rateLimitCheck) {
-		var consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
-        var probe = Mockito.mock(ConsumptionProbe.class);
+	private void rateLimitConfig(Long remainingTokens, RateLimitCheck rateLimitCheck) {
+		ConsumptionProbeHolder consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
+        ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
 		when(probe.isConsumed()).thenReturn(remainingTokens > 0 ? true : false);
 		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
 		when(consumptionHolder.getConsumptionProbeCompletableFuture())

@@ -115,15 +115,6 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 	<distributionManagement>
 		<snapshotRepository>
@@ -136,20 +127,6 @@
 		</repository>
 	</distributionManagement>
 	<profiles>
-		<profile>
-			<id>scm-tag</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-scm-plugin</artifactId>
-						<version>1.13.0</version>
-						<configuration>
-							<tag>${project.artifactId}-${project.version}</tag>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<id>deploy</id>
 			<modules>

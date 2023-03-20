@@ -5,12 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.http.HttpStatus;
 
 /**
  * This class is the main configuration class which is used to build the servlet|webflux|gateway request filter
@@ -57,6 +58,10 @@ public class FilterConfiguration<R> {
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 
 	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
+	
+	public void addRateLimitCheck(RateLimitCheck<R> rateLimitCheck) {
+		this.rateLimitChecks.add(rateLimitCheck);
+	}
 	
 	private Metrics metrics;
 
