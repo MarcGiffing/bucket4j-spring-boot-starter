@@ -43,7 +43,9 @@ public class AbstractReactiveFilter {
 			.filter(cph -> cph != null && cph.getConsumptionProbeCompletableFuture() != null)
 			.map(cph -> Mono.fromFuture(cph.getConsumptionProbeCompletableFuture()))
 			.toList();
-		
+		if(asyncConsumptionProbes.isEmpty()) {
+			return chain.apply(exchange);
+		}
 		AtomicInteger consumptionProbeCounter = new AtomicInteger(0);
 		return Flux
 			.concat(asyncConsumptionProbes)
@@ -51,8 +53,8 @@ public class AbstractReactiveFilter {
 			.doOnNext(cp -> consumptionProbeCounter.incrementAndGet())
 			.takeWhile(cp -> shouldTakeMoreConsumptionProbe(consumptionProbeCounter))
 			.reduce(this::reduceConsumptionProbe)
-			.flatMap(consumptionProbe -> handleConsumptionProbe(exchange, chain, response, consumptionProbe))
-			.switchIfEmpty(chain.apply(exchange));
+			.flatMap(consumptionProbe -> handleConsumptionProbe(exchange, chain, response, consumptionProbe));
+
 	}
 
 	protected boolean shouldTakeMoreConsumptionProbe(AtomicInteger consumptionProbeCounter) {
@@ -89,7 +91,7 @@ public class AbstractReactiveFilter {
 		
 		if(!cp.isConsumed()) {
 			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
-				filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);	
+				filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);
 			}
 			if(filterConfig.getHttpResponseBody() != null) {
 				response.setStatusCode(filterConfig.getHttpStatusCode());
