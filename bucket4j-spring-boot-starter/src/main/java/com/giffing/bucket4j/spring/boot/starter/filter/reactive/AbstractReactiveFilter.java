@@ -51,7 +51,8 @@ public class AbstractReactiveFilter {
 			.doOnNext(cp -> consumptionProbeCounter.incrementAndGet())
 			.takeWhile(cp -> shouldTakeMoreConsumptionProbe(consumptionProbeCounter))
 			.reduce(this::reduceConsumptionProbe)
-			.flatMap(consumptionProbe -> handleConsumptionProbe(exchange, chain, response, consumptionProbe));
+			.flatMap(consumptionProbe -> handleConsumptionProbe(exchange, chain, response, consumptionProbe))
+			.switchIfEmpty(chain.apply(exchange));
 	}
 
 	protected boolean shouldTakeMoreConsumptionProbe(AtomicInteger consumptionProbeCounter) {
@@ -63,7 +64,7 @@ public class AbstractReactiveFilter {
 	}
 
 	protected ConsumptionProbe reduceConsumptionProbe(ConsumptionProbe x, ConsumptionProbe y) {
-		ConsumptionProbe result = null;
+		ConsumptionProbe result;
 		if(!x.isConsumed()) {
 			result = x;
 		} else if(!y.isConsumed()) {
@@ -71,7 +72,7 @@ public class AbstractReactiveFilter {
 		} else {
 			result = x.getRemainingTokens() < y.getRemainingTokens() ? x : y;	
 		}
-		log.debug("reduce-probes;result-isConsumed:{};result-getremainingTokens;x-isConsumed:{};x-getremainingTokens;y-isConsumed:{};y-getremainingTokens", 
+		log.debug("reduce-probes;result-isConsumed:{};result-getremainingTokens:{};x-isConsumed:{};x-getremainingTokens{};y-isConsumed:{};y-getremainingTokens{}",
 				result.isConsumed(), result.getRemainingTokens(),
 				x.isConsumed(), x.getRemainingTokens(),
 				y.isConsumed(), y.getRemainingTokens());
@@ -96,12 +97,12 @@ public class AbstractReactiveFilter {
 				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes(UTF_8));
 				return response.writeWith(Flux.just(buffer));	
 			} else {
-				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpResponseBody()));
+				return Mono.error(new ReactiveRateLimitException("HTTP ResponseBody is null"));
 			}
 		}
 		if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 			log.debug("header;X-Rate-Limit-Remaining:{}", cp.getRemainingTokens());
-			response.getHeaders().set("X-Rate-Limit-Remaining", "" + cp.getRemainingTokens());
+			response.getHeaders().set("X-Rate-Limit-Remaining", String.valueOf(cp.getRemainingTokens()));
 		}
 		return chain.apply(exchange);
 	}
