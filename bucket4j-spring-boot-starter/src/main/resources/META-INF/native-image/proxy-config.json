@@ -1,0 +1,35 @@
+[
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlAccessorType","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlAnyElement","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlElements","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlEnumValue","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlID","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlIDREF","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.XmlSeeAlso","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter","org.glassfish.jaxb.core.v2.model.annotation.Locatable"]
+  },
+  {
+    "interfaces":["java.security.PrivilegedAction"]
+  },
+  {
+    "interfaces":["java.sql.Connection"]
+  },
+  {
+    "interfaces":["java.util.function.Consumer"]
+  }
+]
