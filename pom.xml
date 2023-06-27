@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.4</version>
+		<version>3.0.8</version>
 		<relativePath />
 	</parent>
 	<modules>
@@ -101,6 +101,31 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+					<flattenMode>resolveCiFriendliesOnly</flattenMode>
+				</configuration>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<version>1.6.13</version>
@@ -135,31 +160,6 @@
 			</modules>
 			<build>
 				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>flatten-maven-plugin</artifactId>
-						<version>1.5.0</version>
-						<configuration>
-							<updatePomFile>true</updatePomFile>
-							<flattenMode>resolveCiFriendliesOnly</flattenMode>
-						</configuration>
-						<executions>
-							<execution>
-								<id>flatten</id>
-								<phase>process-resources</phase>
-								<goals>
-									<goal>flatten</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>flatten.clean</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>clean</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
