@@ -330,7 +330,7 @@ You can read more about the refill speed in the https://bucket4j.com/8.1.1/toc.h
 
 
 [[skip_execution_predicates]]
-== Skip and Execution Predicates
+== Skip and Execution Predicates (experimental)
 
 Skip and Execution Predicates can be used to conditionally skip or execute the rate limiting. Each predicate has a unique name and a self-contained configuration.
 The following section describes the build in Execution Predicates and how to use them.
