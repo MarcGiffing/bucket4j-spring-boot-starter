@@ -47,7 +47,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
 		<bucket4j.version>8.1.0</bucket4j.version>
-		<spring-cloud-starter-gateway.version>4.0.6</spring-cloud-starter-gateway.version>
+		<spring-cloud-starter-gateway.version>4.0.7</spring-cloud-starter-gateway.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
