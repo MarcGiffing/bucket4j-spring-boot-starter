@@ -17,6 +17,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
+		<redisson.version>3.23.5</redisson.version>
+		<ignite-core.version>2.15.0</ignite-core.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -93,7 +95,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.20.0</version>
+            <version>${redisson.version}</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
@@ -114,7 +116,7 @@
 		<dependency>
 			<groupId>org.apache.ignite</groupId>
 			<artifactId>ignite-core</artifactId>
-			<version>2.15.0</version>
+			<version>${ignite-core.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

@@ -1,0 +1,34 @@
+debug: true
+logging:
+  level:
+    com.giffing.bucket4j: debug
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+
+bucket4j:
+  enabled: true
+  cache-to-use: redis-jedis
+  filters:
+    - cache-name: buckets_test
+      url: ^(/hello).*
+      rate-limits:
+        - bandwidths:
+            - capacity: 5
+              time: 10
+              unit: seconds
+    - cache-name: buckets_test
+      url: ^(/world).*
+      rate-limits:
+        - bandwidths:
+            - capacity: 10
+              time: 10
+              unit: seconds
+
+spring:
+  main:
+    allow-bean-definition-overriding: true

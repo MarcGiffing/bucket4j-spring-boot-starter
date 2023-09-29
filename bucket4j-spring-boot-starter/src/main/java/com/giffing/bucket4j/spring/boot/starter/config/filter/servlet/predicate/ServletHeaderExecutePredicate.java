@@ -1,14 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate;
 
-import java.util.Collections;
-
-import org.springframework.stereotype.Component;
-
 import com.giffing.bucket4j.spring.boot.starter.config.filter.predicate.HeaderExecutePredicate;
-
 import jakarta.servlet.http.HttpServletRequest;
 
-@Component
+import java.util.Collections;
+
 public class ServletHeaderExecutePredicate extends HeaderExecutePredicate<HttpServletRequest>{
 
 	@Override

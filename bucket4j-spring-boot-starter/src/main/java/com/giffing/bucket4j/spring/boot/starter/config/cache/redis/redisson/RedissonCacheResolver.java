@@ -1,18 +1,15 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
-import java.time.Duration;
-
-import org.redisson.command.CommandExecutor;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-
 import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
-import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
+import org.redisson.command.CommandAsyncExecutor;
+
+import java.time.Duration;
 
 /**
  * This class is the Redis implementation of the {@link CacheResolver}.
@@ -20,15 +17,15 @@ import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
  */
 public class RedissonCacheResolver implements AsyncCacheResolver {
 	
-	private final CommandExecutor commandExecutor;
+	private final CommandAsyncExecutor commandExecutor;
 	
-	public RedissonCacheResolver(CommandExecutor commandExecutor) {
+	public RedissonCacheResolver(CommandAsyncExecutor commandExecutor) {
 		this.commandExecutor = commandExecutor;
 	}
 	
 	@Override 
 	public ProxyManagerWrapper resolve(String cacheName) {
-		final ProxyManager<String> proxyManager =  RedissonBasedProxyManager.builderFor(commandExecutor)
+		var proxyManager =  RedissonBasedProxyManager.builderFor(commandExecutor)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();
 		

@@ -13,7 +13,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket
 import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis.JedisBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce.LettuceBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson.RedissonBucket4jConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.springdata.RedisSpringDataBucket4jConfiguration;
 
 @Configuration
 @AutoConfigureAfter(CacheAutoConfiguration.class)
@@ -26,7 +25,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.springdata.Re
         JedisBucket4jConfiguration.class,
         LettuceBucket4jConfiguration.class,
         RedissonBucket4jConfiguration.class,
-        RedisSpringDataBucket4jConfiguration.class
 })
 public class Bucket4jCacheConfiguration {
 }
