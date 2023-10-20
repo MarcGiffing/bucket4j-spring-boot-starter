@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-public class Bucket4JConfigurationCreationTest {
+public class Bucket4JConfigurationTest {
 
 	private static Validator validator;
 
