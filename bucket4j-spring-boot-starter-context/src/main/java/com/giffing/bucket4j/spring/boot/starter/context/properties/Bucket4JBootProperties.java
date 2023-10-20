@@ -52,8 +52,9 @@ public class Bucket4JBootProperties {
 		Set<String> idSet = new HashSet<>();
 
 		for (Bucket4JConfiguration filter : filters) {
-			if (!idSet.add(filter.getId())) {
-				throw new IllegalArgumentException("Duplicate filter id's detected in the application configuration; ID: " + filter.getId());
+			String id = filter.getId();
+			if (id != null && !idSet.add(id)) {
+				throw new IllegalArgumentException("Duplicate filter id's detected in the application configuration; ID: " + id);
 			}
 		}
 	}

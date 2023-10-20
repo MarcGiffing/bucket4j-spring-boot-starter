@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -88,6 +89,11 @@ public class Bucket4JConfiguration {
 
 	private Metrics metrics = new Metrics();
 
-	@NotBlank
 	private String id;
+
+	public void setId(String id) {
+		if(!StringUtils.isEmpty(id)){
+			this.id = id;
+		}
+	}
 }
