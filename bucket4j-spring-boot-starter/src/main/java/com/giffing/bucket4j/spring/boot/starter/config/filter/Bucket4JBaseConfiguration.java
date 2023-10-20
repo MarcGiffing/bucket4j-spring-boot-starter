@@ -3,13 +3,17 @@ package com.giffing.bucket4j.spring.boot.starter.config.filter;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.giffing.bucket4j.spring.boot.starter.exception.*;
+import io.github.bucket4j.*;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -36,16 +40,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfi
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateBeanNotFoundException;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
-import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
-import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
-import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
 
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.Refill;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -75,7 +70,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			var configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			var executionPredicate = prepareExecutionPredicates(rl);
 			var skipPredicate = prepareSkipPredicates(rl);
-			var bucketConfiguration = configurationBuilder.build();			
+			var bucketConfiguration = configurationBuilder.build();
+
 			RateLimitCheck<R> rlc = servletRequest -> {
 		        var skipRateLimit = performSkipRateLimitCheck(expressionParser, beanFactory, rl, executionPredicate, skipPredicate, servletRequest);
 		        if(!skipRateLimit) {
@@ -161,9 +157,25 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				if (!StringUtils.hasText(cacheKeyexpression)) {
 					throw new MissingKeyFilterExpressionException();
 				}
+				// When there is more than 1 bandwidth, they either need to have an ID, or TokensInheritanceStrategy.RESET has to
+				// be applied when replacing a Bucket4j bucket configuration. In either case the id's cannot be duplicate.
+				if(rl.getBandwidths().size() > 1){
+					validateBandwidths(config.getId(), rl.getBandwidths(), rl.getTokensInheritanceStrategy() == TokensInheritanceStrategy.RESET);
+				}
 			});
 	}
-	
+
+	private void validateBandwidths(String filterId, List<BandWidth> bandwidths, boolean allowNullIds){
+		Set<String> idSet = new HashSet<>();
+		for (BandWidth bandWidth : bandwidths) {
+			String id = bandWidth.getId();
+			if(id == null && allowNullIds) continue;
+			if (!idSet.add(bandWidth.getId())) {
+				throw new DuplicateBandwidthIDException(filterId, bandWidth.getId());
+			}
+		}
+	}
+
 	private void validatePredicates(Bucket4JConfiguration config) {
 		var executePredicates = config
 				.getRateLimits()
@@ -206,8 +218,8 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
 			var refillPeriod = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
 			var bucket4jBandWidth = switch(bandWidth.getRefillSpeed()) {
-				case GREEDY -> Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillPeriod));
-				case INTERVAL -> Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillPeriod));
+				case GREEDY -> Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillPeriod)).withId(bandWidth.getId());
+				case INTERVAL -> Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillPeriod)).withId(bandWidth.getId());
 				default -> throw new IllegalStateException("Unsupported Refill type: " + bandWidth.getRefillSpeed());
 			};
 			if(bandWidth.getInitialCapacity() != null) {
