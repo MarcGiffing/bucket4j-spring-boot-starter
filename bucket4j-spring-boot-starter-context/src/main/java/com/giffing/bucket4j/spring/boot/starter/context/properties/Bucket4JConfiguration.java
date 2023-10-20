@@ -92,8 +92,8 @@ public class Bucket4JConfiguration {
 	private String id;
 
 	public void setId(String id) {
-		if(!StringUtils.isEmpty(id)){
-			this.id = id;
+		if(!StringUtils.isBlank(id)){
+			this.id = id.trim();
 		}
 	}
 }
