@@ -2,9 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.time.temporal.ChronoUnit;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import io.micrometer.common.util.StringUtils;
+import jakarta.validation.constraints.*;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
 
@@ -16,6 +15,15 @@ import lombok.Data;
  */
 @Data
 public class BandWidth {
+
+	private String id;
+
+	public void setId(String id) {
+		if(!StringUtils.isEmpty(id)){
+			this.id = id;
+		}
+	}
+
 	@Positive
 	private long capacity;
 
