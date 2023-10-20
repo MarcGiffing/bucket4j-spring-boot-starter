@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -19,6 +21,7 @@ properties = {
 		"httpbin=http://localhost:${wiremock.server.port}",
 		})
 @AutoConfigureWireMock(port = 0)
+@ActiveProfiles("gateway-sample-test")
 class GatewaySampleApplicationTest {
 
 	@Autowired
