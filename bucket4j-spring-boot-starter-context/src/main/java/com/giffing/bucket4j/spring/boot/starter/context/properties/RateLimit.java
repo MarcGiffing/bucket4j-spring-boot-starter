@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 
+import io.github.bucket4j.TokensInheritanceStrategy;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -53,4 +54,9 @@ public class RateLimit {
 	@NotEmpty
 	private List<BandWidth> bandwidths = new ArrayList<>();
 
+	/**
+	 * The token inheritance strategy to use when replacing the configuration of a bucket
+	 */
+	@NotNull
+	private TokensInheritanceStrategy tokensInheritanceStrategy = TokensInheritanceStrategy.RESET;
 }
