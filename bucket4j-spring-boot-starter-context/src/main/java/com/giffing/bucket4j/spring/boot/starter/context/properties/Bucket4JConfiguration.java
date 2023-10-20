@@ -87,4 +87,7 @@ public class Bucket4JConfiguration {
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 
 	private Metrics metrics = new Metrics();
+
+	@NotBlank
+	private String id;
 }

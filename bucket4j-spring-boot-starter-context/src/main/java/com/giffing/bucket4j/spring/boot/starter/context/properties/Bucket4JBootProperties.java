@@ -1,7 +1,9 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -41,13 +43,26 @@ public class Bucket4JBootProperties {
 	private String cacheToUse;
 	
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
-	
+
+	public void setFilters(List<Bucket4JConfiguration> filters){
+		checkForDuplicateIds(filters);
+		this.filters = filters;
+	}
+	private void checkForDuplicateIds(List<Bucket4JConfiguration> filters) {
+		Set<String> idSet = new HashSet<>();
+
+		for (Bucket4JConfiguration filter : filters) {
+			if (!idSet.add(filter.getId())) {
+				throw new IllegalArgumentException("Duplicate filter id's detected in the application configuration; ID: " + filter.getId());
+			}
+		}
+	}
+
 	/**
 	 * A list of default metric tags which should be applied to all filters
 	 */
 	private List<MetricTag> defaultMetricTags = new ArrayList<>();
-	
-	
+
 	public static String getPropertyPrefix() {
 		return PROPERTY_PREFIX;
 	}
