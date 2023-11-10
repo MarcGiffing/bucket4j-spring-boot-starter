@@ -158,23 +158,24 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				if (!StringUtils.hasText(cacheKeyexpression)) {
 					throw new MissingKeyFilterExpressionException();
 				}
-				// When there is more than 1 bandwidth, they either need to have an ID, or TokensInheritanceStrategy.RESET has to
-				// be applied when replacing a Bucket4j bucket configuration. In either case the id's cannot be duplicate.
-				if(rl.getBandwidths().size() > 1){
-					validateBandwidths(config.getId(), rl.getBandwidths(), rl.getTokensInheritanceStrategy() == TokensInheritanceStrategy.RESET);
-				}
+				validateBandwidths(config, rl);
 			});
 	}
 
-	private void validateBandwidths(String filterId, List<BandWidth> bandwidths, boolean allowNullIds){
-		Set<String> idSet = new HashSet<>();
-		for (BandWidth bandWidth : bandwidths) {
-			String id = bandWidth.getId();
-			if(id == null && allowNullIds) continue;
-			if (!idSet.add(bandWidth.getId())) {
-				throw new DuplicateBandwidthIDException(filterId, bandWidth.getId());
+	private void validateBandwidths(Bucket4JConfiguration config, RateLimit rateLimit){
+		// When there is more than 1 bandwidth, they either need to have an id, or TokensInheritanceStrategy.RESET has to
+		// be applied when replacing a Bucket4j bucket configuration. When bandwidths have an id, the id has to be unique.
+		if(rateLimit.getBandwidths().size() > 1){
+			Set<String> idSet = new HashSet<>();
+			for (BandWidth bandWidth : rateLimit.getBandwidths()) {
+				String id = bandWidth.getId();
+				if(id == null && rateLimit.getTokensInheritanceStrategy() == TokensInheritanceStrategy.RESET) continue;
+				if (!idSet.add(bandWidth.getId())) {
+					throw new DuplicateBandwidthIdException(config.getId(), bandWidth.getId());
+				}
 			}
 		}
+
 	}
 
 	private void validatePredicates(Bucket4JConfiguration config) {
@@ -382,5 +383,5 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			throw new ExecutePredicateInstantiationException(pd.getName(), predicate.getClass());
 		}
 	}
-	
+
 }
