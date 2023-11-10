@@ -12,6 +12,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import io.github.bucket4j.*;
 import org.springframework.beans.factory.BeanFactory;
@@ -382,6 +383,28 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new ExecutePredicateInstantiationException(pd.getName(), predicate.getClass());
 		}
+	}
+
+	/**
+	 * Try to load a filter configuration from the cache with the same id as the provided filter.
+	 *
+	 * If no matching filter is found, the provided filter will be added to the cache and returned to the caller.
+	 * If the provided filter has a higher version than the cached filter, the cache will be overridden and the provided filter will be returned.
+	 * If the cached filter has a higher or equal version, the cached filter will be returned.
+	 *
+	 * @param configCacheManager The filter configuration cache manager
+	 * @param filter the Bucket4JConfiguration to find or update in the cache. The id of this filter should not be null.
+	 * @return returns the Bucket4JConfiguration with the highest version, either the cached or provided filter.
+	 */
+	protected Bucket4JConfiguration getOrUpdateFilterFromCache(CacheManager<String,Bucket4JConfiguration> configCacheManager, Bucket4JConfiguration filter) {
+		if(filter.getId() == null) return filter;
+		Bucket4JConfiguration cachedFilter = configCacheManager.getValue(filter.getId());
+		if (cachedFilter != null && cachedFilter.getBucket4JVersionNumber() >= filter.getBucket4JVersionNumber()) {
+			return cachedFilter;
+		} else{
+			configCacheManager.setValue(filter.getId(), filter);
+		}
+		return filter;
 	}
 
 }
