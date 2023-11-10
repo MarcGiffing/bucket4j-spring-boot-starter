@@ -7,11 +7,14 @@ management:
       exposure:
         include: "*"
 bucket4j:
+  filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
   default-metric-tags:
   - expression: "1" 
     key: xx
   filters:
   - id: filter1
+    major-version: 1
     metrics:
       types:
       - consumed-counter
