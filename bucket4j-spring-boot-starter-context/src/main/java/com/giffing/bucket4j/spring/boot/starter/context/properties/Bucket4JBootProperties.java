@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.micrometer.common.util.StringUtils;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -28,7 +31,7 @@ public class Bucket4JBootProperties {
 	 */
 	@NotNull
 	private Boolean enabled = true;
-	
+
 	/**
 	 * Sets the cache implementation which should be auto configured.
 	 * This property can be used if multiple caches are configured by the starter 
@@ -41,18 +44,30 @@ public class Bucket4JBootProperties {
 	 * </ul>
 	 */
 	private String cacheToUse;
-	
+
+	private boolean filterConfigCachingEnabled = false;
+
+	/**
+	 * If Filter configuration caching is enabled, a cache with this name should exist, or it will cause an exception.
+	 */
+	@NotBlank
+	private String filterConfigCacheName = "filterConfigCache";
+
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 
 	public void setFilters(List<Bucket4JConfiguration> filters){
-		checkForDuplicateIds(filters);
+		validateFilterIds(filters);
 		this.filters = filters;
 	}
-	private void checkForDuplicateIds(List<Bucket4JConfiguration> filters) {
+
+	private void validateFilterIds(List<Bucket4JConfiguration> filters) {
 		Set<String> idSet = new HashSet<>();
 
 		for (Bucket4JConfiguration filter : filters) {
 			String id = filter.getId();
+			if(filterConfigCachingEnabled && id == null){
+				throw new IllegalArgumentException("FilterConfiguration caching is enabled, but not all filters have an identifier configured");
+			}
 			if (id != null && !idSet.add(id)) {
 				throw new IllegalArgumentException("Duplicate filter id's detected in the application configuration; ID: " + id);
 			}
