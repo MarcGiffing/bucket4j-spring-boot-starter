@@ -2,10 +2,12 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
@@ -36,5 +38,10 @@ public class JedisCacheResolver implements SyncCacheResolver {
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 			
+	}
+
+	@Override
+	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
+		return null;
 	}
 }

@@ -1,5 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.infinispan.Cache;
 import org.infinispan.functional.impl.FunctionalMapImpl;
 import org.infinispan.functional.impl.ReadWriteMapImpl;
@@ -45,6 +47,11 @@ public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 			Bucket bucket = infinispanProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
+	}
+
+	@Override
+	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
+		return null;
 	}
 
 }

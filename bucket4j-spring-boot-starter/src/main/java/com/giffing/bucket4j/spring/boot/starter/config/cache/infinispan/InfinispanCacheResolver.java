@@ -33,16 +33,16 @@ public class InfinispanCacheResolver implements AsyncCacheResolver {
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
-
-	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName){
-		Cache<String,Bucket4JConfiguration> cache = cacheContainer.getCache(cacheName);
-		return new InfinispanCacheManager<>(cache);
-	}
-
 	private static FunctionalMap.ReadWriteMap<String, byte[]> toMap(Cache<String, byte[]> cache) {
 		AdvancedCache<String, byte[]> advancedCache = cache.getAdvancedCache();
 		FunctionalMapImpl<String, byte[]> functionalMap = FunctionalMapImpl.create(advancedCache);
 		return ReadWriteMapImpl.create(functionalMap);
+	}
+
+	@Override
+	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName){
+		Cache<String,Bucket4JConfiguration> cache = cacheContainer.getCache(cacheName);
+		return new InfinispanCacheManager<>(cache);
 	}
 
 }

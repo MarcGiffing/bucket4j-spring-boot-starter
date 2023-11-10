@@ -45,7 +45,7 @@ public class HazelcastCacheResolver implements AsyncCacheResolver {
 			
 		};
 	}
-
+	@Override
 	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName){
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(cacheName);
 		return new HazelcastCacheManager<>(map);

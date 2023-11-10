@@ -1,5 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.apache.ignite.Ignite;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
@@ -25,6 +27,11 @@ public class IgniteCacheResolver implements AsyncCacheResolver {
 			AsyncBucketProxy bucket = igniteProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
+	}
+
+	@Override
+	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
+		return null;
 	}
 
 }
