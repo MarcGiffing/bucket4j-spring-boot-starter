@@ -14,4 +14,14 @@
 	<cache name="buckets">
 	</cache>
 
+    <map name="filterConfigCache">
+        <time-to-live-seconds>120</time-to-live-seconds>
+        <in-memory-format>BINARY</in-memory-format>
+        <metadata-policy>CREATE_ON_UPDATE</metadata-policy>
+        <statistics-enabled>true</statistics-enabled>
+    </map>
+
+    <cache name="filterConfigCache">
+    </cache>
+
 </hazelcast>
