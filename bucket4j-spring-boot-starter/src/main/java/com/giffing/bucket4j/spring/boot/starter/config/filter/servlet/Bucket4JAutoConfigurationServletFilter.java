@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -126,6 +128,19 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 
 	@Override
 	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
-		//TODO: IMPLEMENT
+		//only handle servlet filter updates
+		Bucket4JConfiguration newConfig = event.getNewValue();
+		if(newConfig.getFilterMethod().equals(FilterMethod.SERVLET)) {
+			try {
+				ServletRequestFilter filter = context.getBean(event.getKey(), ServletRequestFilter.class);
+				FilterConfiguration<HttpServletRequest> newFilterConfig = buildFilterConfig(
+						newConfig,
+						cacheResolver.resolve(newConfig.getCacheName()),
+						servletFilterExpressionParser, beanFactory);
+				filter.setFilterConfig(newFilterConfig);
+			} catch (BeansException exception) {
+				log.warn("Failed to update Servlet Filter configuration. {}", exception.getMessage());
+			}
+		}
 	}
 }

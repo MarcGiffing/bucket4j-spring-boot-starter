@@ -5,8 +5,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.*;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -119,6 +122,20 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 
 	@Override
 	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
-		//TODO: IMPLEMENT
+		//only handle servlet filter updates
+		Bucket4JConfiguration newConfig = event.getNewValue();
+		if(newConfig.getFilterMethod().equals(FilterMethod.GATEWAY)) {
+			try {
+				SpringCloudGatewayRateLimitFilter filter = context.getBean(event.getKey(), SpringCloudGatewayRateLimitFilter.class);
+				FilterConfiguration<ServerHttpRequest> newFilterConfig = buildFilterConfig(
+						newConfig,
+						cacheResolver.resolve(newConfig.getCacheName()),
+						gatewayFilterExpressionParser,
+						beanFactory);
+				filter.setFilterConfig(newFilterConfig);
+			} catch (BeansException exception) {
+				log.warn("Failed to update Gateway Filter configuration. {}", exception.getMessage());
+			}
+		}
 	}
 }
