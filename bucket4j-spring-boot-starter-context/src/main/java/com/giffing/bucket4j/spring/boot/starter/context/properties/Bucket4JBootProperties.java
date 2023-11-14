@@ -56,22 +56,11 @@ public class Bucket4JBootProperties {
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 
 	public void setFilters(List<Bucket4JConfiguration> filters){
-		validateFilterIds(filters);
-		this.filters = filters;
-	}
-
-	private void validateFilterIds(List<Bucket4JConfiguration> filters) {
-		Set<String> idSet = new HashSet<>();
-
-		for (Bucket4JConfiguration filter : filters) {
-			String id = filter.getId();
-			if(filterConfigCachingEnabled && id == null){
-				throw new IllegalArgumentException("FilterConfiguration caching is enabled, but not all filters have an identifier configured");
-			}
-			if (id != null && !idSet.add(id)) {
-				throw new IllegalArgumentException("Duplicate filter id's detected in the application configuration; ID: " + id);
-			}
+		//validate that all filters have an id if filter caching is enabled
+		if(filterConfigCachingEnabled && filters.stream().anyMatch(filter -> filter.getId() == null)) {
+			throw new IllegalArgumentException("FilterConfiguration caching is enabled, but not all filters have an identifier configured");
 		}
+		this.filters = filters;
 	}
 
 	/**
