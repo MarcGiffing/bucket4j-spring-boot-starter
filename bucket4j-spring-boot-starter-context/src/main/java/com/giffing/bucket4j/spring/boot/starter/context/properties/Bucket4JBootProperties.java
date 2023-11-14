@@ -1,12 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import io.micrometer.common.util.StringUtils;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
