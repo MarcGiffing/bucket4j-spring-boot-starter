@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -56,13 +58,9 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
 
-	private final Bucket4JBootProperties properties;
-	
 	private final ConfigurableBeanFactory beanFactory;
 	
     private final GenericApplicationContext context;
-	
-	private final AsyncCacheResolver cacheResolver;
 
 	private final List<MetricHandler> metricHandlers;
 	
@@ -81,10 +79,9 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			List<ExecutePredicate<ServerHttpRequest>> executePredicates,
 			Bucket4jConfigurationHolder servletConfigurationHolder,
 			ExpressionParser webfluxFilterExpressionParser) {
-		this.properties = properties;
+		super(properties, cacheResolver);
 		this.beanFactory = beanFactory;
 		this.context = context;
-		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
 		this.executePredicates = executePredicates
 				.stream()
@@ -100,7 +97,8 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			.getFilters()
 			.stream()
 			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.WEBFLUX))
-			.map(filter -> {
+			.map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) :	filter)
+			.forEach(filter -> {
 				addDefaultMetricTags(properties, filter);
 				filterCount.incrementAndGet();
 				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
@@ -109,15 +107,13 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 						beanFactory);
 				
 				servletConfigurationHolder.addFilterConfiguration(filter);
-				
-				WebFilter webFilter = new WebfluxWebFilter(filterConfig);
-		        
+
+				//Use either the filter id as bean name or the prefix + counter if no id is configured
+				String beanName = filter.getId() != null ? filter.getId() : ("bucket4JWebfluxFilter" + filterCount);
+				context.registerBean(beanName, WebFilter.class, () -> new WebfluxWebFilter(filterConfig));
+
 		        log.info("create-webflux-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
-		        return webFilter;
-			}).forEach(webFilter -> 
-				context.registerBean("bucket4JWebfluxFilter" + filterCount, WebFilter.class, () -> webFilter)
-			);
-		
+			});
 	}
 	@Override
 	public List<MetricHandler> getMetricHandlers() {
@@ -129,4 +125,8 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		return executePredicates.getOrDefault(name, null);
 	}
 
+	@Override
+	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
+		//TODO: IMPLEMENT
+	}
 }

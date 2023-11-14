@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
 import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import io.github.bucket4j.*;
 import org.springframework.beans.factory.BeanFactory;
@@ -52,8 +54,29 @@ import lombok.extern.slf4j.Slf4j;
  * configuration classes
  */
 @Slf4j
-public abstract class Bucket4JBaseConfiguration<R> {
-	
+public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListener<String, Bucket4JConfiguration> {
+
+
+	protected final Bucket4JBootProperties properties;
+	protected final CacheResolver cacheResolver;
+
+	/**
+	 * This field will be null if configuration caching is disabled
+	 */
+	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
+
+	public Bucket4JBaseConfiguration(Bucket4JBootProperties properties, CacheResolver cacheResolver){
+		this.properties = properties;
+		this.cacheResolver = cacheResolver;
+		if(properties.isFilterConfigCachingEnabled()){
+			String cacheName = properties.getFilterConfigCacheName();
+			configCacheManager = cacheResolver.resolveConfigCacheManager(cacheName);
+			configCacheManager.addCacheUpdateListener(this);
+		} else {
+			configCacheManager = null;
+		}
+	}
+
 	public abstract List<MetricHandler> getMetricHandlers();
 	
 	public FilterConfiguration<R> buildFilterConfig(
@@ -99,7 +122,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 		filterConfig.setHideHttpResponseHeaders(config.getHideHttpResponseHeaders());
 		filterConfig.setHttpResponseHeaders(config.getHttpResponseHeaders());
 		filterConfig.setMetrics(config.getMetrics());
-		filterConfig.setId(config.getId());
 		return filterConfig;
 	}
 
@@ -388,21 +410,22 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	/**
 	 * Try to load a filter configuration from the cache with the same id as the provided filter.
 	 *
-	 * If no matching filter is found, the provided filter will be added to the cache and returned to the caller.
+	 * If caching is disabled or no matching filter is found, the provided filter will be added to the cache and returned to the caller.
 	 * If the provided filter has a higher version than the cached filter, the cache will be overridden and the provided filter will be returned.
 	 * If the cached filter has a higher or equal version, the cached filter will be returned.
 	 *
-	 * @param configCacheManager The filter configuration cache manager
 	 * @param filter the Bucket4JConfiguration to find or update in the cache. The id of this filter should not be null.
 	 * @return returns the Bucket4JConfiguration with the highest version, either the cached or provided filter.
 	 */
-	protected Bucket4JConfiguration getOrUpdateFilterFromCache(CacheManager<String,Bucket4JConfiguration> configCacheManager, Bucket4JConfiguration filter) {
-		if(filter.getId() == null) return filter;
-		Bucket4JConfiguration cachedFilter = configCacheManager.getValue(filter.getId());
+	protected Bucket4JConfiguration getOrUpdateConfigurationFromCache(Bucket4JConfiguration filter) {
+		//if caching is disabled or if the filter does not have an id, return the provided filter
+		if(this.configCacheManager == null || filter.getId() == null) return filter;
+
+		Bucket4JConfiguration cachedFilter = this.configCacheManager.getValue(filter.getId());
 		if (cachedFilter != null && cachedFilter.getBucket4JVersionNumber() >= filter.getBucket4JVersionNumber()) {
 			return cachedFilter;
 		} else{
-			configCacheManager.setValue(filter.getId(), filter);
+			this.configCacheManager.setValue(filter.getId(), filter);
 		}
 		return filter;
 	}
