@@ -23,15 +23,17 @@ public class IgniteCacheResolver implements AsyncCacheResolver {
 	public ProxyManagerWrapper resolve(String cacheName) {
 		org.apache.ignite.IgniteCache<String, byte[]> cache = ignite.cache(cacheName);
 		IgniteProxyManager<String> igniteProxyManager = new IgniteProxyManager<>(cache);
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			AsyncBucketProxy bucket = igniteProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			AsyncBucketProxy bucket = igniteProxyManager.asAsync().builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
 
 	@Override
 	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return null;
+		return new IgniteCacheManager<>(ignite.cache(cacheName));
 	}
 
 }
