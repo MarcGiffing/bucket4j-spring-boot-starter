@@ -1,19 +1,9 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
-import java.util.ArrayList;
-import java.util.List;
+public interface CacheListener<K,V> {
 
-public abstract class CacheListener<K,V> {
-	private final List<CacheUpdateListener<K,V>> listeners = new ArrayList<>();
-	public void addCacheUpdateListener(CacheUpdateListener<K,V> handler) {
-		listeners.add(handler);
-	}
+	void addCacheUpdateListener(CacheUpdateListener<K,V> listener);
 
-	public void removeCacheUpdateListener(CacheUpdateListener<K,V> handler){
-		listeners.remove(handler);
-	}
+	void removeCacheUpdateListener(CacheUpdateListener<K,V> listener);
 
-	public void onCacheUpdateEvent(CacheUpdateEvent<K, V> event) {
-		listeners.forEach(x -> x.onCacheUpdateEvent(event));
-	}
 }
