@@ -33,8 +33,10 @@ public class LettuceCacheResolver implements AsyncCacheResolver {
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();
 		
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			AsyncBucketProxy bucket = proxyManager.asAsync().builder().build(key.getBytes(UTF_8), bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			AsyncBucketProxy bucket = proxyManager.asAsync().builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key.getBytes(UTF_8), bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 			

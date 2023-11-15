@@ -43,8 +43,10 @@ public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 
 		FunctionalMapImpl<String, byte[]> functionalMap = FunctionalMapImpl.create(cache.getAdvancedCache());
 		InfinispanProxyManager<String> infinispanProxyManager = new InfinispanProxyManager<>(ReadWriteMapImpl.create(functionalMap));
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			Bucket bucket = infinispanProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			Bucket bucket = infinispanProxyManager.builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}

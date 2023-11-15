@@ -95,14 +95,20 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 			var executionPredicate = prepareExecutionPredicates(rl);
 			var skipPredicate = prepareSkipPredicates(rl);
 			var bucketConfiguration = configurationBuilder.build();
-
 			RateLimitCheck<R> rlc = servletRequest -> {
 		        var skipRateLimit = performSkipRateLimitCheck(expressionParser, beanFactory, rl, executionPredicate, skipPredicate, servletRequest);
 		        if(!skipRateLimit) {
 		        	var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, servletRequest);
 		        	log.debug("try-and-consume;key:{};tokens:{}", key, rl.getNumTokens());
-		        	return proxyWrapper.tryConsumeAndReturnRemaining(key, rl.getNumTokens(), bucketConfiguration, metricBucketListener);
+		        	return proxyWrapper.tryConsumeAndReturnRemaining(
+							key,
+							rl.getNumTokens(),
+							bucketConfiguration,
+							metricBucketListener,
+							config.getBucket4JVersionNumber(),
+							rl.getTokensInheritanceStrategy()
+					);
 		        }
 				return null;
 			};

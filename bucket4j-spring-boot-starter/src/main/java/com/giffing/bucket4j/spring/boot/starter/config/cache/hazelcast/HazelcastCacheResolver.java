@@ -34,9 +34,11 @@ public class HazelcastCacheResolver implements AsyncCacheResolver {
 	public ProxyManagerWrapper resolve(String cacheName) {
 		IMap<String, byte[]> map = hazelcastInstance.getMap(cacheName);
 		HazelcastProxyManager<String> hazelcastProxyManager = new HazelcastProxyManager<>(map);
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
 			if(async) {
-				AsyncBucketProxy bucket = hazelcastProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
+				AsyncBucketProxy bucket = hazelcastProxyManager.asAsync().builder()
+						.withImplicitConfigurationReplacement(version, replaceStrategy)
+						.build(key, bucketConfiguration).toListenable(metricsListener);
 				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));	
 			} else {
 				Bucket bucket = hazelcastProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);

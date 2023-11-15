@@ -28,8 +28,10 @@ public class InfinispanCacheResolver implements AsyncCacheResolver {
 	public ProxyManagerWrapper resolve(String cacheName) {
 		Cache<String, byte[]> cache = cacheContainer.getCache(cacheName);
 		InfinispanProxyManager<String> infinispanProxyManager = new InfinispanProxyManager<>(toMap(cache));
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			AsyncBucketProxy bucket = infinispanProxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			AsyncBucketProxy bucket = infinispanProxyManager.asAsync().builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}

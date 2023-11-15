@@ -33,8 +33,10 @@ public class JedisCacheResolver implements SyncCacheResolver {
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();
 		
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			Bucket bucket = proxyManager.builder().build(key.getBytes(UTF_8), bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			Bucket bucket = proxyManager.builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key.getBytes(UTF_8), bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 			
@@ -42,6 +44,6 @@ public class JedisCacheResolver implements SyncCacheResolver {
 
 	@Override
 	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return null;
+		return new JedisCacheManager<>(pool, cacheName, String.class, Bucket4JConfiguration.class);
 	}
 }
