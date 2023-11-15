@@ -34,15 +34,17 @@ public class JCacheCacheResolver implements SyncCacheResolver {
 		}
 
 		JCacheProxyManager<String> jCacheProxyManager = new JCacheProxyManager<>(springCache);
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			Bucket bucket = jCacheProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			Bucket bucket = jCacheProxyManager.builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
 
 	@Override
 	public com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return null;
+		return new JCacheCacheManager<>(cacheManager.getCache(cacheName));
 	}
 
 }
