@@ -1,4 +1,4 @@
-debug: true
+debug: false
 logging:
   level:
     com.giffing.bucket4j: debug
@@ -15,6 +15,7 @@ bucket4j:
   cache-to-use: redis-lettuce
   filters:
     - cache-name: buckets_test
+      id: filter1
       filter-method: webflux
       url: ^(/hello).*
       rate-limits:
@@ -23,6 +24,7 @@ bucket4j:
               time: 10
               unit: seconds
     - cache-name: buckets_test
+      id: filter2
       filter-method: webflux
       url: ^(/world).*
       rate-limits:
@@ -30,7 +32,11 @@ bucket4j:
             - capacity: 10
               time: 10
               unit: seconds
+  filter-config-caching-enabled: true
 
 spring:
   main:
     allow-bean-definition-overriding: true
+  data:
+    redis:
+      port: 6379

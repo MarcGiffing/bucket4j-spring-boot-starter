@@ -44,6 +44,6 @@ public class LettuceCacheResolver implements AsyncCacheResolver {
 
 	@Override
 	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return null;
+		return new LettuceCacheManager<>(redisClient, cacheName, String.class, Bucket4JConfiguration.class);
 	}
 }

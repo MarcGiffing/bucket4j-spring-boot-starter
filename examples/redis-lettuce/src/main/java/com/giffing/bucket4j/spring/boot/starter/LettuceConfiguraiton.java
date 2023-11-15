@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class LettuceConfiguraiton {
 
     @Bean
-    public RedisClient redisClient(@Value("${spring.redis.port}") String port) {
+    public RedisClient redisClient(@Value("${spring.data.redis.port}") String port) {
         return RedisClient.create("redis://password@localhost:%s/".formatted(port));
     }
 
