@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

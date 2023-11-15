@@ -1,4 +1,4 @@
-debug: true
+debug: false
 logging:
   level:
     com.giffing.bucket4j: debug
@@ -15,20 +15,31 @@ bucket4j:
   cache-to-use: redis-jedis
   filters:
     - cache-name: buckets_test
+      major-version: 2
       url: ^(/hello).*
+      id: filter1
       rate-limits:
         - bandwidths:
             - capacity: 5
               time: 10
               unit: seconds
+              refill-speed: interval
     - cache-name: buckets_test
       url: ^(/world).*
+      id: filter2
       rate-limits:
         - bandwidths:
             - capacity: 10
               time: 10
               unit: seconds
+              refill-speed: interval
+  filter-config-caching-enabled: true
 
 spring:
   main:
     allow-bean-definition-overriding: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
