@@ -4,4 +4,7 @@
     <cache name="buckets">
         <management-enabled>true</management-enabled>
     </cache>
+    <cache name="filterConfigCache">
+        <management-enabled>true</management-enabled>
+    </cache>
 </hazelcast>

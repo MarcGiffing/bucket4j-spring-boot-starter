@@ -1,15 +1,22 @@
 spring:
   cache:
     type: jcache
-    jcache:      provider: com.hazelcast.cache.impl.HazelcastServerCachingProvider
-  main:    allow-bean-definition-overriding: true
+    jcache:
+      provider: com.hazelcast.cache.impl.HazelcastServerCachingProvider
+  main:
+    allow-bean-definition-overriding: true
 bucket4j:
   enabled: true
   filters:
   - cache-name: buckets
+    id: filter1
     url: .*
     rate-limits:
-    - bandwidths:
+    - tokens-inheritance-strategy: proportionally
+      bandwidths:
       - capacity: 5
         time: 10
         unit: seconds
+        refill-speed: interval
+
+  filter-config-caching-enabled: true
