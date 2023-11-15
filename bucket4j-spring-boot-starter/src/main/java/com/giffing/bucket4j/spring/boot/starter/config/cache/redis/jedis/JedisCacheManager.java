@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import redis.clients.jedis.Connection;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -54,6 +53,7 @@ public class JedisCacheManager<K, V> extends CacheManager<K, V> {
 			String serializedKey = objectMapper.writeValueAsString(key);
 			String serializedValue = objectMapper.writeValueAsString(value);
 			jedis.hset(this.cacheName, serializedKey, serializedValue);
+
 			jedis.publish(cacheName, serializedKey + KEY_VALUE_EVENT_DELIMITER + serializedValue);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
