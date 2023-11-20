@@ -1,20 +1,21 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
-import java.time.temporal.ChronoUnit;
-
-import io.micrometer.common.util.StringUtils;
-import jakarta.validation.constraints.*;
-
 import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
-
+import io.micrometer.common.util.StringUtils;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Configures the rate of data which should be transfered
  *
  */
 @Data
-public class BandWidth {
+public class BandWidth implements Serializable {
 
 	private String id;
 

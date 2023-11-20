@@ -1,22 +1,17 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
+import io.github.bucket4j.TokensInheritanceStrategy;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
-
-import io.github.bucket4j.TokensInheritanceStrategy;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
-
-import lombok.Data;
-
 @Data
-public class RateLimit {
+public class RateLimit implements Serializable {
 	
 	/**
 	 * SpEl condition to check if the rate limit should be executed. If null there is no check. 

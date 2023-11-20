@@ -1,27 +1,24 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import io.micrometer.common.util.StringUtils;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.ToString;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.micrometer.common.util.StringUtils;
-import jakarta.validation.constraints.*;
-
-import org.springframework.core.Ordered;
-
-import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-
-import lombok.Data;
-import lombok.ToString;
-import org.springframework.http.HttpStatus;
-
 @Data
 @ToString
-public class Bucket4JConfiguration {
+public class Bucket4JConfiguration implements Serializable {
 
 	/**
 	 * The cache name. Should be provided or an exception is thrown
