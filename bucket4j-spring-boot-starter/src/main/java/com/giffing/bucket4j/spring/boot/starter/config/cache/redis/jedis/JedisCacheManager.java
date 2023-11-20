@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -13,24 +13,28 @@ public class JedisCacheManager<K, V> extends CacheManager<K, V> {
 
 	private final JedisPool pool;
 	private final String cacheName;
+	private final Class<K> keyType;
 	private final Class<V> valueType;
 	private final ObjectMapper objectMapper;
-	private final static String KEY_VALUE_EVENT_DELIMITER = "{split}";
+	private final String updateChannel;
 
 	public JedisCacheManager(JedisPool pool, String cacheName, Class<K> keyType, Class<V> valueType) {
-		super(new JedisCacheListener<>(cacheName, keyType, valueType, KEY_VALUE_EVENT_DELIMITER));
+		super(new JedisCacheListener<>(cacheName, keyType, valueType));
 		this.pool = pool;
 		this.cacheName = cacheName;
+		this.keyType = keyType;
 		this.valueType = valueType;
-		this.objectMapper = new ObjectMapper();
 
-		subscribe((JedisCacheListener<String, Bucket4JConfiguration>) super.cacheListener);
+		this.objectMapper = new ObjectMapper();
+		this.updateChannel = cacheName.concat(":update");
+
+		subscribe((JedisCacheListener<K, V>) super.cacheListener);
 	}
 
-	public void subscribe(JedisCacheListener<String, Bucket4JConfiguration> listener) {
+	public void subscribe(JedisCacheListener<K, V> listener) {
 		new Thread(() -> {
 			try (Jedis jedis = pool.getResource()) {
-				jedis.subscribe(listener, cacheName);
+				jedis.subscribe(listener, updateChannel);
 			} catch (Exception e) {
 				log.warn("Failed to instantiate the Jedis subscriber. {}",e.getMessage());
 			}
@@ -43,6 +47,7 @@ public class JedisCacheManager<K, V> extends CacheManager<K, V> {
 			String serializedValue = jedis.hget(cacheName, objectMapper.writeValueAsString(key));
 			return serializedValue != null ? objectMapper.readValue(serializedValue, this.valueType) : null;
 		} catch (JsonProcessingException e) {
+			log.warn("Exception occurred while retrieving key '{}' from cache '{}'. Message: {}", key, cacheName, e.getMessage());
 			return null;
 		}
 	}
@@ -50,12 +55,19 @@ public class JedisCacheManager<K, V> extends CacheManager<K, V> {
 	@Override
 	public void setValue(K key, V value) {
 		try (Jedis jedis = pool.getResource()) {
+			V oldValue = getValue(key);
+
 			String serializedKey = objectMapper.writeValueAsString(key);
 			String serializedValue = objectMapper.writeValueAsString(value);
 			jedis.hset(this.cacheName, serializedKey, serializedValue);
 
-			jedis.publish(cacheName, serializedKey + KEY_VALUE_EVENT_DELIMITER + serializedValue);
+			//publish an update event if the key already existed
+			if(oldValue != null){
+				CacheUpdateEvent<K,V> updateEvent = new CacheUpdateEvent<>(key, oldValue, value);
+				jedis.publish(this.updateChannel, objectMapper.writeValueAsString(updateEvent));
+			}
 		} catch (JsonProcessingException e) {
+			log.warn("Exception occurred while setting key '{}' in cache '{}'. Message: {}", key, cacheName, e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}

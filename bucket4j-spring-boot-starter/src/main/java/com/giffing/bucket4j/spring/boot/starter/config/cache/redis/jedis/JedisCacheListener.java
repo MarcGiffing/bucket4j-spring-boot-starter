@@ -1,6 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
@@ -10,43 +11,18 @@ import redis.clients.jedis.JedisPubSub;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
-public class JedisCacheListener<K,V> extends JedisPubSub implements CacheListener<K,V> {
+public class JedisCacheListener<K, V> extends JedisPubSub implements CacheListener<K, V> {
 
-	private final List<CacheUpdateListener<K,V>> updateListeners = new ArrayList<>();
+	private final List<CacheUpdateListener<K, V>> updateListeners = new ArrayList<>();
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final String cacheName;
-	private final Class<K> keyType;
-	private final Class<V> valueType;
-	private final String keyValueDelimiterPattern;
-	public JedisCacheListener(String cacheName, Class<K> keyType, Class<V> valueType, String keyValueDelimiter){
-		this.cacheName = cacheName;
-		this.keyType = keyType;
-		this.valueType = valueType;
-		keyValueDelimiterPattern = Pattern.quote(keyValueDelimiter);
-	}
+	private final String updateChannel;
+	private final JavaType deserializeType;
 
-	@Override
-	public void onMessage(String channel, String message) {
-		if(channel.equalsIgnoreCase(cacheName)){
-			String[] parts = message.split(keyValueDelimiterPattern, 2);
-			if (parts.length == 2) {
-				String serializedKey = parts[0];
-				String serializedValue = parts[1];
-
-				try {
-					K key = objectMapper.readValue(serializedKey, keyType);
-					V value = objectMapper.readValue(serializedValue, valueType);
-
-					this.updateListeners.forEach(x -> x.onCacheUpdateEvent(new CacheUpdateEvent<>(key, null, value)));
-				} catch (JsonProcessingException e) {
-					log.debug("Failed to process Jedis Message. {}", e.getMessage());
-				}
-			}
-		}
+	public JedisCacheListener(String cacheName, Class<K> keyType, Class<V> valueType) {
+		this.updateChannel = cacheName.concat(":update");
+		this.deserializeType = objectMapper.getTypeFactory().constructParametricType(CacheUpdateEvent.class, keyType, valueType);
 	}
 
 	@Override
@@ -57,5 +33,23 @@ public class JedisCacheListener<K,V> extends JedisPubSub implements CacheListene
 	@Override
 	public void removeCacheUpdateListener(CacheUpdateListener<K, V> listener) {
 		updateListeners.remove(listener);
+	}
+
+	@Override
+	public void onMessage(String channel, String message) {
+		if (channel.equals(updateChannel)) {
+			onCacheUpdateEvent(message);
+		} else {
+			log.debug("Unsupported cache event received of type ");
+		}
+	}
+
+	private void onCacheUpdateEvent(String message) {
+		try {
+			CacheUpdateEvent<K, V> event = objectMapper.readValue(message, deserializeType);
+			this.updateListeners.forEach(x -> x.onCacheUpdateEvent(event));
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
