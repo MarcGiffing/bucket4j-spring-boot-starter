@@ -7,4 +7,12 @@
     <cache name="filterConfigCache">
         <management-enabled>true</management-enabled>
     </cache>
+
+    <network>
+        <join>
+            <tcp-ip enabled="true">
+                <interface>127.0.0.1</interface>
+            </tcp-ip>
+        </join>
+    </network>
 </hazelcast>

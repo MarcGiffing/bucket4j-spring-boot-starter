@@ -4,6 +4,14 @@
            xsi:schemaLocation="http://www.hazelcast.com/schema/config
            http://www.hazelcast.com/schema/config/hazelcast-config-4.1.xsd">
 
+    <network>
+        <join>
+            <tcp-ip enabled="true">
+                <interface>127.0.0.1</interface>
+            </tcp-ip>
+        </join>
+    </network>
+
     <map name="buckets">
 		<time-to-live-seconds>120</time-to-live-seconds>
 		<in-memory-format>BINARY</in-memory-format>
