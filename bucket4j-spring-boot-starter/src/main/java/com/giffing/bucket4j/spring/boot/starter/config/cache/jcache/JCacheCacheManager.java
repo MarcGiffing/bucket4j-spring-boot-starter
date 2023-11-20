@@ -14,9 +14,10 @@ public class JCacheCacheManager<K, V> extends CacheManager<K, V> {
 		this.cache = cache;
 
 		JCacheCacheListener<K, V> cacheListener = (JCacheCacheListener<K, V>) super.cacheListener;
+
 		cache.registerCacheEntryListener(
 				new MutableCacheEntryListenerConfiguration<K, V>
-						(FactoryBuilder.factoryOf(cacheListener), null, false, false));
+						(FactoryBuilder.factoryOf(cacheListener), null, false, true));
 	}
 
 	@Override
