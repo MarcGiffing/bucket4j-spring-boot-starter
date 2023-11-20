@@ -2,19 +2,22 @@ spring:
   cache:
     cache-names:
     - buckets_test
+    - filterConfigCache
     caffeine:
       spec: maximumSize=1000000,expireAfterAccess=3600s
 bucket4j:
   enabled: true
   filters:
-  - cache-name: buckets_test
+  - id: filter1
+    cache-name: buckets_test
     url: ^(/hello).*
     rate-limits:
     - bandwidths:
       - capacity: 5
         time: 10
         unit: seconds
-  - cache-name: buckets_test
+  - id: filter2
+    cache-name: buckets_test
     url: ^(/world).*
     rate-limits:
     - bandwidths:
