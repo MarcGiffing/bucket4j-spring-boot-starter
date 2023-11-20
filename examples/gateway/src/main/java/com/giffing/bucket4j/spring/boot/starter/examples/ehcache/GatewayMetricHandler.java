@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
+package com.giffing.bucket4j.spring.boot.starter.examples.ehcache;
 
 import java.util.List;
 import java.util.stream.Collectors;

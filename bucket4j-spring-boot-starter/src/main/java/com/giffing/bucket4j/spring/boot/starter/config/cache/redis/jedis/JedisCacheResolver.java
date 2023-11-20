@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
@@ -12,8 +10,11 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager;
-import java.time.Duration;
 import redis.clients.jedis.JedisPool;
+
+import java.time.Duration;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class is the Redis implementation of the {@link CacheResolver}.

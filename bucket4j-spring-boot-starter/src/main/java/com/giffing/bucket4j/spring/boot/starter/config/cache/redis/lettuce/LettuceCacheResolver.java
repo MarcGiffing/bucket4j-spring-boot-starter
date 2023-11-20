@@ -1,7 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
@@ -13,7 +11,10 @@ import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
+
 import java.time.Duration;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class is the Redis implementation of the {@link CacheResolver}.

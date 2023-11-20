@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
+package com.giffing.bucket4j.spring.boot.starter.examples.ehcache;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -9,9 +9,9 @@ import com.hazelcast.map.listener.EntryUpdatedListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HazelcastCacheListener<K,V> implements CacheListener<K,V>, EntryUpdatedListener<K,V> {
+public class HazelcastCacheListener<K, V> implements CacheListener<K, V>, EntryUpdatedListener<K, V> {
 
-	private final List<CacheUpdateListener<K,V>> cacheUpdateListeners = new ArrayList<>();
+	private final List<CacheUpdateListener<K, V>> cacheUpdateListeners = new ArrayList<>();
 
 	@Override
 	public void addCacheUpdateListener(CacheUpdateListener<K, V> listener) {
@@ -24,7 +24,7 @@ public class HazelcastCacheListener<K,V> implements CacheListener<K,V>, EntryUpd
 	}
 
 	@Override
-	public void entryUpdated(EntryEvent<K,V> entryEvent) {
+	public void entryUpdated(EntryEvent<K, V> entryEvent) {
 		CacheUpdateEvent<K, V> updateEvent = new CacheUpdateEvent<>(entryEvent.getKey(), entryEvent.getOldValue(), entryEvent.getValue());
 		cacheUpdateListeners.forEach(x -> x.onCacheUpdateEvent(updateEvent));
 	}

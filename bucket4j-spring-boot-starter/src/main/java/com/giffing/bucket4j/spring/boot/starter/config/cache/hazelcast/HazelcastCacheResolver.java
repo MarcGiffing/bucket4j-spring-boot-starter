@@ -41,7 +41,9 @@ public class HazelcastCacheResolver implements AsyncCacheResolver {
 						.build(key, bucketConfiguration).toListenable(metricsListener);
 				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));	
 			} else {
-				Bucket bucket = hazelcastProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+				Bucket bucket = hazelcastProxyManager.builder()
+						.withImplicitConfigurationReplacement(version, replaceStrategy)
+						.build(key, bucketConfiguration).toListenable(metricsListener);
 				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 			}
 			
