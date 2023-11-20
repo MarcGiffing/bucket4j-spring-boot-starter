@@ -17,7 +17,7 @@ public class JCacheCacheManager<K, V> extends CacheManager<K, V> {
 
 		cache.registerCacheEntryListener(
 				new MutableCacheEntryListenerConfiguration<K, V>
-						(FactoryBuilder.factoryOf(cacheListener), null, false, true));
+						(FactoryBuilder.factoryOf(cacheListener), null, true, false));
 	}
 
 	@Override
