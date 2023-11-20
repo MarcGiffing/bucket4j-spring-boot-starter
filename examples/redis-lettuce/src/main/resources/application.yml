@@ -34,6 +34,7 @@ bucket4j:
               time: 10
               unit: seconds
               refill-speed: interval
+  filter-config-caching-enabled: true
 
 spring:
   main:
