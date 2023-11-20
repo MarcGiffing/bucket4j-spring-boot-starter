@@ -18,7 +18,6 @@ import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -136,7 +135,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 						cacheResolver.resolve(newConfig.getCacheName()),
 						servletFilterExpressionParser, beanFactory);
 				filter.setFilterConfig(newFilterConfig);
-			} catch (BeansException exception) {
+			} catch (Exception exception) {
 				log.warn("Failed to update Servlet Filter configuration. {}", exception.getMessage());
 			}
 		}
