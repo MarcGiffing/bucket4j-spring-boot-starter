@@ -23,6 +23,7 @@ bucket4j:
             - capacity: 5
               time: 10
               unit: seconds
+              refill-speed: interval
     - cache-name: buckets_test
       id: filter2
       filter-method: webflux
@@ -32,7 +33,7 @@ bucket4j:
             - capacity: 10
               time: 10
               unit: seconds
-  filter-config-caching-enabled: true
+              refill-speed: interval
 
 spring:
   main:

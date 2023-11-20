@@ -19,7 +19,8 @@ bucket4j:
       url: ^(/hello).*
       id: filter1
       rate-limits:
-        - bandwidths:
+        - tokens-inheritance-strategy: reset
+          bandwidths:
             - capacity: 5
               time: 10
               unit: seconds
@@ -28,7 +29,8 @@ bucket4j:
       url: ^(/world).*
       id: filter2
       rate-limits:
-        - bandwidths:
+        - tokens-inheritance-strategy: reset
+          bandwidths:
             - capacity: 10
               time: 10
               unit: seconds

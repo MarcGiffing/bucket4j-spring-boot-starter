@@ -13,23 +13,38 @@ bucket4j:
   enabled: true
   cache-to-use: redis-redisson
   filters:
-    - cache-name: buckets_test
+    - id: filter1
+      major-version: 1
+      cache-name: buckets_test
       filter-method: webflux
       url: ^(/hello).*
       rate-limits:
-        - bandwidths:
-            - capacity: 5
+        - tokens-inheritance-strategy: reset
+          bandwidths:
+            - id: bandwidth1
+              capacity: 5
               time: 10
               unit: seconds
-    - cache-name: buckets_test
+              refill-speed: interval
+    - id: filter2
+      major-version: 1
+      cache-name: buckets_test
       filter-method: webflux
       url: ^(/world).*
       rate-limits:
-        - bandwidths:
-            - capacity: 10
+        - tokens-inheritance-strategy: reset
+          bandwidths:
+            - id: bandwidth3
+              capacity: 10
               time: 10
               unit: seconds
+              refill-speed: interval
+  filter-config-caching-enabled: true
 
 spring:
   main:
     allow-bean-definition-overriding: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
