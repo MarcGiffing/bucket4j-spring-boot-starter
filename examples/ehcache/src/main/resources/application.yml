@@ -11,8 +11,12 @@ spring:
       config: classpath:ehcache.xml
 bucket4j:
   enabled: true
+  filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
   filters:
-  - cache-name: buckets
+  - id: filter1
+    major-version: 1
+    cache-name: buckets
     filter-method: servlet
     filter-order: -200
     http-content-type: application/json;charset=UTF-8
@@ -28,7 +32,9 @@ bucket4j:
       - capacity: 30
         time: 1
         unit: minutes
-  - cache-name: buckets   
+  - id: filter2
+    major-version: 1
+    cache-name: buckets
     filter-method: servlet
     filter-order: 1
     http-content-type: application/json;charset=UTF-8
@@ -41,12 +47,14 @@ bucket4j:
           expression: getRequestURI()
     rate-limits:
     - execute-condition:  "@securityService.username() == 'admin'"
+      skip-condition: "getRequestURI().contains('filter')"
       cache-key: "@securityService.username()?: getRemoteAddr()"
       bandwidths:
       - capacity: 30
         time: 1
         unit: minutes
     - execute-condition: "@securityService.username() != 'admin'"
+      skip-condition: "getRequestURI().contains('filter')"
       cache-key: "@securityService.username()?: getRemoteAddr()"
       bandwidths:
       - capacity: 5

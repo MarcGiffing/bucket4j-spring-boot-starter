@@ -17,7 +17,9 @@ public class SecurityConfig {
 		http.authorizeHttpRequests().requestMatchers("/unsecure").permitAll();
 		http.authorizeHttpRequests().requestMatchers("/login").permitAll();
 		http.authorizeHttpRequests().requestMatchers("/secure").hasAnyRole("ADMIN", "USER");
-		return http.build();
+		http.authorizeHttpRequests().requestMatchers("/hello").permitAll();
+		http.authorizeHttpRequests().requestMatchers("/filters/**").permitAll();
+		return http.csrf().disable().build();
 	}
 
 	@Bean

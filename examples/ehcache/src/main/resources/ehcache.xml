@@ -10,5 +10,9 @@
 		<heap unit="entries">1000000</heap>
 		<jsr107:mbeans enable-statistics="true"/>
 	</cache>
+    <cache alias="filterConfigCache">
+        <heap unit="entries">1000000</heap>
+        <jsr107:mbeans enable-statistics="true"/>
+    </cache>
 
 </config>
