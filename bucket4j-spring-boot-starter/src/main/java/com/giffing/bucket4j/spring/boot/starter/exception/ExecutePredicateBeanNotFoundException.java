@@ -10,6 +10,7 @@ public class ExecutePredicateBeanNotFoundException extends Bucket4jGeneralExcept
 	private final String executePredicateName;
 	
 	public ExecutePredicateBeanNotFoundException(String executePredicateName) {
+		super("You've configured the '%s' execution predicate which doesn't exists.".formatted(executePredicateName));
 		this.executePredicateName = executePredicateName;
 	}
 	

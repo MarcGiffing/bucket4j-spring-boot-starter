@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import io.micrometer.common.util.StringUtils;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.ToString;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @Data
 @ToString
@@ -43,7 +46,18 @@ public class Bucket4JConfiguration implements Serializable {
 	 */
 	@NotBlank
 	private String url = ".*";
-	
+
+	@AssertTrue(message = "Invalid filter URL regex pattern.")
+	@JsonIgnore
+	public boolean isUrlValid(){
+		try{
+			Pattern.compile(url);
+			return !url.equals("/*");
+		} catch (PatternSyntaxException e) {
+			return false;
+		}
+	}
+
 	/**
 	 * The filter order has a default of the highest precedence reduced by 10
 	 */
@@ -51,6 +65,7 @@ public class Bucket4JConfiguration implements Serializable {
 	private Integer filterOrder = Ordered.HIGHEST_PRECEDENCE + 10;
 
 	@NotEmpty
+	@Valid
 	private List<RateLimit> rateLimits = new ArrayList<>();
 	
 	/**
@@ -83,6 +98,7 @@ public class Bucket4JConfiguration implements Serializable {
 	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 
+	@Valid
 	private Metrics metrics = new Metrics();
 
 	/**

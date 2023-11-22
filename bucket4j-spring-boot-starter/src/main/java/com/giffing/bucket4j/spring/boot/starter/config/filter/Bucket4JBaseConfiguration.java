@@ -1,50 +1,36 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
-import java.lang.reflect.InvocationTargetException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
-import com.giffing.bucket4j.spring.boot.starter.exception.*;
-import io.github.bucket4j.*;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.*;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
+import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.ConfigurationBuilder;
+import io.github.bucket4j.Refill;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.Condition;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
-import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -64,10 +50,12 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 	 * This field will be null if configuration caching is disabled
 	 */
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
+	private final Bucket4JConfigurationPredicateValidator configValidator;
 
-	public Bucket4JBaseConfiguration(Bucket4JBootProperties properties, CacheResolver cacheResolver){
+	public Bucket4JBaseConfiguration(Bucket4JBootProperties properties, CacheResolver cacheResolver, Bucket4JConfigurationPredicateValidator configValidator){
 		this.properties = properties;
 		this.cacheResolver = cacheResolver;
+		this.configValidator = configValidator;
 		if(properties.isFilterConfigCachingEnabled()){
 			String cacheName = properties.getFilterConfigCacheName();
 			configCacheManager = cacheResolver.resolveConfigCacheManager(cacheName);
@@ -84,8 +72,8 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 			ProxyManagerWrapper proxyWrapper,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
-		
-		validate(config);
+
+		this.configValidator.validatePredicates(config);
 		
 		FilterConfiguration<R> filterConfig = mapFilterConfiguration(config);
 		
@@ -160,87 +148,6 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 	}
 
 	protected abstract ExecutePredicate<R> getExecutePredicateByName(String name);
-	
-	protected void validate(Bucket4JConfiguration config) {
-		throwExceptionOnInvalidFilterUrl(config);
-		validateRateLimit(config);
-		validatePredicates(config);
-		validateMetricTags(config);
-	}
-	
-	private void throwExceptionOnInvalidFilterUrl(Bucket4JConfiguration filterConfig) {
-		try {
-			Pattern.compile(filterConfig.getUrl());
-			if(filterConfig.getUrl().equals("/*")) {
-				throw new PatternSyntaxException(filterConfig.getUrl(), "/*", 0);
-			}
-		} catch( PatternSyntaxException exception) {
-			throw new FilterURLInvalidException(filterConfig.getUrl(), exception.getDescription());
-		}
-	}
-	
-	private void validateRateLimit(Bucket4JConfiguration config) {
-		config
-			.getRateLimits()
-			.forEach(rl -> {
-				var cacheKeyexpression = rl.getCacheKey();
-				if (!StringUtils.hasText(cacheKeyexpression)) {
-					throw new MissingKeyFilterExpressionException();
-				}
-				validateBandwidths(config, rl);
-			});
-	}
-
-	private void validateBandwidths(Bucket4JConfiguration config, RateLimit rateLimit){
-		// When there is more than 1 bandwidth, they either need to have an id, or TokensInheritanceStrategy.RESET has to
-		// be applied when replacing a Bucket4j bucket configuration. When bandwidths have an id, the id has to be unique.
-		if(rateLimit.getBandwidths().size() > 1){
-			Set<String> idSet = new HashSet<>();
-			for (BandWidth bandWidth : rateLimit.getBandwidths()) {
-				String id = bandWidth.getId();
-				if(id == null && rateLimit.getTokensInheritanceStrategy() == TokensInheritanceStrategy.RESET) continue;
-				if (!idSet.add(bandWidth.getId())) {
-					throw new DuplicateBandwidthIdException(config.getId(), bandWidth.getId());
-				}
-			}
-		}
-
-	}
-
-	private void validatePredicates(Bucket4JConfiguration config) {
-		var executePredicates = config
-				.getRateLimits()
-				.stream()
-				.map(r -> r.getExecutePredicates());
-		var skipPredicates = config
-				.getRateLimits()
-				.stream()
-				.map(r -> r.getSkipPredicates());
-		
-		var allExecutePredicateNames = Stream.concat(executePredicates, skipPredicates)
-				.flatMap(List::stream)
-				.map(x -> x.getName())
-				.distinct().collect(Collectors.toSet());
-			allExecutePredicateNames.forEach(predicateName -> {
-				if(getExecutePredicateByName(predicateName) == null) {
-					throw new ExecutePredicateBeanNotFoundException(predicateName);
-				}
-			});
-	}
-	
-	private void validateMetricTags(Bucket4JConfiguration config) {
-		config
-			.getMetrics()
-			.getTags()
-			.stream()
-			.forEach(metricMetaTag -> {
-			String expression = metricMetaTag.getExpression();
-			if (!StringUtils.hasText(expression)) {
-				throw new MissingMetricTagExpressionException(metricMetaTag.getKey());
-			}
-		});
-		
-	}
 
 	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
 		var configBuilder = BucketConfiguration.builder();

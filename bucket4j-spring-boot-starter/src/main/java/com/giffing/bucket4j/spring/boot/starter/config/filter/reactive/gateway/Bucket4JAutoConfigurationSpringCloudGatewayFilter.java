@@ -4,6 +4,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JConfigurationPredicateValidator;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -16,7 +17,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfigu
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -69,8 +69,9 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 			AsyncCacheResolver cacheResolver,
 			List<MetricHandler> metricHandlers,
 			Bucket4jConfigurationHolder gatewayConfigurationHolder,
-			ExpressionParser gatewayFilterExpressionParser) {
-		super(properties, cacheResolver);
+			ExpressionParser gatewayFilterExpressionParser,
+			Bucket4JConfigurationPredicateValidator configValidator) {
+		super(properties, cacheResolver, configValidator);
 		this.beanFactory = beanFactory;
 		this.context = context;
 		this.metricHandlers = metricHandlers;

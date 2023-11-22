@@ -12,6 +12,7 @@ public class ExecutePredicateInstantiationException extends Bucket4jGeneralExcep
 	private final Class<?> instantiationException;
 	
 	public ExecutePredicateInstantiationException(String executePredicateName, Class<?> instantiationException) {
+		super("Can't create a new instance for predicate '%s and class %s".formatted(executePredicateName, instantiationException.getName()));
 		this.executePredicateName = executePredicateName;
 		this.instantiationException = instantiationException;
 	}

@@ -4,6 +4,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JConfigurationPredicateValidator;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -75,8 +76,9 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			List<MetricHandler> metricHandlers,
 			List<ExecutePredicate<ServerHttpRequest>> executePredicates,
 			Bucket4jConfigurationHolder servletConfigurationHolder,
-			ExpressionParser webfluxFilterExpressionParser) {
-		super(properties, cacheResolver);
+			ExpressionParser webfluxFilterExpressionParser,
+			Bucket4JConfigurationPredicateValidator configValidator) {
+		super(properties, cacheResolver, configValidator);
 		this.beanFactory = beanFactory;
 		this.context = context;
 		this.metricHandlers = metricHandlers;
