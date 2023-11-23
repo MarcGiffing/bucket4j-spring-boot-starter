@@ -45,7 +45,7 @@ public class Bucket4JBaseConfigurationTests {
 
 		List<BandWidth> bandWidths = new ArrayList<>();
 		BandWidth bandWidth = new BandWidth();
-//		bandWidth.setId("");
+		bandWidth.setId("id1");
 		bandWidth.setCapacity(10);
 		bandWidth.setTime(10);
 		bandWidth.setUnit(ChronoUnit.DAYS);
@@ -54,12 +54,12 @@ public class Bucket4JBaseConfigurationTests {
 		bandWidths.add(bandWidth);
 
 		BandWidth bandWidth2 = new BandWidth();
-//		bandWidth.setId("");
-		bandWidth.setCapacity(10);
-		bandWidth.setTime(10);
-		bandWidth.setUnit(ChronoUnit.DAYS);
-		bandWidth.setRefillCapacity(100L);
-		bandWidth.setRefillSpeed(RefillSpeed.INTERVAL);
+		bandWidth2.setId("id2");
+		bandWidth2.setCapacity(10);
+		bandWidth2.setTime(10);
+		bandWidth2.setUnit(ChronoUnit.DAYS);
+		bandWidth2.setRefillCapacity(100L);
+		bandWidth2.setRefillSpeed(RefillSpeed.INTERVAL);
 		bandWidths.add(bandWidth2);
 
 		limit.setBandwidths(bandWidths);
