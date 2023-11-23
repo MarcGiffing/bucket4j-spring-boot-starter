@@ -1,5 +1,28 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.*;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
+import com.giffing.bucket4j.spring.boot.starter.exception.*;
+import io.github.bucket4j.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -11,40 +34,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
-import com.giffing.bucket4j.spring.boot.starter.exception.*;
-import io.github.bucket4j.*;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
-
-import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.Condition;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
-import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -101,12 +90,13 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 		        	var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, servletRequest);
 		        	log.debug("try-and-consume;key:{};tokens:{}", key, rl.getNumTokens());
+					final long configVersion = config.getBucket4JVersionNumber();
 		        	return proxyWrapper.tryConsumeAndReturnRemaining(
 							key,
 							rl.getNumTokens(),
 							bucketConfiguration,
 							metricBucketListener,
-							config.getBucket4JVersionNumber(),
+							configVersion,
 							rl.getTokensInheritanceStrategy()
 					);
 		        }
@@ -161,7 +151,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 
 	protected abstract ExecutePredicate<R> getExecutePredicateByName(String name);
 	
-	protected void validate(Bucket4JConfiguration config) {
+	public void validate(Bucket4JConfiguration config) {
 		throwExceptionOnInvalidFilterUrl(config);
 		validateRateLimit(config);
 		validatePredicates(config);
@@ -200,7 +190,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 				String id = bandWidth.getId();
 				if(id == null && rateLimit.getTokensInheritanceStrategy() == TokensInheritanceStrategy.RESET) continue;
 				if (!idSet.add(bandWidth.getId())) {
-					throw new DuplicateBandwidthIdException(config.getId(), bandWidth.getId());
+					throw new DuplicateBandwidthIdException(bandWidth.getId(), config.getId());
 				}
 			}
 		}
