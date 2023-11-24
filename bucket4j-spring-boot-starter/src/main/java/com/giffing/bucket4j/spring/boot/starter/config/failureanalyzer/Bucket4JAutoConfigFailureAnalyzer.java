@@ -1,12 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer;
 
-import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
-import org.springframework.boot.diagnostics.FailureAnalysis;
-
 import com.giffing.bucket4j.spring.boot.starter.exception.Bucket4jGeneralException;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateBeanNotFoundException;
 import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
+import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
+import org.springframework.boot.diagnostics.FailureAnalysis;
 
 /**
  * The failure analyzer is responsible to provide readable information of exception which
@@ -25,11 +23,6 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
 			descriptionMessage = e.getMessage();
 			actionMessage = "Cache name: " + e.getCacheName() + NEW_LINE
 					+ "Please configure your caching provider (ehcache, hazelcast, ...)";
-		}
-		
-		if( cause instanceof ExecutePredicateBeanNotFoundException e) {
-			descriptionMessage = e.getMessage();
-			actionMessage = "Please check if you've spelled it correctly or provide a coressponding ExecutePredicate bean." + NEW_LINE;
 		}
 		
 		if (cause instanceof ExecutePredicateInstantiationException e) {
