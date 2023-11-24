@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidBandWidthIds;
 import io.github.bucket4j.TokensInheritanceStrategy;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -9,11 +9,10 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
+@ValidBandWidthIds
 public class RateLimit implements Serializable {
 	
 	/**
@@ -51,21 +50,6 @@ public class RateLimit implements Serializable {
 
 	@NotEmpty
 	private List<BandWidth> bandwidths = new ArrayList<>();
-
-	@JsonIgnore
-	@AssertTrue(message = "Rate limits cannot contain bandwidths with identical identifiers or null values when " +
-			"using a different inheritance strategy than 'RESET'.")
-	public boolean isBandwidthIdsValid(){
-		Set<String> idSet = new HashSet<>();
-		for (BandWidth bandWidth : bandwidths) {
-			String id = bandWidth.getId();
-			if(id == null && tokensInheritanceStrategy == TokensInheritanceStrategy.RESET) continue;
-			if (!idSet.add(bandWidth.getId())) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * The token inheritance strategy to use when replacing the configuration of a bucket
