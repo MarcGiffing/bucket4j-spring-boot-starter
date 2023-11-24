@@ -15,6 +15,7 @@ import io.github.bucket4j.TokensInheritanceStrategy;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
 
 public class Bucket4JBaseConfigurationTests {
 
@@ -45,7 +45,7 @@ public class Bucket4JBaseConfigurationTests {
 
 		List<BandWidth> bandWidths = new ArrayList<>();
 		BandWidth bandWidth = new BandWidth();
-//		bandWidth.setId("");
+		bandWidth.setId("test");
 		bandWidth.setCapacity(10);
 		bandWidth.setTime(10);
 		bandWidth.setUnit(ChronoUnit.DAYS);
@@ -54,12 +54,12 @@ public class Bucket4JBaseConfigurationTests {
 		bandWidths.add(bandWidth);
 
 		BandWidth bandWidth2 = new BandWidth();
-//		bandWidth.setId("");
-		bandWidth.setCapacity(10);
-		bandWidth.setTime(10);
-		bandWidth.setUnit(ChronoUnit.DAYS);
-		bandWidth.setRefillCapacity(100L);
-		bandWidth.setRefillSpeed(RefillSpeed.INTERVAL);
+		bandWidth.setId("test2");
+		bandWidth2.setCapacity(10);
+		bandWidth2.setTime(10);
+		bandWidth2.setUnit(ChronoUnit.DAYS);
+		bandWidth2.setRefillCapacity(100L);
+		bandWidth2.setRefillSpeed(RefillSpeed.INTERVAL);
 		bandWidths.add(bandWidth2);
 
 		limit.setBandwidths(bandWidths);
