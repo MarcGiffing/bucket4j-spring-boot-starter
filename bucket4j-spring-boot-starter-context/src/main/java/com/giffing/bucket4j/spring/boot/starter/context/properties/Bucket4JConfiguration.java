@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidPredicateNames;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -21,6 +22,7 @@ import java.util.regex.PatternSyntaxException;
 
 @Data
 @ToString
+@ValidPredicateNames
 public class Bucket4JConfiguration implements Serializable {
 
 	/**

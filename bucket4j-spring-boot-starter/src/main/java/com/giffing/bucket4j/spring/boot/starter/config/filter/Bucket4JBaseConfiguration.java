@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListener<String, Bucket4JConfiguration> {
 
-
 	protected final Bucket4JBootProperties properties;
 	protected final CacheResolver cacheResolver;
 
@@ -50,12 +49,10 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 	 * This field will be null if configuration caching is disabled
 	 */
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
-	private final Bucket4JConfigurationPredicateValidator configValidator;
 
-	public Bucket4JBaseConfiguration(Bucket4JBootProperties properties, CacheResolver cacheResolver, Bucket4JConfigurationPredicateValidator configValidator){
+	public Bucket4JBaseConfiguration(Bucket4JBootProperties properties, CacheResolver cacheResolver){
 		this.properties = properties;
 		this.cacheResolver = cacheResolver;
-		this.configValidator = configValidator;
 		if(properties.isFilterConfigCachingEnabled()){
 			String cacheName = properties.getFilterConfigCacheName();
 			configCacheManager = cacheResolver.resolveConfigCacheManager(cacheName);
@@ -73,7 +70,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
 
-		this.configValidator.validatePredicates(config);
+//		this.configValidator.validatePredicates(config);
 		
 		FilterConfiguration<R> filterConfig = mapFilterConfiguration(config);
 		

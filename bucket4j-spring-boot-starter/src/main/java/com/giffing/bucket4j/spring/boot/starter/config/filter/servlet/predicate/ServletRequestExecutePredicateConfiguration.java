@@ -1,12 +1,9 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate;
 
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@AutoConfigureBefore(Bucket4JAutoConfigurationServletFilter.class)
 public class ServletRequestExecutePredicateConfiguration {
 
     @Bean
