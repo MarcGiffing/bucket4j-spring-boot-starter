@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -48,6 +49,7 @@ public class Bucket4JBootProperties {
 	@NotBlank
 	private String filterConfigCacheName = "filterConfigCache";
 
+	@Valid
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 
 	@AssertTrue(message = "FilterConfiguration caching is enabled, but not all filters have an identifier configured")
@@ -58,6 +60,7 @@ public class Bucket4JBootProperties {
 	/**
 	 * A list of default metric tags which should be applied to all filters
 	 */
+	@Valid
 	private List<MetricTag> defaultMetricTags = new ArrayList<>();
 
 	public static String getPropertyPrefix() {

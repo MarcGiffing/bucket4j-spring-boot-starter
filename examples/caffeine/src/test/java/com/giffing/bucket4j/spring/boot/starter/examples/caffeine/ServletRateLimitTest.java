@@ -1,8 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import io.github.bucket4j.TokensInheritanceStrategy;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -15,15 +23,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collections;
-import java.util.stream.IntStream;
-
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,6 +45,9 @@ class ServletRateLimitTest {
 	private Bucket4JBootProperties properties;
 
 	private ObjectMapper objectMapper = new ObjectMapper();
+
+	@Autowired
+	Validator validator;
 
 	@Test
 	@Order(1)
@@ -68,6 +77,19 @@ class ServletRateLimitTest {
 		
 		blockedWebRequestDueToRateLimit(url);
 	}
+
+	@Test
+	@Order(2)
+	void validatorTest(){
+		assertThat(validator.validate(properties)).isEmpty();
+		RateLimit rl = properties.getFilters().get(0).getRateLimits().get(0);
+		rl.setTokensInheritanceStrategy(TokensInheritanceStrategy.AS_IS);
+		rl.getBandwidths().add(new BandWidth());
+		rl.getBandwidths().add(new BandWidth());
+		Set<ConstraintViolation<Bucket4JBootProperties>> violations = validator.validate(properties);
+		assertThat(violations).anyMatch(x -> x.getMessage().contains("Multiple bandwidths without id detected"));
+	}
+
 	@Test
 	@Order(2)
 	void replaceConfigTest() throws Exception {
