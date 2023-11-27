@@ -48,29 +48,10 @@ public class TestController {
 		return ResponseEntity.ok("Hello World");
 	}
 
-//	@PostMapping("filters/{filterId}")
-//	public ResponseEntity updateConfig(
-//			@PathVariable String filterId,
-//			@RequestBody @Valid Bucket4JConfiguration filter,
-//			BindingResult bindingResult) {
-//
-//		if (bindingResult.hasErrors()) {
-//			List<String> errors = bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
-//			return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
-//		}
-//
-//		if (manager.getValue(filterId) == null) {
-//			return ResponseEntity.notFound().build();
-//		}
-//
-//		manager.setValue(filterId, filter);
-//		return ResponseEntity.ok().build();
-//	}
-
 	@PostMapping("filters/{filterId}")
 	public ResponseEntity updateConfig(
 			@PathVariable String filterId,
-			@RequestBody @Valid Bucket4JConfiguration filter,
+			@RequestBody @Valid Bucket4JConfiguration newConfig,
 			BindingResult bindingResult) {
 
 		//validate that there are no errors by the Jakarta validation
@@ -80,7 +61,7 @@ public class TestController {
 		}
 
 		//validate that the id in the path matches the id in the body
-		if (!filter.getId().equals(filterId)) {
+		if (!newConfig.getId().equals(filterId)) {
 			return ResponseEntity.badRequest().body("Filter id in the path does not match the request body.");
 		}
 
@@ -90,17 +71,22 @@ public class TestController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No filter with id '" + filterId + "' could be found.");
 		}
 
+		//validate that the increased
+		if(oldConfig.getBucket4JVersionNumber() >= newConfig.getBucket4JVersionNumber()){
+			return ResponseEntity.badRequest().body("The current filter has a higher version number than the configuration in the request body.");
+		}
+
 		//validate that the fields that are not allowed to change remain the same
 		ResponseEntity<?> response;
-		response = validateFieldEquality("filterMethod", oldConfig.getFilterMethod(), filter.getFilterMethod());
+		response = validateFieldEquality("filterMethod", oldConfig.getFilterMethod(), newConfig.getFilterMethod());
 		if (response != null) return response;
-		response = validateFieldEquality("filterOrder", oldConfig.getFilterOrder(), filter.getFilterOrder());
+		response = validateFieldEquality("filterOrder", oldConfig.getFilterOrder(), newConfig.getFilterOrder());
 		if (response != null) return response;
-		response = validateFieldEquality("cacheName", oldConfig.getCacheName(), filter.getCacheName());
+		response = validateFieldEquality("cacheName", oldConfig.getCacheName(), newConfig.getCacheName());
 		if (response != null) return response;
 
 		//insert the new config into the cache, so it will trigger the cacheUpdateListeners
-		manager.setValue(filterId, filter);
+		manager.setValue(filterId, newConfig);
 		return ResponseEntity.ok().build();
 	}
 

@@ -32,26 +32,25 @@ public class Bucket4JConfigurationPredicateNameValidator implements ConstraintVa
 	}
 
 	@Override
-	public boolean isValid(Bucket4JConfiguration configuration, ConstraintValidatorContext constraintValidatorContext) {
-		return validatePredicates(configuration, constraintValidatorContext);
+	public boolean isValid(Bucket4JConfiguration configuration, ConstraintValidatorContext context) {
+		List<String> invalidPredicates = getInvalidPredicates(configuration);
+		if (!invalidPredicates.isEmpty()) {
+			String errorMessage = buildErrorMessage(invalidPredicates);
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(errorMessage).addConstraintViolation();
+		}
+		return invalidPredicates.isEmpty();
 	}
 
-	public boolean validatePredicates(Bucket4JConfiguration config, ConstraintValidatorContext constraintValidatorContext) {
+	public List<String> getInvalidPredicates(Bucket4JConfiguration config) {
 		Set<String> allExecutePredicateNames = config.getRateLimits().stream()
 				.flatMap(r -> Stream.concat(r.getExecutePredicates().stream(), r.getSkipPredicates().stream()))
 				.map(ExecutePredicateDefinition::getName)
 				.collect(Collectors.toSet());
 
-		List<String> invalidPredicates = allExecutePredicateNames.stream()
+		return allExecutePredicateNames.stream()
 				.filter(predicateName -> filterPredicates.get(config.getFilterMethod()).get(predicateName) == null)
 				.toList();
-
-		if (!invalidPredicates.isEmpty()) {
-			String errorMessage = buildErrorMessage(invalidPredicates);
-			constraintValidatorContext.disableDefaultConstraintViolation();
-			constraintValidatorContext.buildConstraintViolationWithTemplate(errorMessage).addConstraintViolation();
-		}
-		return invalidPredicates.isEmpty();
 	}
 
 	private String buildErrorMessage(List<String> invalidPredicates) {
