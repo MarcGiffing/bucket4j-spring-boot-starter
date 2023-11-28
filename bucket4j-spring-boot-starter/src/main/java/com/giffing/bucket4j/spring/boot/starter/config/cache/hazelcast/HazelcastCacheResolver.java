@@ -2,13 +2,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
@@ -46,12 +43,6 @@ public class HazelcastCacheResolver implements AsyncCacheResolver {
 						.build(key, bucketConfiguration).toListenable(metricsListener);
 				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 			}
-			
 		};
-	}
-	@Override
-	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName){
-		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(cacheName);
-		return new HazelcastCacheManager<>(map);
 	}
 }

@@ -1,6 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
@@ -37,6 +38,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,18 +55,22 @@ import java.util.stream.Collectors;
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @Import(value = {ServletRequestExecutePredicateConfiguration.class, Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
 @Slf4j
-public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>   {
+public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest> implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+
+	private final Bucket4JBootProperties properties;
 
 	private final ConfigurableBeanFactory beanFactory;
-	
-    private final GenericApplicationContext context;
+
+	private final GenericApplicationContext context;
+
+	private final SyncCacheResolver cacheResolver;
 
 	private final List<MetricHandler> metricHandlers;
-	
+
 	private final Map<String, ExecutePredicate<HttpServletRequest>> executePredicates;
-	
+
 	private Bucket4jConfigurationHolder servletConfigurationHolder;
-	
+
 	private ExpressionParser servletFilterExpressionParser;
 	
 	public Bucket4JAutoConfigurationServletFilter(
@@ -75,10 +81,13 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			List<MetricHandler> metricHandlers,
 			List<ExecutePredicate<HttpServletRequest>> executePredicates,
 			Bucket4jConfigurationHolder servletConfigurationHolder,
-			ExpressionParser servletFilterExpressionParser) {
-		super(properties, cacheResolver);
+			ExpressionParser servletFilterExpressionParser,
+			Optional<CacheManager<String, Bucket4JConfiguration>> configCacheManager) {
+		super(configCacheManager.orElse(null));
+		this.properties = properties;
 		this.beanFactory = beanFactory;
 		this.context = context;
+		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
 		this.executePredicates = executePredicates
 				.stream()

@@ -1,16 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,18 +23,35 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass({ HazelcastCacheManager.class })
 @ConditionalOnBean(HazelcastCacheManager.class)
-@ConditionalOnMissingBean(SyncCacheResolver.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "hazelcast-spring", matchIfMissing = true)
 public class HazelcastSpringBucket4jCacheConfiguration {
 	
-	private HazelcastCacheManager hazelcastCacheManager;
-	
-	public HazelcastSpringBucket4jCacheConfiguration(HazelcastCacheManager hazelcastCacheManager) {
-		this.hazelcastCacheManager = hazelcastCacheManager;
+	private final HazelcastInstance hazelcastInstance;
+	private final String configCacheName;
+
+	public HazelcastSpringBucket4jCacheConfiguration(HazelcastCacheManager hazelcastCacheManager, Bucket4JBootProperties properties) {
+		this.hazelcastInstance = hazelcastCacheManager.getHazelcastInstance();
+		this.configCacheName = properties.getFilterConfigCacheName();
 	}
 	
 	@Bean
+	@ConditionalOnMissingBean(SyncCacheResolver.class)
 	public AsyncCacheResolver hazelcastCacheResolver() {
-		return new HazelcastCacheResolver(hazelcastCacheManager.getHazelcastInstance(), false);
+		return new HazelcastCacheResolver(hazelcastInstance, false);
 	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
+		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
+		return new com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.HazelcastCacheManager<>(map);
+	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
+		return new HazelcastCacheListener<>(eventPublisher, map);
+	}
+
 }

@@ -1,19 +1,15 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import org.infinispan.Cache;
-import org.infinispan.functional.impl.FunctionalMapImpl;
-import org.infinispan.functional.impl.ReadWriteMapImpl;
-import org.infinispan.manager.CacheContainer;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
-
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
+import org.infinispan.Cache;
+import org.infinispan.functional.impl.FunctionalMapImpl;
+import org.infinispan.functional.impl.ReadWriteMapImpl;
+import org.infinispan.manager.CacheContainer;
 
 /**
  * To use Infinispan you need a special bucket4j-infinispan dependency.
@@ -50,10 +46,4 @@ public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
-
-	@Override
-	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return null;
-	}
-
 }

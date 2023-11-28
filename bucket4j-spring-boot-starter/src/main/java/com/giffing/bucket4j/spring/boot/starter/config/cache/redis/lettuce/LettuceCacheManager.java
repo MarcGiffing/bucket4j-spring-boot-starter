@@ -7,28 +7,22 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.sync.RedisCommands;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class LettuceCacheManager<K, V> extends CacheManager<K, V> {
+public class LettuceCacheManager<K, V> implements CacheManager<K, V> {
 	private final RedisCommands<String, String> syncCommands;
 	private final String cacheName;
 	private final Class<V> valueType;
 	private final ObjectMapper objectMapper;
 	private final String cacheUpdateChannel;
 
-	protected LettuceCacheManager(RedisClient redisClient, String cacheName, Class<K> keyType, Class<V> valueType) {
-		super(new LettuceCacheListener<>(cacheName, keyType, valueType));
+	protected LettuceCacheManager(RedisClient redisClient, String cacheName, Class<V> valueType) {
 		this.syncCommands = redisClient.connect().sync();
 		this.cacheName = cacheName;
 		this.valueType = valueType;
 		this.objectMapper = new ObjectMapper();
 		this.cacheUpdateChannel = cacheName.concat(":update");
-
-		StatefulRedisPubSubConnection<String, String> subConnection = redisClient.connectPubSub();
-		subConnection.addListener((LettuceCacheListener<K, V>) super.cacheListener);
-		subConnection.async().subscribe(cacheUpdateChannel);
 	}
 
 	@Override

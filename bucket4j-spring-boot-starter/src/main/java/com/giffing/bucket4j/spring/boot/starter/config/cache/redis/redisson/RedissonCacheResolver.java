@@ -1,11 +1,9 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.distributed.AsyncBucketProxy;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
@@ -36,11 +34,5 @@ public class RedissonCacheResolver implements AsyncCacheResolver {
 					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
-
-	}
-
-	@Override
-	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return new RedissonCacheManager<>(commandExecutor, cacheName);
 	}
 }

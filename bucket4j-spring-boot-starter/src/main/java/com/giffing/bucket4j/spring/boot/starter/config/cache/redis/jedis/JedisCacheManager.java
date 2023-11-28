@@ -9,37 +9,23 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 @Slf4j
-public class JedisCacheManager<K, V> extends CacheManager<K, V> {
+public class JedisCacheManager<K, V> implements CacheManager<K, V> {
 
 	private final JedisPool pool;
 	private final String cacheName;
-	private final Class<K> keyType;
 	private final Class<V> valueType;
 	private final ObjectMapper objectMapper;
 	private final String updateChannel;
 
-	public JedisCacheManager(JedisPool pool, String cacheName, Class<K> keyType, Class<V> valueType) {
-		super(new JedisCacheListener<>(cacheName, keyType, valueType));
+	public JedisCacheManager(JedisPool pool, String cacheName, Class<V> valueType) {
 		this.pool = pool;
 		this.cacheName = cacheName;
-		this.keyType = keyType;
 		this.valueType = valueType;
 
 		this.objectMapper = new ObjectMapper();
 		this.updateChannel = cacheName.concat(":update");
-
-		subscribe((JedisCacheListener<K, V>) super.cacheListener);
 	}
 
-	public void subscribe(JedisCacheListener<K, V> listener) {
-		new Thread(() -> {
-			try (Jedis jedis = pool.getResource()) {
-				jedis.subscribe(listener, updateChannel);
-			} catch (Exception e) {
-				log.warn("Failed to instantiate the Jedis subscriber. {}",e.getMessage());
-			}
-		}, "JedisSubscriberThread").start();
-	}
 
 	@Override
 	public V getValue(K key) {

@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -15,6 +16,7 @@ import io.github.bucket4j.TokensInheritanceStrategy;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.support.GenericApplicationContext;
@@ -24,13 +26,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
+import java.util.Optional;
 
 public class Bucket4JBaseConfigurationTests {
 
 	Bucket4JConfiguration filterConfig;
-
 	Bucket4JAutoConfigurationServletFilter filter;
 	ConfigurableServletWebServerFactory webServerFactory;
 
@@ -75,9 +75,10 @@ public class Bucket4JBaseConfigurationTests {
 		List<ExecutePredicate<HttpServletRequest>> executePredicates = mock();
 		Bucket4jConfigurationHolder servletConfigurationHolder = mock();
 		ExpressionParser servletFilterExpressionParser = mock();
+		Optional<CacheManager<String, Bucket4JConfiguration>> cacheManager = mock();
 
 		filter = new Bucket4JAutoConfigurationServletFilter(properties, beanFactory, context, cacheResolver,
-				metricHandlers, executePredicates, servletConfigurationHolder, servletFilterExpressionParser);
+				metricHandlers, executePredicates, servletConfigurationHolder, servletFilterExpressionParser, cacheManager);
 		webServerFactory = mock(ConfigurableServletWebServerFactory.class);
 	}
 

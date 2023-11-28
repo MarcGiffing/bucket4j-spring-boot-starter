@@ -2,6 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
@@ -36,6 +37,7 @@ import org.springframework.web.server.WebFilter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,9 +57,13 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
 
+	private final Bucket4JBootProperties properties;
+
 	private final ConfigurableBeanFactory beanFactory;
 
 	private final GenericApplicationContext context;
+
+	private final AsyncCacheResolver cacheResolver;
 
 	private final List<MetricHandler> metricHandlers;
 
@@ -75,10 +81,13 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			List<MetricHandler> metricHandlers,
 			List<ExecutePredicate<ServerHttpRequest>> executePredicates,
 			Bucket4jConfigurationHolder servletConfigurationHolder,
-			ExpressionParser webfluxFilterExpressionParser) {
-		super(properties, cacheResolver);
+			ExpressionParser webfluxFilterExpressionParser,
+			Optional<CacheManager<String, Bucket4JConfiguration>> configCacheManager) {
+		super(configCacheManager.orElse(null));
+		this.properties = properties;
 		this.beanFactory = beanFactory;
 		this.context = context;
+		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
 		this.executePredicates = executePredicates
 				.stream()
@@ -125,7 +134,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	@Override
 	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
-		//only handle servlet filter updates
+		//only handle webflux filter updates
 		Bucket4JConfiguration newConfig = event.getNewValue();
 		if (newConfig.getFilterMethod().equals(FilterMethod.WEBFLUX)) {
 			try {
