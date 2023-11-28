@@ -1,14 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
-import io.github.bucket4j.TokensInheritanceStrategy;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
+
+import io.github.bucket4j.TokensInheritanceStrategy;
+import lombok.Data;
 
 @Data
 public class RateLimit implements Serializable {

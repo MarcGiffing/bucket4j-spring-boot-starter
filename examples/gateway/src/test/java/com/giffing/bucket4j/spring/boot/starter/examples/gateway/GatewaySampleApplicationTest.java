@@ -1,9 +1,8 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.ehcache;
+package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.github.tomakehurst.wiremock.client.WireMock;
+import java.util.Collections;
+import java.util.stream.IntStream;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,8 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.util.Collections;
-import java.util.stream.IntStream;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 properties = {

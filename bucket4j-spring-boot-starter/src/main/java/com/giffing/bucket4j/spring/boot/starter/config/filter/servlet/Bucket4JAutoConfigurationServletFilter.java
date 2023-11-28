@@ -1,23 +1,14 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate.ServletRequestExecutePredicateConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
-import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
-import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -35,11 +26,23 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate.ServletRequestExecutePredicateConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
+
+import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Configures {@link Filter}s for Bucket4Js rate limit.
