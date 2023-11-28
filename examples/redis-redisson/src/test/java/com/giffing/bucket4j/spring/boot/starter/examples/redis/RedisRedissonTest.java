@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 @Testcontainers
 @TestPropertySource(properties = {"bucket4j.filter-config-caching-enabled=true", "bucket4j.filter-config-cache-name=filterConfigCache"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class RedisTest {
+class RedisRedissonTest {
 
     @Container
     static GenericContainer redis =
