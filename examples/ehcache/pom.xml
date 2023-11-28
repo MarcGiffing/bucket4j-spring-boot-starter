@@ -12,6 +12,7 @@
 
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
+		<jaxb-core.version>4.0.4</jaxb-core.version>
 	</properties>
 
 	<dependencies>
@@ -58,12 +59,12 @@
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-core</artifactId>
-			<version>4.0.3</version>
+			<version>${jaxb-core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
-			<version>4.0.3</version>
+			<version>${jaxb-core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ehcache</groupId>

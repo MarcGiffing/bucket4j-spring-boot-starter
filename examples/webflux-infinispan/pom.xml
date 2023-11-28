@@ -45,13 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-spring-boot-starter-embedded</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.infinispan</groupId>
-					<artifactId>infinispan-core</artifactId>
-				</exclusion>
-			</exclusions>
+			<artifactId>infinispan-spring-boot3-starter-embedded</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>

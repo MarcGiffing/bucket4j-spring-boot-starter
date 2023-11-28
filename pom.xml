@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.1.6</version>
 		<relativePath />
 	</parent>
 	<modules>
@@ -25,11 +25,10 @@
 		<module>examples/gateway</module>
         <module>examples/redis-jedis</module>
 		<module>examples/redis-lettuce</module>
+		<!--
 		<module>examples/redis-redisson</module>
-        <!--
-        Spring Boot 3 not Supported!?
+		-->
         <module>examples/webflux-infinispan</module>
-        -->
 	</modules>
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
 	<licenses>
@@ -49,8 +48,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<bucket4j.version>8.4.0</bucket4j.version>
-		<spring-cloud-starter-gateway.version>4.0.7</spring-cloud-starter-gateway.version>
+		<bucket4j.version>8.7.0</bucket4j.version>
+		<spring-cloud-starter-gateway.version>4.0.8</spring-cloud-starter-gateway.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
