@@ -14,14 +14,17 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests().requestMatchers("/unsecure").permitAll();
-		http.authorizeHttpRequests().requestMatchers("/login").permitAll();
-		http.authorizeHttpRequests().requestMatchers("/secure").hasAnyRole("ADMIN", "USER");
+		http.authorizeHttpRequests(auth -> {
+			auth.requestMatchers("/unsecure").permitAll();
+			auth.requestMatchers("/actuator/*").permitAll();
+			auth.requestMatchers("/login").permitAll();
+			auth.requestMatchers("/secure").hasAnyRole("ADMIN", "USER");
+		});
 		return http.build();
 	}
 
 	@Bean
-	public UserDetailsService inMemoryUser() throws Exception {
+	public UserDetailsService inMemoryUser() {
 		UserDetails user = User.builder()
 				.username("admin")
 				.password("123")
