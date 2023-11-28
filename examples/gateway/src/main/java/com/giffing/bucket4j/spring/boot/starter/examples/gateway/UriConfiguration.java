@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.ehcache;
+package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
