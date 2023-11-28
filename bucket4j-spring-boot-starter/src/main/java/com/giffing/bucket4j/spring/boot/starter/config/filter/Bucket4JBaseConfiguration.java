@@ -206,14 +206,15 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
 			var refillPeriod = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
 			var bucket4jBandWidth = switch(bandWidth.getRefillSpeed()) {
-				case GREEDY -> Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillPeriod));
-				case INTERVAL -> Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillPeriod));
-				default -> throw new IllegalStateException("Unsupported Refill type: " + bandWidth.getRefillSpeed());
-			};
+				case GREEDY -> Bandwidth.builder().capacity(capacity).refillGreedy(refillCapacity, refillPeriod);
+				case INTERVAL -> Bandwidth.builder().capacity(capacity).refillIntervally(refillCapacity, refillPeriod);
+            };
+
 			if(bandWidth.getInitialCapacity() != null) {
-				bucket4jBandWidth = bucket4jBandWidth.withInitialTokens(bandWidth.getInitialCapacity());
+				bucket4jBandWidth = bucket4jBandWidth.initialTokens(bandWidth.getInitialCapacity());
 			}
-			configBuilder = configBuilder.addLimit(bucket4jBandWidth);
+
+			configBuilder = configBuilder.addLimit(bucket4jBandWidth.build());
 		}
 		return configBuilder;
 	}
