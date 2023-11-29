@@ -1,15 +1,17 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Data;
 
 /**
  * Holds all the relevant starter properties which can be configured with
