@@ -1,5 +1,19 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
+import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
@@ -13,24 +27,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
 import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
+
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
 import io.github.bucket4j.Refill;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
-import java.lang.reflect.InvocationTargetException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Holds helper Methods which are reused by the 
@@ -69,8 +71,6 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 			ProxyManagerWrapper proxyWrapper,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
-
-//		this.configValidator.validatePredicates(config);
 		
 		FilterConfiguration<R> filterConfig = mapFilterConfiguration(config);
 		
@@ -86,12 +86,13 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 		        	var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, servletRequest);
 		        	log.debug("try-and-consume;key:{};tokens:{}", key, rl.getNumTokens());
+					final long configVersion = config.getBucket4JVersionNumber();
 		        	return proxyWrapper.tryConsumeAndReturnRemaining(
 							key,
 							rl.getNumTokens(),
 							bucketConfiguration,
 							metricBucketListener,
-							config.getBucket4JVersionNumber(),
+							configVersion,
 							rl.getTokensInheritanceStrategy()
 					);
 		        }
