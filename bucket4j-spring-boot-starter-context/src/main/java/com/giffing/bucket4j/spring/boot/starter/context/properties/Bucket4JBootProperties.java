@@ -55,7 +55,7 @@ public class Bucket4JBootProperties {
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 
 	@AssertTrue(message = "FilterConfiguration caching is enabled, but not all filters have an identifier configured")
-	public boolean areFilterIdsValid(){
+	public boolean isValidFilterIds(){
 		return !filterConfigCachingEnabled || filters.stream().noneMatch(filter -> filter.getId() == null);
 	}
 
