@@ -39,52 +39,52 @@ import reactor.core.publisher.Mono;
 class SpringCloudGatewayRateLimitFilterTest {
 
 	private GlobalFilter filter;
-	private FilterConfiguration configuration;
-	private RateLimitCheck rateLimitCheck1;
-	private RateLimitCheck rateLimitCheck2;
-	private RateLimitCheck rateLimitCheck3;
+	private FilterConfiguration<ServerHttpRequest> configuration;
+	private RateLimitCheck<ServerHttpRequest> rateLimitCheck1;
+	private RateLimitCheck<ServerHttpRequest> rateLimitCheck2;
+	private RateLimitCheck<ServerHttpRequest> rateLimitCheck3;
 
 	private ServerWebExchange exchange;
 	private GatewayFilterChain chain;
-	
-	
-	private ServerHttpResponse serverHttpResponse;
-	
-	@BeforeEach
-    public void setup() throws URISyntaxException {
-    	rateLimitCheck1 = mock(RateLimitCheck.class);
-        rateLimitCheck2 = mock(RateLimitCheck.class);
-        rateLimitCheck3 = mock(RateLimitCheck.class);
 
-        exchange = Mockito.mock(ServerWebExchange.class);
-        
-        ServerHttpRequest serverHttpRequest = Mockito.mock(ServerHttpRequest.class);
-        URI uri = new URI("url");
-        when(serverHttpRequest.getURI()).thenReturn(uri);
+
+	private ServerHttpResponse serverHttpResponse;
+
+	@BeforeEach
+	public void setup() throws URISyntaxException {
+		rateLimitCheck1 = mock(RateLimitCheck.class);
+		rateLimitCheck2 = mock(RateLimitCheck.class);
+		rateLimitCheck3 = mock(RateLimitCheck.class);
+
+		exchange = Mockito.mock(ServerWebExchange.class);
+
+		ServerHttpRequest serverHttpRequest = Mockito.mock(ServerHttpRequest.class);
+		URI uri = new URI("url");
+		when(serverHttpRequest.getURI()).thenReturn(uri);
 		when(exchange.getRequest()).thenReturn(serverHttpRequest);
-		
+
 		serverHttpResponse = Mockito.mock(ServerHttpResponse.class);
-        when(exchange.getResponse()).thenReturn(serverHttpResponse);
-        
+		when(exchange.getResponse()).thenReturn(serverHttpResponse);
+
 		chain = Mockito.mock(GatewayFilterChain.class);
 		when(chain.filter(exchange)).thenReturn(Mono.empty());
-        
-        configuration = new FilterConfiguration();
-        configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
-        configuration.setUrl(".*");
-        filter = new SpringCloudGatewayRateLimitFilter(configuration);
-    }
 
-	@Test 
+		configuration = new FilterConfiguration<>();
+		configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
+		configuration.setUrl(".*");
+		filter = new SpringCloudGatewayRateLimitFilter(configuration);
+	}
+
+	@Test
 	void should_throw_rate_limit_exception_with_no_remaining_tokens() {
-		
+
 		configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
-        rateLimitConfig(0L, rateLimitCheck1);
-        HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
-        when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
-        
-        AtomicBoolean hasRateLimitError = new AtomicBoolean(false);
+		rateLimitConfig(0L, rateLimitCheck1);
+		HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
+		when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
+
+		AtomicBoolean hasRateLimitError = new AtomicBoolean(false);
 		Mono<Void> result = filter.filter(exchange, chain)
 				.onErrorResume(ReactiveRateLimitException.class, (e) -> {
 					hasRateLimitError.set(true);
@@ -93,63 +93,62 @@ class SpringCloudGatewayRateLimitFilterTest {
 		result.subscribe();
 		Assertions.assertTrue(hasRateLimitError.get());
 	}
-	
+
 	@Test
 	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
-        
-        configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
 
-        rateLimitConfig(30L, rateLimitCheck1);
-        rateLimitConfig(0L, rateLimitCheck2);
-        rateLimitConfig(0L, rateLimitCheck3);
+		configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
 
-        HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
-        when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        
-        Mono<Void> result = filter.filter(exchange, chain);
-        assertThrows(ReactiveRateLimitException.class, () -> {
-    		result.block();	
-        });
-        
+		rateLimitConfig(30L, rateLimitCheck1);
+		rateLimitConfig(0L, rateLimitCheck2);
+		rateLimitConfig(0L, rateLimitCheck3);
+
+		HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
+		when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
+		final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+		Mono<Void> result = filter.filter(exchange, chain);
+		assertThrows(ReactiveRateLimitException.class, () -> {
+			result.block();
+		});
+
 		verify(rateLimitCheck1, times(1)).rateLimit(any());
-        verify(rateLimitCheck2, times(1)).rateLimit(any());
-        verify(rateLimitCheck3, times(1)).rateLimit(any());
+		verify(rateLimitCheck2, times(1)).rateLimit(any());
+		verify(rateLimitCheck3, times(1)).rateLimit(any());
 	}
 
 	@Test
 	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() {
-        configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
+		configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
-        rateLimitConfig(30L, rateLimitCheck1);
-        rateLimitConfig(0L, rateLimitCheck2);
-        rateLimitConfig(10L, rateLimitCheck3);
-        
-        HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
-        when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        
+		rateLimitConfig(30L, rateLimitCheck1);
+		rateLimitConfig(0L, rateLimitCheck2);
+		rateLimitConfig(10L, rateLimitCheck3);
+
+		HttpHeaders httpHeaders = Mockito.mock(HttpHeaders.class);
+		when(serverHttpResponse.getHeaders()).thenReturn(httpHeaders);
+		final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
 		Mono<Void> result = filter.filter(exchange, chain);
 		result.block();
-        
-        verify(httpHeaders, times(1)).set(any(), captor.capture());
 
-        List<String> values = captor.getAllValues();
-        Assertions.assertEquals("30", values.stream().findFirst().get());
-        
-        verify(rateLimitCheck1, times(1)).rateLimit(any());
-        verify(rateLimitCheck2, times(1)).rateLimit(any());
-        verify(rateLimitCheck3, times(1)).rateLimit(any());
+		verify(httpHeaders, times(1)).set(any(), captor.capture());
+
+		List<String> values = captor.getAllValues();
+		Assertions.assertEquals("30", values.stream().findFirst().get());
+
+		verify(rateLimitCheck1, times(1)).rateLimit(any());
+		verify(rateLimitCheck2, times(0)).rateLimit(any());
+		verify(rateLimitCheck3, times(0)).rateLimit(any());
 	}
 
-	private void rateLimitConfig(Long remainingTokens, RateLimitCheck rateLimitCheck) {
+	private void rateLimitConfig(Long remainingTokens, RateLimitCheck<ServerHttpRequest> rateLimitCheck) {
 		ConsumptionProbeHolder consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
-        ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
-		when(probe.isConsumed()).thenReturn(remainingTokens > 0 ? true : false);
+		ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
+		when(probe.isConsumed()).thenReturn(remainingTokens > 0);
 		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
 		when(consumptionHolder.getConsumptionProbeCompletableFuture())
-			.thenReturn(CompletableFuture.completedFuture(probe));
-        when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
+				.thenReturn(CompletableFuture.completedFuture(probe));
+		when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
 	}
-	
 }
