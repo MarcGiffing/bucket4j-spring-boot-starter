@@ -1,13 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter;
 
-import java.time.Duration;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
+import java.time.Duration;
 
 @Configuration
 public class JedisConfiguraiton {
@@ -15,7 +14,7 @@ public class JedisConfiguraiton {
     @Bean
     public JedisPool jedisPool(@Value("${spring.data.redis.port}") String port) {
         final JedisPoolConfig poolConfig = buildPoolConfig();
-        return new JedisPool(poolConfig, "localhost", Integer.parseInt(port));
+        return new JedisPool(poolConfig, "localhost", Integer.valueOf(port));
     }
 
     private JedisPoolConfig buildPoolConfig() {

@@ -3,7 +3,6 @@ package com.giffing.bucket4j.spring.boot.starter.context.metrics;
 import java.util.List;
 
 import io.github.bucket4j.BucketListener;
-import lombok.Getter;
 
 /**
  * Marker Interface
@@ -11,8 +10,7 @@ import lombok.Getter;
  */
 public class MetricBucketListener implements BucketListener {
 
-    @Getter
-	private final String name;
+    private final String name;
 	private final List<MetricTagResult> tags;
 	private final List<MetricHandler> metricHandlers;
 	private final List<MetricType> allowedTypes;
@@ -37,6 +35,10 @@ public class MetricBucketListener implements BucketListener {
     		metricHandlers.forEach(metricHandler -> metricHandler.handle(MetricType.REJECTED_COUNTER, name, tokens, tags));
     	}
     }
+
+	public String getName() {
+		return name;
+	}
 
 	@Override
 	public void onParked(long nanos) {
