@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.ehcache;
+package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ public class GatewayMetricHandler implements MetricHandler {
 
 	@Override
 	public void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags) {
-		System.out.println(String.format("name: %s;type: %s; tokens: %s", type, name, tokens));
+		System.out.printf("name: %s;type: %s; tokens: %s%n", type, name, tokens);
 		System.out.println("\t" + tags.stream().map(mt -> mt.getKey() + ":" + mt.getValue()).collect(Collectors.joining(",")));
 		System.out.println("################");
 		

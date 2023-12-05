@@ -1,8 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import java.util.Collections;
+import java.util.stream.IntStream;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,8 +18,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Collections;
-import java.util.stream.IntStream;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,7 +31,7 @@ import java.util.stream.IntStream;
 class RedisLettuceTest {
 
     @Container
-    static GenericContainer redis =
+    static final GenericContainer redis =
             new GenericContainer(DockerImageName.parse("redis:7"))
                     .withExposedPorts(6379);
 
@@ -47,7 +49,7 @@ class RedisLettuceTest {
 
     WebTestClient rest;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setup() {

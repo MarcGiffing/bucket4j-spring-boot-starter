@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "hazelcast-reactive", matchIfMissing = true)
 public class HazelcastReactiveBucket4jCacheConfiguration {
 
-	private HazelcastInstance hazelcastInstance;
+	private final HazelcastInstance hazelcastInstance;
 
 	private final String configCacheName;
 

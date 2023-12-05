@@ -18,8 +18,8 @@ import javax.cache.Caching;
 @ConditionalOnBean(CacheManager.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "jcache", matchIfMissing = true)
 public class JCacheBucket4jConfiguration {
-	private CacheManager cacheManager;
 
+	private final CacheManager cacheManager;
 	private final String configCacheName;
 	
 	public JCacheBucket4jConfiguration(CacheManager cacheManager, Bucket4JBootProperties properties){

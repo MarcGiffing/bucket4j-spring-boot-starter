@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
+
 @Configuration
 @ConditionalOnClass(HttpServletRequest.class)
 @AutoConfigureBefore(Bucket4JAutoConfigurationServletFilter.class)

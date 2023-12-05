@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @Import(value = {WebfluxExecutePredicateConfiguration.class, Bucket4JAutoConfigurationWebfluxFilterBeans.class, SpringBootActuatorConfig.class})
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
-	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
+	private final Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
 
 	private final Bucket4JBootProperties properties;
 

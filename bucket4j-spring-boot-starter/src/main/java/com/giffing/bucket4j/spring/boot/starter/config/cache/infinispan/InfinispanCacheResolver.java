@@ -14,7 +14,7 @@ import org.infinispan.manager.CacheContainer;
 
 public class InfinispanCacheResolver implements AsyncCacheResolver {
 
-	private CacheContainer cacheContainer;
+	private final CacheContainer cacheContainer;
 	
 	public InfinispanCacheResolver(CacheContainer cacheContainer) {
 		this.cacheContainer = cacheContainer;

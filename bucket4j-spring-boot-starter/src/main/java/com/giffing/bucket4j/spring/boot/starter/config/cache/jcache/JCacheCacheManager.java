@@ -7,6 +7,7 @@ import javax.cache.Cache;
 public class JCacheCacheManager<K, V> implements CacheManager<K, V> {
 
 	private final Cache<K,V> cache;
+
 	protected JCacheCacheManager(Cache<K, V> cache) {
 		this.cache = cache;
 	}

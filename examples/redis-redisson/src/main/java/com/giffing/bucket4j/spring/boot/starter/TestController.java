@@ -1,9 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
 @RestController
 public class TestController {

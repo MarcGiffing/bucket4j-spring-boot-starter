@@ -18,7 +18,7 @@ class MethodExecutePredicateTest {
 
 	@BeforeEach
 	public void setup() {
-		predicate = new MethodExecutePredicate<String>() {
+		predicate = new MethodExecutePredicate<>() {
 			@Override
 			public boolean test(String trequestMethod) {
 				return testRequestMethod(trequestMethod);

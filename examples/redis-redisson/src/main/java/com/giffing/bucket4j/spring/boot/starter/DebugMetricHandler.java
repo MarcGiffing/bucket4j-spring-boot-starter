@@ -13,14 +13,14 @@ public class DebugMetricHandler implements MetricHandler {
 
 	@Override
 	public void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags) {
-	System.out.println(String.format("type: %s; name: %s; tags: %s; tokens: %s",
+	System.out.printf("type: %s; name: %s; tags: %s; tokens: %s%n",
 				type,
 				name,
 				tags
 					.stream()
 					.map(mtr -> mtr.getKey() + ":" + mtr.getValue())
 					.collect(Collectors.joining(",")),
-				tokens));
+				tokens);
 		
 	}
 

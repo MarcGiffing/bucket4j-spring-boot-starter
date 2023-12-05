@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Import(value = {WebfluxExecutePredicateConfiguration.class, SpringBootActuatorConfig.class, Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans.class})
 public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
-	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
+	private final Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
 
 	private final Bucket4JBootProperties properties;
 
@@ -63,9 +63,9 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 
 	private final List<MetricHandler> metricHandlers;
 
-	private Bucket4jConfigurationHolder gatewayConfigurationHolder;
+	private final Bucket4jConfigurationHolder gatewayConfigurationHolder;
 
-	private ExpressionParser gatewayFilterExpressionParser;
+	private final ExpressionParser gatewayFilterExpressionParser;
 
 	public Bucket4JAutoConfigurationSpringCloudGatewayFilter(
 			Bucket4JBootProperties properties,

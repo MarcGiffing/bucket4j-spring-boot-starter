@@ -3,6 +3,8 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -49,19 +51,18 @@ public class Bucket4JBootProperties {
 	@NotBlank
 	private String filterConfigCacheName = "filterConfigCache";
 
+	@Valid
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();
 
-	public void setFilters(List<Bucket4JConfiguration> filters){
-		//validate that all filters have an id if filter caching is enabled
-		if(filterConfigCachingEnabled && filters.stream().anyMatch(filter -> filter.getId() == null)) {
-			throw new IllegalArgumentException("FilterConfiguration caching is enabled, but not all filters have an identifier configured");
-		}
-		this.filters = filters;
+	@AssertTrue(message = "FilterConfiguration caching is enabled, but not all filters have an identifier configured")
+	public boolean isValidFilterIds(){
+		return !filterConfigCachingEnabled || filters.stream().noneMatch(filter -> filter.getId() == null);
 	}
 
 	/**
 	 * A list of default metric tags which should be applied to all filters
 	 */
+	@Valid
 	private List<MetricTag> defaultMetricTags = new ArrayList<>();
 
 	public static String getPropertyPrefix() {

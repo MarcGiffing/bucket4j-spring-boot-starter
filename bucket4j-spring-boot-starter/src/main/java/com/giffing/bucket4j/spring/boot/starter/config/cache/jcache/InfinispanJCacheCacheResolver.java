@@ -25,7 +25,7 @@ import org.infinispan.manager.CacheContainer;
  */
 public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 
-	private CacheContainer cacheContainer;
+	private final CacheContainer cacheContainer;
 
 	public InfinispanJCacheCacheResolver(CacheContainer cacheContainer) {
 		this.cacheContainer = cacheContainer;

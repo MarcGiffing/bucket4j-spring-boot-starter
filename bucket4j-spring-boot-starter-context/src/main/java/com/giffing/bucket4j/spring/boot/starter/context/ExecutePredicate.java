@@ -29,9 +29,9 @@ public abstract class ExecutePredicate<T> implements Predicate<T> {
 		return this;
 	}
 	
-	protected abstract ExecutePredicate<T> parseSimpleConfig(String simpleConfig);
+	protected abstract void parseSimpleConfig(String simpleConfig);
 	
-	protected ExecutePredicate<T> parseConfig(Map<String, String> args) {
+	protected void parseConfig(Map<String, String> args) {
 		throw new UnsupportedOperationException("The ServletRequestExecutionPredicate %s doesn't support arguments"
 				.formatted(this.getClass().getSimpleName()));
 	}

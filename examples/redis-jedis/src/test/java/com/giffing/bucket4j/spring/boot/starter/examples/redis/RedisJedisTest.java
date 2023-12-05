@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RedisJedisTest {
 
     @Container
-    static GenericContainer redis =
+    static final GenericContainer redis =
             new GenericContainer(DockerImageName.parse("redis:7"))
                     .withExposedPorts(6379);
 
@@ -54,7 +54,7 @@ class RedisJedisTest {
 	@Autowired
 	Bucket4JBootProperties properties;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
 	@Order(1)

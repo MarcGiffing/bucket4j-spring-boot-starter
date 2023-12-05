@@ -11,6 +11,7 @@ public class IgniteCacheManager<K,V> implements CacheManager<K, V> {
 	public IgniteCacheManager(IgniteCache<K,V> cache){
 		this.cache = cache;
 	}
+
 	@Override
 	public V getValue(K key) {
 		return cache.get(key);
