@@ -1,18 +1,20 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
+import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
-import org.springframework.boot.autoconfigure.condition.*;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * Configures the asynchronous support for Hazelcast. The synchronous support of Hazelcast
@@ -21,11 +23,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass({ HazelcastCacheManager.class })
+@ConditionalOnClass({HazelcastCacheManager.class})
 @ConditionalOnBean(HazelcastCacheManager.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "hazelcast-spring", matchIfMissing = true)
 public class HazelcastSpringBucket4jCacheConfiguration {
-	
+
 	private final HazelcastInstance hazelcastInstance;
 	private final String configCacheName;
 
@@ -33,7 +35,7 @@ public class HazelcastSpringBucket4jCacheConfiguration {
 		this.hazelcastInstance = hazelcastCacheManager.getHazelcastInstance();
 		this.configCacheName = properties.getFilterConfigCacheName();
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean(SyncCacheResolver.class)
 	public AsyncCacheResolver hazelcastCacheResolver() {

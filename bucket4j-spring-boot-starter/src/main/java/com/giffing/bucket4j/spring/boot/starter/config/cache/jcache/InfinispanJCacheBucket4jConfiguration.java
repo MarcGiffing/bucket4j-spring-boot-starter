@@ -7,7 +7,9 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.Infinisp
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+
 import org.infinispan.manager.CacheContainer;
+
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,7 +24,7 @@ import javax.cache.Caching;
  */
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass({ CacheContainer.class, Caching.class, JCacheCacheManager.class })
+@ConditionalOnClass({CacheContainer.class, Caching.class, JCacheCacheManager.class})
 @ConditionalOnBean(CacheContainer.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "jcache-ignite", matchIfMissing = true)
 public class InfinispanJCacheBucket4jConfiguration {
@@ -34,7 +36,7 @@ public class InfinispanJCacheBucket4jConfiguration {
 		this.cacheContainer = cacheContainer;
 		this.configCacheName = properties.getFilterConfigCacheName();
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean(SyncCacheResolver.class)
 	public SyncCacheResolver bucket4jCacheResolver() {

@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate;
 
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;

@@ -14,7 +14,7 @@ public class CustomQueryExecutePredicate extends ExecutePredicate<HttpServletReq
 	@Override
 	public boolean test(HttpServletRequest t) {
 		boolean result = t.getParameterMap().containsKey(query);
-		System.out.printf("query-parametetr;value:%s;result:%s%n", query, result);
+		System.out.printf("query-parameter;value:%s;result:%s%n", query, result);
 		return result;
 	}
 	
