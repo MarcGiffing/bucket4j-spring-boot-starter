@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
