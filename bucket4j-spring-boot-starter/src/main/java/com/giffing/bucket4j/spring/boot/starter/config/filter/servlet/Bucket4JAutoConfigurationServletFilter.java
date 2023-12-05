@@ -66,9 +66,9 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 	
 	private final Map<String, ExecutePredicate<HttpServletRequest>> executePredicates;
 	
-	private Bucket4jConfigurationHolder servletConfigurationHolder;
+	private final Bucket4jConfigurationHolder servletConfigurationHolder;
 	
-	private ExpressionParser servletFilterExpressionParser;
+	private final ExpressionParser servletFilterExpressionParser;
 	
 	public Bucket4JAutoConfigurationServletFilter(
 			Bucket4JBootProperties properties,

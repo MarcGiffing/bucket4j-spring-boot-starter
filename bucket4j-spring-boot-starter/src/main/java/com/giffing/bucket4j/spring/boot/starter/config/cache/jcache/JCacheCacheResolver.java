@@ -21,7 +21,7 @@ import io.github.bucket4j.grid.jcache.JCacheProxyManager;
  */
 public class JCacheCacheResolver implements SyncCacheResolver {
 	
-	private CacheManager cacheManager;
+	private final CacheManager cacheManager;
 
 	public JCacheCacheResolver(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;

@@ -4,11 +4,13 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.validation.annotation.Validated;
-
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
+
+import org.springframework.validation.annotation.Validated;
+
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 @Slf4j
+@NoArgsConstructor
 public class ExecutePredicateDefinition implements Serializable {
 
 	public static final String SIMPLE_CONFIG_KEY = "_simple_config_";

@@ -14,6 +14,8 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
+import lombok.Getter;
+
 @RestController
 @RequestMapping("/")
 public class TestController {
@@ -35,14 +37,9 @@ public class TestController {
 	@GetMapping("login")
 	public ResponseEntity login() {
 		
-		Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
-        GrantedAuthority grantedAuthority = new GrantedAuthority() {
-            //anonymous inner type
-            @Override 
-            public String getAuthority() {
-                return "ROLE_USER";
-            }
-        }; 
+		Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		//anonymous inner type
+		GrantedAuthority grantedAuthority = () -> "ROLE_USER";
         grantedAuthorities.add(grantedAuthority);
 		
 		Authentication auth =  new UsernamePasswordAuthenticationToken(new User("admin"), null, grantedAuthorities);
@@ -56,15 +53,12 @@ public class TestController {
 		return ResponseEntity.ok().build();
 	}
 	
+	@Getter
 	public static class User {
 		public String username;
 		
 		public User(String username) {
 			this.username = username;
-		}
-
-		public String getUsername() {
-			return username;
 		}
 
 		public void setUsername(String username) {

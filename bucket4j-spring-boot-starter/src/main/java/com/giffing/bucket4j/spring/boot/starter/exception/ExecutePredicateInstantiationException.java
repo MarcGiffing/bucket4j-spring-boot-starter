@@ -1,10 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.exception;
 
+import java.io.Serial;
+
 import lombok.Getter;
 
 @Getter
 public class ExecutePredicateInstantiationException extends Bucket4jGeneralException {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	private final String executePredicateName;
@@ -12,6 +15,7 @@ public class ExecutePredicateInstantiationException extends Bucket4jGeneralExcep
 	private final Class<?> instantiationException;
 	
 	public ExecutePredicateInstantiationException(String executePredicateName, Class<?> instantiationException) {
+		super("Can't create a new instance for predicate '%s and class %s".formatted(executePredicateName, instantiationException.getName()));
 		this.executePredicateName = executePredicateName;
 		this.instantiationException = instantiationException;
 	}

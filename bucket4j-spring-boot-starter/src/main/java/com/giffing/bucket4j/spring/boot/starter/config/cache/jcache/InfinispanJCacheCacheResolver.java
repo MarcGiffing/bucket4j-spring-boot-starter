@@ -29,7 +29,7 @@ import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
  */
 public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 
-	private CacheContainer cacheContainer;
+	private final CacheContainer cacheContainer;
 
 	public InfinispanJCacheCacheResolver(CacheContainer cacheContainer) {
 		this.cacheContainer = cacheContainer;

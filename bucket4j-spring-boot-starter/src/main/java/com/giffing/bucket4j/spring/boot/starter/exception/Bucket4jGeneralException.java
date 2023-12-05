@@ -1,5 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.exception;
 
+import java.io.Serial;
+
 import com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer.Bucket4JAutoConfigFailureAnalyzer;
 
 /**
@@ -10,12 +12,9 @@ import com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer.Bucket4JA
  */
 public abstract class Bucket4jGeneralException extends RuntimeException {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
-	
-	protected Bucket4jGeneralException() {
-		super();
-	}
-	
+
 	protected Bucket4jGeneralException(String message) {
 		super(message);
 	}

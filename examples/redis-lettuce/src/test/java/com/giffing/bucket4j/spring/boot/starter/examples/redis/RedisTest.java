@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 class RedisTest {
 
     @Container
-    static GenericContainer redis =
+    static final GenericContainer redis =
             new GenericContainer(DockerImageName.parse("redis:7"))
                     .withExposedPorts(6379);
 
@@ -49,7 +49,7 @@ class RedisTest {
 
     WebTestClient rest;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setup() {

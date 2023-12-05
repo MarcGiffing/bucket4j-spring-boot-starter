@@ -28,11 +28,10 @@ public abstract class MethodExecutePredicate<T> extends ExecutePredicate<T>  {
 	}
 
 	@Override
-	public ExecutePredicate<T> parseSimpleConfig(String simpleConfig) {
+	public void parseSimpleConfig(String simpleConfig) {
 		this.methods = Arrays.stream(simpleConfig.split(","))
 				.map(String::trim)
 				.toList();
-		return this;
 	}
 
 }

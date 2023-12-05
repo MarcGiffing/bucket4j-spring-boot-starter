@@ -3,8 +3,6 @@ package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -36,6 +34,9 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Configures Servlet Filters for Bucket4Js rate limit.
  *
@@ -50,7 +51,7 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCl
 @Import(value = { WebfluxExecutePredicateConfiguration.class, SpringBootActuatorConfig.class, Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans.class })
 public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
 
-	private Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
+	private final Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
 
 	private final ConfigurableBeanFactory beanFactory;
 
@@ -58,9 +59,9 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 
 	private final List<MetricHandler> metricHandlers;
 
-	private Bucket4jConfigurationHolder gatewayConfigurationHolder;
+	private final Bucket4jConfigurationHolder gatewayConfigurationHolder;
 
-	private ExpressionParser gatewayFilterExpressionParser;
+	private final ExpressionParser gatewayFilterExpressionParser;
 
 	public Bucket4JAutoConfigurationSpringCloudGatewayFilter(
 			Bucket4JBootProperties properties,

@@ -23,9 +23,8 @@ public abstract class QueryExecutePredicate<T> extends ExecutePredicate<T> {
 	}
 
 	@Override
-	public ExecutePredicate<T> parseSimpleConfig(String simpleConfig) {
+	public void parseSimpleConfig(String simpleConfig) {
 		this.query = simpleConfig;
-		return this;
 	}
 
 }
