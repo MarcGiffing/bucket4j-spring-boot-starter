@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -104,6 +105,16 @@ class ServletRateLimitTest {
 
 		//validate that the new capacity is applied to requests
 		successfulWebRequest(url, newFilterCapacity-1);
+	}
+
+	@Test
+	@Order(3)
+	void serializationTest() throws JsonProcessingException {
+		Bucket4JConfiguration filter = properties.getFilters().get(0);
+		ObjectMapper mapper = new ObjectMapper();
+		String serialized = mapper.writeValueAsString(filter);
+		Bucket4JConfiguration deserialized = objectMapper.readValue(serialized, Bucket4JConfiguration.class);
+		assertThat(filter).isEqualTo(deserialized);
 	}
 
 	private void successfulWebRequest(String url, Integer remainingTries) {
