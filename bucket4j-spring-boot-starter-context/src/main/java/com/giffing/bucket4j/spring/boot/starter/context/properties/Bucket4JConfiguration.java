@@ -8,17 +8,18 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidPredicateNames;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.micrometer.common.util.StringUtils;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.ToString;
 
@@ -112,7 +113,7 @@ public class Bucket4JConfiguration implements Serializable {
 	private String id;
 
 	public void setId(String id) {
-		if(!StringUtils.isBlank(id)){
+		if(StringUtils.hasText(id)){
 			this.id = id.trim();
 		}
 	}

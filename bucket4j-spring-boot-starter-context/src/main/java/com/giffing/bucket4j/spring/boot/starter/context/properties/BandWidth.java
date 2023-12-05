@@ -7,9 +7,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import org.springframework.util.StringUtils;
+
 import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
 
-import io.micrometer.common.util.StringUtils;
 import lombok.Data;
 
 /**
@@ -22,7 +23,7 @@ public class BandWidth implements Serializable {
 	private String id;
 
 	public void setId(String id) {
-		if(!StringUtils.isBlank(id)){
+		if(StringUtils.hasText(id)){
 			this.id = id.trim();
 		}
 	}
