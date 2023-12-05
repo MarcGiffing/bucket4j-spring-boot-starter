@@ -1,10 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Component;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class CustomQueryExecutePredicate extends ExecutePredicate<HttpServletRequest> {
@@ -14,7 +14,7 @@ public class CustomQueryExecutePredicate extends ExecutePredicate<HttpServletReq
 	@Override
 	public boolean test(HttpServletRequest t) {
 		boolean result = t.getParameterMap().containsKey(query);
-		System.out.println("query-parametetr;value:%s;result:%s".formatted(query, result));
+		System.out.printf("query-parametetr;value:%s;result:%s%n", query, result);
 		return result;
 	}
 	
@@ -24,9 +24,8 @@ public class CustomQueryExecutePredicate extends ExecutePredicate<HttpServletReq
 	}
 
 	@Override
-	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
+	public void parseSimpleConfig(String simpleConfig) {
 		this.query = simpleConfig;
-		return this;
 	}
 
 }

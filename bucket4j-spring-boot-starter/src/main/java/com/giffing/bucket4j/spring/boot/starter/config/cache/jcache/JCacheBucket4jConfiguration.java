@@ -22,7 +22,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 @ConditionalOnMissingBean(SyncCacheResolver.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "jcache", matchIfMissing = true)
 public class JCacheBucket4jConfiguration {
-	private CacheManager cacheManager;
+	private final CacheManager cacheManager;
 	
 	public JCacheBucket4jConfiguration(CacheManager cacheManager){
 		this.cacheManager = cacheManager;

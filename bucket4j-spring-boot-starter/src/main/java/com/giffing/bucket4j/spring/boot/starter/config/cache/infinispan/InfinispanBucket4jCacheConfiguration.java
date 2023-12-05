@@ -20,7 +20,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "infinispan", matchIfMissing = true)
 public class InfinispanBucket4jCacheConfiguration {
 	
-	private CacheContainer cacheContainer;
+	private final CacheContainer cacheContainer;
 		
 	public InfinispanBucket4jCacheConfiguration(CacheContainer cacheContainer) {
 		this.cacheContainer = cacheContainer;

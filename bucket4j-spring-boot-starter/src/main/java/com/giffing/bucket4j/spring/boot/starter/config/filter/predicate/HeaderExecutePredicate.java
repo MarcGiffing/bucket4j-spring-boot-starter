@@ -37,7 +37,7 @@ public abstract class HeaderExecutePredicate<T> extends ExecutePredicate<T> {
 	}
 
 	@Override
-	public ExecutePredicate<T> parseSimpleConfig(String simpleConfig) {
+	public void parseSimpleConfig(String simpleConfig) {
 		var headerConfig = Arrays.stream(simpleConfig.split(","))
 				.map(String::trim)
 				.toList();
@@ -48,7 +48,6 @@ public abstract class HeaderExecutePredicate<T> extends ExecutePredicate<T> {
 		if(headerConfig.size() > 1) {
 			this.headerValueRegex = headerConfig.get(1);
 		}
-		return this;
 	}
 
 }

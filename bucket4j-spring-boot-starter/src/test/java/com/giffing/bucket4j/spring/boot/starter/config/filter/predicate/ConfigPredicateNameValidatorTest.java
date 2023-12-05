@@ -1,8 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.predicate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,12 +11,6 @@ import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintValidatorContext;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxHeaderExecutePredicate;
@@ -31,6 +23,13 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.Bucket4JConfigurationPredicateNameValidator;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 class ConfigPredicateNameValidatorTest {
 
@@ -194,7 +193,7 @@ class ConfigPredicateNameValidatorTest {
     }
 
 
-    private class CustomTestPredicate extends ExecutePredicate<HttpServletRequest> {
+    private static class CustomTestPredicate extends ExecutePredicate<HttpServletRequest> {
 
         @Override
         public String name() {
@@ -202,9 +201,8 @@ class ConfigPredicateNameValidatorTest {
         }
 
         @Override
-        protected ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
-            return this;
-        }
+        protected void parseSimpleConfig(String simpleConfig) {
+		}
 
         @Override
         public boolean test(HttpServletRequest httpServletRequest) {

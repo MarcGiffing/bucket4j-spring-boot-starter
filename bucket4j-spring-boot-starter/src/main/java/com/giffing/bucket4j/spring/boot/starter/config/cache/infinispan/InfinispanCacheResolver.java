@@ -18,7 +18,7 @@ import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 
 public class InfinispanCacheResolver implements AsyncCacheResolver {
 
-	private CacheContainer cacheContainer;
+	private final CacheContainer cacheContainer;
 	
 	public InfinispanCacheResolver(CacheContainer cacheContainer) {
 		this.cacheContainer = cacheContainer;

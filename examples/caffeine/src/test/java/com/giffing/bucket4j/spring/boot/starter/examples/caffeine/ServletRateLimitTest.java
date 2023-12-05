@@ -1,25 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.Collections;
-import java.util.Set;
 import java.util.stream.IntStream;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,13 +20,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.bucket4j.TokensInheritanceStrategy;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +42,7 @@ class ServletRateLimitTest {
 	@Autowired
 	private Bucket4JBootProperties properties;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Autowired
 	Validator validator;
@@ -83,22 +75,6 @@ class ServletRateLimitTest {
 		
 		blockedWebRequestDueToRateLimit(url);
 	}
-
-	/**
-	 * Validate that an autowired Validator also validates the custom validation annotations
-	 */
-	@Test
-	@Order(2)
-	void validatorTest(){
-		assertThat(validator.validate(properties)).isEmpty();
-		RateLimit rl = properties.getFilters().get(0).getRateLimits().get(0);
-		rl.setTokensInheritanceStrategy(TokensInheritanceStrategy.AS_IS);
-		rl.getBandwidths().add(new BandWidth());
-		rl.getBandwidths().add(new BandWidth());
-		Set<ConstraintViolation<Bucket4JBootProperties>> violations = validator.validate(properties);
-		assertThat(violations).anyMatch(x -> x.getMessage().contains("Multiple bandwidths without id detected"));
-	}
-
 	@Test
 	@Order(2)
 	void replaceConfigTest() throws Exception {

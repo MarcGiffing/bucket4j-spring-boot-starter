@@ -1,9 +1,10 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -13,7 +14,6 @@ public class JedisCacheManager<K, V> extends CacheManager<K, V> {
 
 	private final JedisPool pool;
 	private final String cacheName;
-	private final Class<K> keyType;
 	private final Class<V> valueType;
 	private final ObjectMapper objectMapper;
 	private final String updateChannel;
@@ -22,7 +22,6 @@ public class JedisCacheManager<K, V> extends CacheManager<K, V> {
 		super(new JedisCacheListener<>(cacheName, keyType, valueType));
 		this.pool = pool;
 		this.cacheName = cacheName;
-		this.keyType = keyType;
 		this.valueType = valueType;
 
 		this.objectMapper = new ObjectMapper();

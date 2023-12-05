@@ -2,7 +2,6 @@ package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -204,9 +203,6 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 				
 				return new MetricTagResult(metricMetaTag.getKey(), value, metricMetaTag.getTypes());
 		}).toList();
-		if(metricTagResults == null) {
-			metricTagResults = new ArrayList<>();
-		}
 		return metricTagResults;
 	}
 

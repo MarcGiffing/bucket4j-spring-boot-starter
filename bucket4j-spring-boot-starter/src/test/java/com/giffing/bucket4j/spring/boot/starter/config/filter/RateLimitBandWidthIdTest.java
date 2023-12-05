@@ -26,7 +26,7 @@ import io.github.bucket4j.TokensInheritanceStrategy;
 
 public class RateLimitBandWidthIdTest {
 
-    RateLimitBandWidthIdsValidator validator = new RateLimitBandWidthIdsValidator();
+    final RateLimitBandWidthIdsValidator validator = new RateLimitBandWidthIdsValidator();
     ConstraintValidatorContext context;
 
     @BeforeEach

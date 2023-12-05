@@ -1,10 +1,8 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.ehcache;
+package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import org.junit.jupiter.api.*;
+import java.util.Collections;
+import java.util.stream.IntStream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -13,8 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.util.Collections;
-import java.util.stream.IntStream;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import org.junit.jupiter.api.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 properties = {
@@ -25,7 +27,7 @@ properties = {
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GatewaySampleApplicationTest {
 
-	private String url = "/hello";
+	private final String url = "/hello";
 
 	@Autowired
     ApplicationContext context;
@@ -35,7 +37,7 @@ class GatewaySampleApplicationTest {
 	
 	WebTestClient rest;
 
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private final ObjectMapper objectMapper = new ObjectMapper();
     
     @BeforeEach
     public void setup() {

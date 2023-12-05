@@ -1,11 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import org.apache.ignite.IgniteCache;
-
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
+
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+
+import org.apache.ignite.IgniteCache;
 
 public class IgniteCacheManager<K,V> extends CacheManager<K, V> {
 
@@ -17,7 +18,7 @@ public class IgniteCacheManager<K,V> extends CacheManager<K, V> {
 
 		IgniteCacheListener<K, V> cacheListener = (IgniteCacheListener<K, V>) super.cacheListener;
 		cache.registerCacheEntryListener(
-				new MutableCacheEntryListenerConfiguration<K, V>
+				new MutableCacheEntryListenerConfiguration<>
 						(FactoryBuilder.factoryOf(cacheListener), null, false, false));
 	}
 	@Override
