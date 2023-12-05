@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.validation.annotation.Validated;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 @Slf4j
-@NoArgsConstructor
 public class ExecutePredicateDefinition implements Serializable {
 
 	public static final String SIMPLE_CONFIG_KEY = "_simple_config_";
@@ -27,7 +25,13 @@ public class ExecutePredicateDefinition implements Serializable {
 	private String name;
 	
 	private final Map<String, String> args = new LinkedHashMap<>();
-	
+
+	/**
+	 * Private no arg constructor to enable deserializing serialized predicates with Jacksons ObjectMapper,
+	 * but still let Spring at initialization create the beans through the parameterized constructor.
+	 */
+	private ExecutePredicateDefinition(){}
+
 	public ExecutePredicateDefinition(String name) {
 		int eqIdx = name.indexOf('=');
 		if (eqIdx <= 0) {
@@ -39,5 +43,4 @@ public class ExecutePredicateDefinition implements Serializable {
 		this.args.put(SIMPLE_CONFIG_KEY, result);
 		log.debug("execute-predicate-simple-config;name:{};value:{}", this.name, result);
 	}
-	
 }
