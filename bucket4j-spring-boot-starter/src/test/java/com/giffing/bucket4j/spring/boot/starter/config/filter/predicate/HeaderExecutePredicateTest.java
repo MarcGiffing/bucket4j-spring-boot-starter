@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 
 class HeaderExecutePredicateTest {
 
@@ -19,7 +19,7 @@ class HeaderExecutePredicateTest {
 
 	@BeforeEach
 	public void setup() {
-		predicate = new HeaderExecutePredicate<>() {
+		predicate = new HeaderExecutePredicate<List<String>>() {
 			@Override
 			public boolean test(List<String> t) {
 				return testHeaderValues(t);

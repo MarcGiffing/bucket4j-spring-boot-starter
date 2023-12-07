@@ -1,20 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
+import io.github.bucket4j.distributed.AsyncBucketProxy;
+import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.functional.FunctionalMap;
 import org.infinispan.functional.impl.FunctionalMapImpl;
 import org.infinispan.functional.impl.ReadWriteMapImpl;
 import org.infinispan.manager.CacheContainer;
-
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-
-import io.github.bucket4j.distributed.AsyncBucketProxy;
-import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 
 public class InfinispanCacheResolver implements AsyncCacheResolver {
 
@@ -40,11 +36,4 @@ public class InfinispanCacheResolver implements AsyncCacheResolver {
 		FunctionalMapImpl<String, byte[]> functionalMap = FunctionalMapImpl.create(advancedCache);
 		return ReadWriteMapImpl.create(functionalMap);
 	}
-
-	@Override
-	public CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName){
-		Cache<String,Bucket4JConfiguration> cache = cacheContainer.getCache(cacheName);
-		return new InfinispanCacheManager<>(cache);
-	}
-
 }

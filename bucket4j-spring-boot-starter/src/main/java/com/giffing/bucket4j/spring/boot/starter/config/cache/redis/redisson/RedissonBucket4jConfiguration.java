@@ -1,13 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
 import org.redisson.command.CommandAsyncExecutor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.redisson.config.Config;
+import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,8 +21,36 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "redis-redisson", matchIfMissing = true)
 public class RedissonBucket4jConfiguration {
 
+	private final CommandAsyncExecutor commandExecutor;
+	private final RedissonClient redissonClient;
+	private final String configCacheName;
+
+	public RedissonBucket4jConfiguration(CommandAsyncExecutor commandExecutor, Bucket4JBootProperties properties) {
+		this.commandExecutor = commandExecutor;
+		this.configCacheName = properties.getFilterConfigCacheName();
+
+		Config config = new Config(commandExecutor.getServiceManager().getCfg());
+		config.useSingleServer()
+				.setConnectionMinimumIdleSize(1)
+				.setConnectionPoolSize(2);
+		this.redissonClient = Redisson.create(config);
+	}
+
 	@Bean
-	public AsyncCacheResolver bucket4RedisResolver(CommandAsyncExecutor commandExecutor) {
+	@ConditionalOnMissingBean(AsyncCacheResolver.class)
+	public AsyncCacheResolver bucket4RedisResolver() {
 		return new RedissonCacheResolver(commandExecutor);
+	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
+		return new RedissonCacheManager<>(this.redissonClient, configCacheName);
+	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	public RedissonCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new RedissonCacheListener<>(this.redissonClient, configCacheName);
 	}
 }

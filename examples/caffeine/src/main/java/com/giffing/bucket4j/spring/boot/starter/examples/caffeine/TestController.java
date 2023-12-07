@@ -9,7 +9,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
@@ -25,14 +23,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 @RestController
 public class TestController {
 
-	@Autowired
-	Validator validator;
+	private final Validator validator;
+	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-
-	private final CacheManager<String, Bucket4JConfiguration> manager;
-
-	public TestController(CacheResolver cacheResolver) {
-		this.manager = cacheResolver.resolveConfigCacheManager("filterConfigCache");
+	public TestController(Validator validator, CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+		this.validator = validator;
+		this.configCacheManager = configCacheManager;
 	}
 
 	@GetMapping("unsecure")
@@ -68,13 +64,13 @@ public class TestController {
 		}
 
 		//validate that the filter exists, since creating new filters is not supported
-		Bucket4JConfiguration oldConfig = manager.getValue(filterId);
+		Bucket4JConfiguration oldConfig = configCacheManager.getValue(filterId);
 		if (oldConfig == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No filter with id '" + filterId + "' could be found.");
 		}
 
 		//validate that the increased
-		if(oldConfig.getBucket4JVersionNumber() >= newConfig.getBucket4JVersionNumber()){
+		if (oldConfig.getBucket4JVersionNumber() >= newConfig.getBucket4JVersionNumber()) {
 			return ResponseEntity.badRequest().body("The current filter has a higher version number than the configuration in the request body.");
 		}
 
@@ -88,7 +84,8 @@ public class TestController {
 		if (response != null) return response;
 
 		//insert the new config into the cache, so it will trigger the cacheUpdateListeners
-		manager.setValue(filterId, newConfig);
+		configCacheManager.setValue(filterId, newConfig);
+
 		return ResponseEntity.ok().build();
 	}
 
@@ -105,7 +102,7 @@ public class TestController {
 		}
 
 		//validate that the filter, ratelimit and bandwidth all exist
-		Bucket4JConfiguration config = manager.getValue(filterId);
+		Bucket4JConfiguration config = configCacheManager.getValue(filterId);
 		if (config == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No filter with id '" + filterId + "' could be found.");
 		}
@@ -123,14 +120,15 @@ public class TestController {
 
 		//validate that the changed config is still valid
 		Set<ConstraintViolation<Bucket4JConfiguration>> violations = this.validator.validate(config);
-		if(!violations.isEmpty()){
+		if (!violations.isEmpty()) {
 			List<String> errors = violations.stream().map(ConstraintViolation::getMessage).toList();
 			return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
 		}
 
 		//update the version number and insert the updated config into the cache, so it will trigger the cacheUpdateListeners
 		config.setMinorVersion(config.getMinorVersion() + 1);
-		manager.setValue(filterId, config);
+		configCacheManager.setValue(filterId, config);
+
 		return ResponseEntity.ok().build();
 	}
 
@@ -143,4 +141,6 @@ public class TestController {
 		}
 		return null;
 	}
+
+	private record ValidationErrorResponse(String message, List<String> errors) {}
 }

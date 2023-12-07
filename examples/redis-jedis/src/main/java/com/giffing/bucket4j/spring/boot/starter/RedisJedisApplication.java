@@ -7,10 +7,10 @@ import org.springframework.jmx.support.RegistrationPolicy;
 
 @SpringBootApplication
 @EnableMBeanExport(registration=RegistrationPolicy.IGNORE_EXISTING)
-public class RedisApplication {
+public class RedisJedisApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RedisApplication.class, args);
+        SpringApplication.run(RedisJedisApplication.class, args);
     }
 
 }

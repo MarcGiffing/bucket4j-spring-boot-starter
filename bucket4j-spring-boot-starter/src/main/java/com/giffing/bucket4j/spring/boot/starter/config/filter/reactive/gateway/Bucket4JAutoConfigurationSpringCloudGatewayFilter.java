@@ -1,6 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -22,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
@@ -37,9 +39,9 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCl
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * Configures Servlet Filters for Bucket4Js rate limit.
- *
  */
 @Configuration
 @ConditionalOnClass({ GlobalFilter.class })
@@ -53,9 +55,13 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 
 	private final Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationSpringCloudGatewayFilter.class);
 
+	private final Bucket4JBootProperties properties;
+
 	private final ConfigurableBeanFactory beanFactory;
 
 	private final GenericApplicationContext context;
+
+	private final AsyncCacheResolver cacheResolver;
 
 	private final List<MetricHandler> metricHandlers;
 
@@ -70,14 +76,16 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 			AsyncCacheResolver cacheResolver,
 			List<MetricHandler> metricHandlers,
 			Bucket4jConfigurationHolder gatewayConfigurationHolder,
-			ExpressionParser gatewayFilterExpressionParser) {
-		super(properties, cacheResolver);
+			ExpressionParser gatewayFilterExpressionParser,
+			Optional<CacheManager<String, Bucket4JConfiguration>> configCacheManager) {
+		super(configCacheManager.orElse(null));
+		this.properties = properties;
 		this.beanFactory = beanFactory;
 		this.context = context;
+		this.cacheResolver = cacheResolver;
 		this.metricHandlers = metricHandlers;
 		this.gatewayConfigurationHolder = gatewayConfigurationHolder;
 		this.gatewayFilterExpressionParser = gatewayFilterExpressionParser;
-
 		initFilters();
 	}
 
@@ -88,7 +96,7 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 			.getFilters()
 			.stream()
 			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.GATEWAY))
-			.map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) :	filter)
+			.map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
 			.forEach(filter -> {
 				addDefaultMetricTags(properties, filter);
 				filterCount.incrementAndGet();
@@ -106,7 +114,6 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 
 				log.info("create-gateway-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
 			});
-
 	}
 
 	@Override
@@ -122,9 +129,9 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
 
 	@Override
 	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
-		//only handle servlet filter updates
+		//only handle gateway filter updates
 		Bucket4JConfiguration newConfig = event.getNewValue();
-		if(newConfig.getFilterMethod().equals(FilterMethod.GATEWAY)) {
+		if (newConfig.getFilterMethod().equals(FilterMethod.GATEWAY)) {
 			try {
 				SpringCloudGatewayRateLimitFilter filter = context.getBean(event.getKey(), SpringCloudGatewayRateLimitFilter.class);
 				FilterConfiguration<ServerHttpRequest> newFilterConfig = buildFilterConfig(

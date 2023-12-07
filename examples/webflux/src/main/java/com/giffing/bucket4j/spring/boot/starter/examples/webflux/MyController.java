@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
 import reactor.core.publisher.Mono;
@@ -13,11 +12,11 @@ import reactor.core.publisher.Mono;
 @RequestMapping
 public class MyController {
 
-    private final CacheManager<String, Bucket4JConfiguration> manager;
+	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-    public MyController(CacheResolver cacheResolver){
-        manager = cacheResolver.resolveConfigCacheManager("filterConfigCache");
-    }
+	public MyController(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+		this.configCacheManager = configCacheManager;
+	}
 
 	@GetMapping("/hello")
     public Mono<String> hello(
@@ -37,10 +36,9 @@ public class MyController {
             );
     }
 
-    @PostMapping("filters/{filterId}")
-    public ResponseEntity updateConfig(@PathVariable String filterId, @RequestBody Bucket4JConfiguration filter){
-        manager.setValue(filterId, filter);
-        return ResponseEntity.ok().build();
-    }
-	
+	@PostMapping("filters/{filterId}")
+	public ResponseEntity updateConfig(@PathVariable String filterId, @RequestBody Bucket4JConfiguration filter) {
+		configCacheManager.setValue(filterId, filter);
+		return ResponseEntity.ok().build();
+	}
 }

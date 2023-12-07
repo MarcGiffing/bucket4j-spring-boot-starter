@@ -1,41 +1,34 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import java.util.Collections;
+import java.util.stream.IntStream;
+
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Collections;
-import java.util.stream.IntStream;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
 @TestPropertySource(properties = {"bucket4j.filter-config-caching-enabled=true", "bucket4j.filter-config-cache-name=filterConfigCache"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class RedisTest {
+class RedisLettuceTest {
 
     @Container
     static final GenericContainer redis =
@@ -49,12 +42,22 @@ class RedisTest {
     }
 
     @Autowired
-    private MockMvc mockMvc;
+    ApplicationContext context;
 
 	@Autowired
 	Bucket4JBootProperties properties;
 
+    WebTestClient rest;
+
 	private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    public void setup() {
+        this.rest = WebTestClient
+                .bindToApplicationContext(this.context)
+                .configureClient()
+                .build();
+    }
 
     @Test
 	@Order(1)
@@ -79,23 +82,11 @@ class RedisTest {
                 .boxed()
                 .sorted(Collections.reverseOrder())
                 .forEach(counter -> {
+                    System.out.println(counter);
                     successfulWebRequest(url, counter - 1);
                 });
 
         blockedWebRequestDueToRateLimit(url);
-    }
-
-    private void successfulWebRequest(String url, Integer remainingTries) {
-        try {
-            this.mockMvc
-                    .perform(get(url))
-                    .andExpect(status().isOk())
-                    .andExpect(header().longValue("X-Rate-Limit-Remaining", remainingTries))
-                    .andExpect(content().string(containsString("Hello World")));
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
     }
 
 	@Test
@@ -115,11 +106,7 @@ class RedisTest {
 
 		//update the filter cache
 		String url = "/filters/".concat(clone.getId());
-		this.mockMvc
-				.perform(post(url)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(new ObjectMapper().writeValueAsString(clone)))
-				.andExpect(status().isOk());
+		rest.post().uri(url).bodyValue(clone).exchange().expectStatus().isOk();
 
 		//Short sleep to allow the cacheUpdateListeners to update the filter configuration
 		Thread.sleep(100);
@@ -128,11 +115,22 @@ class RedisTest {
 		successfulWebRequest(filterEndpoint, newFilterCapacity-1);
 	}
 
-
-	private void blockedWebRequestDueToRateLimit(String url) throws Exception {
-        this.mockMvc
-                .perform(get(url))
-                .andExpect(status().is(HttpStatus.TOO_MANY_REQUESTS.value()))
-                .andExpect(content().string(containsString("{ \"message\": \"Too many requests!\" }")));
+    private void successfulWebRequest(String url, Integer remainingTries) {
+        rest
+                .get()
+                .uri(url)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("X-Rate-Limit-Remaining", String.valueOf(remainingTries));
     }
+
+    private void blockedWebRequestDueToRateLimit(String url) throws Exception {
+        rest
+                .get()
+                .uri(url)
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.TOO_MANY_REQUESTS)
+                .expectBody().jsonPath("error", "Too many requests!");
+    }
+
 }

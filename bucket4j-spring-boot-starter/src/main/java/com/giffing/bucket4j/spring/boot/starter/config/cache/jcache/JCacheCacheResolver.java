@@ -1,18 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
-
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 
 /**
  * This class is the JCache (JSR-107) implementation of the {@link CacheResolver}.
@@ -41,10 +39,4 @@ public class JCacheCacheResolver implements SyncCacheResolver {
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
-
-	@Override
-	public com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName) {
-		return new JCacheCacheManager<>(cacheManager.getCache(cacheName));
-	}
-
 }

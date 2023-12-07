@@ -1,34 +1,33 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
 import org.redisson.api.RTopic;
+import org.redisson.api.RedissonClient;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
-public class RedissonCacheListener<K,V> implements CacheListener<K,V> {
+/**
+ * This class is intended to be used as bean.
+ *
+ * It will listen to Redisson events on the {cacheName}:update channel
+ * and publish these to the Spring ApplicationEventPublisher as CacheUpdateEvent<K, V>
+ *
+ * @param <K> Type of the cache key
+ * @param <V> Type of the cache value
+ */
+public class RedissonCacheListener<K, V> {
 
-	private final List<CacheUpdateListener<K,V>> updateListeners = new ArrayList<>();
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
-	@Override
-	public void addCacheUpdateListener(CacheUpdateListener<K, V> listener) {
-		this.updateListeners.add(listener);
+	public RedissonCacheListener(RedissonClient redisson, String cacheName) {
+		RTopic pubSubTopic = redisson.getTopic(cacheName);
+		pubSubTopic.addListener(CacheUpdateEvent.class, this::onCacheUpdateEvent);
 	}
 
-	@Override
-	public void removeCacheUpdateListener(CacheUpdateListener<K, V> listener) {
-		this.updateListeners.remove(listener);
-	}
-
-	public void onCacheUpdateEvent(CacheUpdateEvent<K, V> event) {
-		this.updateListeners.forEach(x -> x.onCacheUpdateEvent(event));
-	}
-
-	public void init(RTopic pubSubTopic) {
-		//initialize the update listener
-		pubSubTopic.addListener(CacheUpdateEvent.class,
-				(CharSequence channel, CacheUpdateEvent<K,V> event) -> this.updateListeners.forEach(x -> onCacheUpdateEvent(event)));
+	public void onCacheUpdateEvent(CharSequence channel, CacheUpdateEvent<K, V> event) {
+		eventPublisher.publishEvent(event);
 	}
 }

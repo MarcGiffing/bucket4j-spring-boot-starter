@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class PathExecutePredicate<T> extends ExecutePredicate<T> {
 
-	private final PathPatternParser pathPatternParser = new PathPatternParser();
+	private PathPatternParser pathPatternParser = new PathPatternParser();
 
 	private List<PathPattern> pathPatterns = new ArrayList<>();
 	
@@ -35,11 +35,12 @@ public abstract class PathExecutePredicate<T> extends ExecutePredicate<T> {
 	}
 
 	@Override
-	public void parseSimpleConfig(String simpleConfig) {
+	public ExecutePredicate<T> parseSimpleConfig(String simpleConfig) {
 		pathPatterns = Arrays.stream(simpleConfig.split(","))
 			.map(String::trim)
 			.map(pathPatternParser::parse)
 			.toList();
+		return this;
 	}
 
 }

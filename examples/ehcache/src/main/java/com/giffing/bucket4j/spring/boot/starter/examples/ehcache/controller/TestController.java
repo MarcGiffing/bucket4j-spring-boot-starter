@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
 import lombok.Getter;
@@ -23,40 +22,40 @@ public class TestController {
 //	http.authorizeRequests().antMatchers("/login").permitAll();
 //	http.authorizeRequests().antMatchers("/secure").hasAnyRole("ADMIN","USER").
 
-	private final CacheManager<String, Bucket4JConfiguration> manager;
+	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public TestController(CacheResolver cacheResolver){
-		manager = cacheResolver.resolveConfigCacheManager("filterConfigCache");
+	public TestController(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+		this.configCacheManager = configCacheManager;
 	}
 
 	@GetMapping("unsecure")
 	public ResponseEntity unsecure() {
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("login")
 	public ResponseEntity login() {
-		
+
 		Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		//anonymous inner type
 		GrantedAuthority grantedAuthority = () -> "ROLE_USER";
-        grantedAuthorities.add(grantedAuthority);
-		
-		Authentication auth =  new UsernamePasswordAuthenticationToken(new User("admin"), null, grantedAuthorities);
+		grantedAuthorities.add(grantedAuthority);
+
+		Authentication auth = new UsernamePasswordAuthenticationToken(new User("admin"), null, grantedAuthorities);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		
+
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@GetMapping("secure")
 	public ResponseEntity secure() {
 		return ResponseEntity.ok().build();
 	}
-	
+
 	@Getter
 	public static class User {
 		public String username;
-		
+
 		public User(String username) {
 			this.username = username;
 		}
@@ -69,9 +68,7 @@ public class TestController {
 		public String toString() {
 			return username;
 		}
-		
 	}
-
 
 	@GetMapping("hello")
 	public ResponseEntity<String> hello() {
@@ -79,9 +76,9 @@ public class TestController {
 	}
 
 	@PostMapping("filters/{filterId}")
-	public ResponseEntity updateConfig(@PathVariable String filterId, @RequestBody Bucket4JConfiguration filter){
-		manager.setValue(filterId, filter);
+	public ResponseEntity updateConfig(@PathVariable String filterId, @RequestBody Bucket4JConfiguration filter) {
+		configCacheManager.setValue(filterId, filter);
 		return ResponseEntity.ok().build();
 	}
-	
+
 }

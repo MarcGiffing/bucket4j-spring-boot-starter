@@ -1,32 +1,36 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
 import com.hazelcast.core.EntryEvent;
+import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 
-public class HazelcastCacheListener<K, V> implements CacheListener<K, V>, EntryUpdatedListener<K, V> {
+/**
+ * This class is intended to be used as bean.
+ *
+ * It will listen to changes in the cache, parse them to a CacheUpdateEvent<K, V>
+ * and publish the event to the Spring ApplicationEventPublisher.
+ *
+ * @param <K> Type of the cache key
+ * @param <V> Type of the cache value
+ */
+public class HazelcastCacheListener<K, V> implements EntryUpdatedListener<K, V> {
 
-	private final List<CacheUpdateListener<K, V>> cacheUpdateListeners = new ArrayList<>();
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
-	@Override
-	public void addCacheUpdateListener(CacheUpdateListener<K, V> listener) {
-		cacheUpdateListeners.add(listener);
-	}
-
-	@Override
-	public void removeCacheUpdateListener(CacheUpdateListener<K, V> listener) {
-		cacheUpdateListeners.remove(listener);
+	public HazelcastCacheListener(IMap<K, V> map){
+		map.addEntryListener(this, true);
 	}
 
 	@Override
 	public void entryUpdated(EntryEvent<K, V> entryEvent) {
 		CacheUpdateEvent<K, V> updateEvent = new CacheUpdateEvent<>(entryEvent.getKey(), entryEvent.getOldValue(), entryEvent.getValue());
-		cacheUpdateListeners.forEach(x -> x.onCacheUpdateEvent(updateEvent));
+		eventPublisher.publishEvent(updateEvent);
 	}
 
 }

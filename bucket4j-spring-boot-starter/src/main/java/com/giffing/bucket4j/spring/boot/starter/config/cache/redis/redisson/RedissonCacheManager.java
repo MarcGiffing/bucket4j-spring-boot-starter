@@ -2,34 +2,23 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import org.redisson.Redisson;
 import org.redisson.api.RMap;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
-import org.redisson.command.CommandAsyncExecutor;
-import org.redisson.config.Config;
 
 import java.io.Serializable;
 
 
-public class RedissonCacheManager<K extends Serializable, V> extends CacheManager<K, V> {
+public class RedissonCacheManager<K extends Serializable, V> implements CacheManager<K, V> {
 	private final String cacheName;
 	private final RedissonClient redisson;
-
 	private final RTopic pubSubTopic;
 
-	protected RedissonCacheManager(CommandAsyncExecutor commandExecutor, String cacheName) {
-		super(new RedissonCacheListener<>());
+	protected RedissonCacheManager(RedissonClient redisson, String cacheName) {
 		this.cacheName = cacheName;
-
-		Config config = new Config(commandExecutor.getServiceManager().getCfg());
-		config.useSingleServer()
-				.setConnectionMinimumIdleSize(1)
-				.setConnectionPoolSize(2);
-		redisson = Redisson.create(config);
+		this.redisson = redisson;
 
 		this.pubSubTopic = redisson.getTopic(cacheName);
-		((RedissonCacheListener<K, V>) super.cacheListener).init(pubSubTopic);
 	}
 
 	@Override

@@ -1,35 +1,43 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
+import org.apache.ignite.IgniteCache;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-public class IgniteCacheListener<K,V> implements CacheListener<K,V>, CacheEntryUpdatedListener<K,V>, Serializable {
+/**
+ * This class is intended to be used as bean.
+ *
+ * It will listen to changes in the cache, parse them to a CacheUpdateEvent<K, V>
+ * and publish the event to the Spring ApplicationEventPublisher.
+ *
+ * @param <K> Type of the cache key
+ * @param <V> Type of the cache value
+ */
+public class IgniteCacheListener<K,V> implements CacheEntryUpdatedListener<K,V>, Serializable {
 
-	private final List<CacheUpdateListener<K,V>> updateListeners = new ArrayList<>();
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
-	@Override
-	public void addCacheUpdateListener(CacheUpdateListener<K, V> listener) {
-		this.updateListeners.add(listener);
-	}
-
-	@Override
-	public void removeCacheUpdateListener(CacheUpdateListener<K, V> listener) {
-		this.updateListeners.remove(listener);
+	public IgniteCacheListener(IgniteCache<K,V> cache){
+		cache.registerCacheEntryListener(
+				new MutableCacheEntryListenerConfiguration<K, V>
+						(FactoryBuilder.factoryOf(this), null, false, false));
 	}
 
 	@Override
 	public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> iterable) throws CacheEntryListenerException {
 		iterable.forEach(event -> {
 			CacheUpdateEvent<K,V> updateEvent = new CacheUpdateEvent<>(event.getKey(), event.getOldValue(), event.getValue());
-			updateListeners.forEach(x -> x.onCacheUpdateEvent(updateEvent));
+			eventPublisher.publishEvent(updateEvent);
 		});
 	}
 }

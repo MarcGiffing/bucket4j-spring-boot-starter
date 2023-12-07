@@ -1,6 +1,5 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 
 /**
@@ -14,5 +13,4 @@ import io.github.bucket4j.distributed.proxy.ProxyManager;
 public interface CacheResolver {
 
 	ProxyManagerWrapper resolve(String cacheName);
-	CacheManager<String, Bucket4JConfiguration> resolveConfigCacheManager(String cacheName);
 }

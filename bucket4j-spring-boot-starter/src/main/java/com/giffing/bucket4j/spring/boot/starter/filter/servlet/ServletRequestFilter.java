@@ -18,7 +18,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchi
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 
 import io.github.bucket4j.ConsumptionProbe;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Servlet {@link Filter} class to configure Bucket4j on each request. 
@@ -36,15 +35,12 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 	}
     
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 		return !request.getRequestURI().matches(filterConfig.getUrl());
 	}
     
 	@Override
-	protected void doFilterInternal(
-			@NotNull HttpServletRequest request,
-			@NotNull HttpServletResponse response,
-			@NotNull FilterChain filterChain)
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
         boolean allConsumed = true;
         Long remainingLimit = null;

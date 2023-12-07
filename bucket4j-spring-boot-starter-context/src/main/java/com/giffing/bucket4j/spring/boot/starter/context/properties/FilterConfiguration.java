@@ -22,7 +22,7 @@ import lombok.ToString;
 public class FilterConfiguration<R> {
 
 	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
-
+	
 	/**
 	 * The url on which the filter should listen.
 	 */

@@ -20,7 +20,7 @@ public enum FilterMethod {
 	 * Spring Cloud Gateway GlobalFilter
 	 */
 
-	GATEWAY,
+	GATEWAY;
 	
 	
 	

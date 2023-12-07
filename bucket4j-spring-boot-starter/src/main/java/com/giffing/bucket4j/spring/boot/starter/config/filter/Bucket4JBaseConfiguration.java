@@ -14,7 +14,6 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
@@ -43,24 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListener<String, Bucket4JConfiguration> {
 
-	protected final Bucket4JBootProperties properties;
-	protected final CacheResolver cacheResolver;
-
-	/**
-	 * This field will be null if configuration caching is disabled
-	 */
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public Bucket4JBaseConfiguration(Bucket4JBootProperties properties, CacheResolver cacheResolver){
-		this.properties = properties;
-		this.cacheResolver = cacheResolver;
-		if(properties.isFilterConfigCachingEnabled()){
-			String cacheName = properties.getFilterConfigCacheName();
-			configCacheManager = cacheResolver.resolveConfigCacheManager(cacheName);
-			configCacheManager.addCacheUpdateListener(this);
-		} else {
-			configCacheManager = null;
-		}
+	public Bucket4JBaseConfiguration(CacheManager<String, Bucket4JConfiguration> configCacheManager){
+		this.configCacheManager = configCacheManager;
 	}
 
 	public abstract List<MetricHandler> getMetricHandlers();
@@ -70,7 +55,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 			ProxyManagerWrapper proxyWrapper,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
-		
+
 		FilterConfiguration<R> filterConfig = mapFilterConfiguration(config);
 		
 		config.getRateLimits().forEach(rl -> {
