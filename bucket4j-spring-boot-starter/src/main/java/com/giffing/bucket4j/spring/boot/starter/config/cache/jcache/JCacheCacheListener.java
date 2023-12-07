@@ -1,6 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.cache.Cache;
@@ -11,12 +13,21 @@ import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.io.Serializable;
 
+/**
+ * This class is intended to be used as bean.
+ *
+ * It will listen to changes in the cache, parse them to a CacheUpdateEvent<K, V>
+ * and publish the event to the Spring ApplicationEventPublisher.
+ *
+ * @param <K> Type of the cache key
+ * @param <V> Type of the cache value
+ */
 public class JCacheCacheListener<K, V> implements CacheEntryUpdatedListener<K, V>, Serializable {
 
-	private final ApplicationEventPublisher eventPublisher;
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
-	public JCacheCacheListener(ApplicationEventPublisher eventPublisher, Cache<K,V> cache ){
-		this.eventPublisher = eventPublisher;
+	public JCacheCacheListener(Cache<K,V> cache ){
 		cache.registerCacheEntryListener(
 				new MutableCacheEntryListenerConfiguration<K, V>
 						(FactoryBuilder.factoryOf(this), null, true, false));

@@ -41,7 +41,7 @@ public class IgniteBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public IgniteCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
-		return new IgniteCacheListener<>(eventPublisher, ignite.cache(configCacheName));
+	public IgniteCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new IgniteCacheListener<>(ignite.cache(configCacheName));
 	}
 }

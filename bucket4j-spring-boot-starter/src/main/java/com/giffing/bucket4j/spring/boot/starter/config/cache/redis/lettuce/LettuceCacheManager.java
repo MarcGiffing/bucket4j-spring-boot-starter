@@ -17,6 +17,11 @@ public class LettuceCacheManager<K, V> implements CacheManager<K, V> {
 	private final ObjectMapper objectMapper;
 	private final String cacheUpdateChannel;
 
+	/**
+	 * @param redisClient The RedisClient to use for reading/writing data to the cache
+	 * @param cacheName The name of the cache.
+	 * @param valueType The type of the data. This is required for parsing and should always match the V of this class.
+	 */
 	protected LettuceCacheManager(RedisClient redisClient, String cacheName, Class<V> valueType) {
 		this.syncCommands = redisClient.connect().sync();
 		this.cacheName = cacheName;

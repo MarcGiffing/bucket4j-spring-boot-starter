@@ -39,7 +39,7 @@ public class LettuceBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public LettuceCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
-		return new LettuceCacheListener<>(eventPublisher, redisClient, configCacheName, String.class, Bucket4JConfiguration.class);
+	public LettuceCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new LettuceCacheListener<>(redisClient, configCacheName, String.class, Bucket4JConfiguration.class);
 	}
 }

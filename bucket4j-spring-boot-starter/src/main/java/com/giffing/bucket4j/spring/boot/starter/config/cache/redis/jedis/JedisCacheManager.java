@@ -18,6 +18,11 @@ public class JedisCacheManager<K, V> implements CacheManager<K, V> {
 	private final ObjectMapper objectMapper;
 	private final String updateChannel;
 
+	/**
+	 * @param pool The JedisPool to use for reading/writing data to the cache
+	 * @param cacheName The name of the cache.
+	 * @param valueType The type of the data. This is required for parsing and should always match the V of this class.
+	 */
 	public JedisCacheManager(JedisPool pool, String cacheName, Class<V> valueType) {
 		this.pool = pool;
 		this.cacheName = cacheName;

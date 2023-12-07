@@ -2,6 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import org.apache.ignite.IgniteCache;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.cache.configuration.FactoryBuilder;
@@ -11,12 +13,21 @@ import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.io.Serializable;
 
+/**
+ * This class is intended to be used as bean.
+ *
+ * It will listen to changes in the cache, parse them to a CacheUpdateEvent<K, V>
+ * and publish the event to the Spring ApplicationEventPublisher.
+ *
+ * @param <K> Type of the cache key
+ * @param <V> Type of the cache value
+ */
 public class IgniteCacheListener<K,V> implements CacheEntryUpdatedListener<K,V>, Serializable {
 
-	private final ApplicationEventPublisher eventPublisher;
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
-	public IgniteCacheListener(ApplicationEventPublisher eventPublisher, IgniteCache<K,V> cache){
-		this.eventPublisher = eventPublisher;
+	public IgniteCacheListener(IgniteCache<K,V> cache){
 		cache.registerCacheEntryListener(
 				new MutableCacheEntryListenerConfiguration<K, V>
 						(FactoryBuilder.factoryOf(this), null, false, false));

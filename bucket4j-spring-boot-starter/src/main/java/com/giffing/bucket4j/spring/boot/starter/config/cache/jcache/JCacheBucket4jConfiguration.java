@@ -43,8 +43,8 @@ public class JCacheBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public JCacheCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
-		return new JCacheCacheListener<>(eventPublisher, cacheManager.getCache(configCacheName));
+	public JCacheCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new JCacheCacheListener<>(cacheManager.getCache(configCacheName));
 	}
 
 }

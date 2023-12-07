@@ -40,7 +40,7 @@ public class JedisBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public JedisCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
-		return new JedisCacheListener<>(eventPublisher, jedisPool, configCacheName, String.class, Bucket4JConfiguration.class);
+	public JedisCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new JedisCacheListener<>(jedisPool, configCacheName, String.class, Bucket4JConfiguration.class);
 	}
 }

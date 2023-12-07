@@ -51,9 +51,9 @@ public class HazelcastSpringBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener() {
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
-		return new HazelcastCacheListener<>(eventPublisher, map);
+		return new HazelcastCacheListener<>(map);
 	}
 
 }

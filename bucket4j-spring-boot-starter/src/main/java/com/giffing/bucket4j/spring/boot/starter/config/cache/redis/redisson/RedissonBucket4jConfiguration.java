@@ -50,7 +50,7 @@ public class RedissonBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public RedissonCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
-		return new RedissonCacheListener<>(eventPublisher, this.redissonClient, configCacheName);
+	public RedissonCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new RedissonCacheListener<>(this.redissonClient, configCacheName);
 	}
 }

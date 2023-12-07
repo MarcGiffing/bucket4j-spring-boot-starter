@@ -51,7 +51,7 @@ public class InfinispanJCacheBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
-	public InfinispanCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
-		return new InfinispanCacheListener<>(eventPublisher, cacheContainer.getCache(configCacheName));
+	public InfinispanCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new InfinispanCacheListener<>(cacheContainer.getCache(configCacheName));
 	}
 }
