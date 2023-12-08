@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.io.Serializable;
 import java.time.temporal.ChronoUnit;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -10,7 +11,9 @@ import jakarta.validation.constraints.Positive;
 import org.springframework.util.StringUtils;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidDurationChronoUnit;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
@@ -38,6 +41,7 @@ public class BandWidth implements Serializable {
 	private long time;
 	
 	@NotNull
+	@ValidDurationChronoUnit
 	private ChronoUnit unit;
 	
 	@Min(1)
