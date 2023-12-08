@@ -51,6 +51,7 @@ public class RateLimit implements Serializable {
 	private Integer numTokens = 1;
 
 	@NotEmpty
+	@Valid
 	private List<BandWidth> bandwidths = new ArrayList<>();
 
 	/**
