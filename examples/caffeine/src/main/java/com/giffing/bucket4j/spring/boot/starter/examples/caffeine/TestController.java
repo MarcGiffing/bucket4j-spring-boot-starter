@@ -19,6 +19,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
 
 @RestController
 public class TestController {
@@ -46,8 +47,15 @@ public class TestController {
 		return ResponseEntity.ok("Hello World");
 	}
 
+	/**
+	 * Example of how a filter configuration can be updated during runtime
+	 * @param filterId id of the filter to update
+	 * @param newConfig the new filter configuration
+	 * @param bindingResult the result of the Jakarta validation
+	 * @return
+	 */
 	@PostMapping("filters/{filterId}")
-	public ResponseEntity updateConfig(
+	public ResponseEntity<?> updateConfig(
 			@PathVariable String filterId,
 			@RequestBody @Valid Bucket4JConfiguration newConfig,
 			BindingResult bindingResult) {
@@ -58,30 +66,12 @@ public class TestController {
 			return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
 		}
 
-		//validate that the id in the path matches the id in the body
-		if (!newConfig.getId().equals(filterId)) {
-			return ResponseEntity.badRequest().body("Filter id in the path does not match the request body.");
-		}
-
-		//validate that the filter exists, since creating new filters is not supported
+		//retrieve the old config and validate that it can be replaced by the new config
 		Bucket4JConfiguration oldConfig = configCacheManager.getValue(filterId);
-		if (oldConfig == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No filter with id '" + filterId + "' could be found.");
+		ResponseEntity<String> validationResponse = Bucket4JUtils.validateConfigurationUpdate(oldConfig, newConfig);
+		if (validationResponse != null) {
+			return validationResponse;
 		}
-
-		//validate that the increased
-		if (oldConfig.getBucket4JVersionNumber() >= newConfig.getBucket4JVersionNumber()) {
-			return ResponseEntity.badRequest().body("The current filter has a higher version number than the configuration in the request body.");
-		}
-
-		//validate that the fields that are not allowed to change remain the same
-		ResponseEntity<?> response;
-		response = validateFieldEquality("filterMethod", oldConfig.getFilterMethod(), newConfig.getFilterMethod());
-		if (response != null) return response;
-		response = validateFieldEquality("filterOrder", oldConfig.getFilterOrder(), newConfig.getFilterOrder());
-		if (response != null) return response;
-		response = validateFieldEquality("cacheName", oldConfig.getCacheName(), newConfig.getCacheName());
-		if (response != null) return response;
 
 		//insert the new config into the cache, so it will trigger the cacheUpdateListeners
 		configCacheManager.setValue(filterId, newConfig);
@@ -89,6 +79,19 @@ public class TestController {
 		return ResponseEntity.ok().build();
 	}
 
+	/**
+	 * note: The recommended way of updating rate limits is by sending the whole Bucket4JConfiguration (see above).
+	 *
+	 * This endpoint is added as an example how partial data of a configuration could be updated.
+	 * This should only be done if you know what you are doing, since it requires additional checks
+	 * and configuring to prevent corrupting the cache. If unsure, use the example above.
+	 *
+	 * @param filterId The id of the filter to update
+	 * @param limitIndex The index number of the RateLimit (these don't have an id, so has to be index based)
+	 * @param bandwidthId The id of the bandwidth to update
+	 * @param bandWidth The new BandWidth configuration
+	 * @return
+	 */
 	@PostMapping("filters/{filterId}/ratelimits/{limitIndex}/bandwidths/{bandwidthId}")
 	public ResponseEntity updateBandwidth(
 			@PathVariable String filterId,
@@ -130,16 +133,6 @@ public class TestController {
 		configCacheManager.setValue(filterId, config);
 
 		return ResponseEntity.ok().build();
-	}
-
-	private ResponseEntity<?> validateFieldEquality(String fieldName, Object oldValue, Object newValue) {
-		if (!Objects.equals(oldValue, newValue)) {
-			String errorMessage = String.format(
-					"It is not possible to modify the %s of an existing filter. Expected the field to be '%s' but is '%s'.",
-					fieldName, oldValue, newValue);
-			return ResponseEntity.badRequest().body(errorMessage);
-		}
-		return null;
 	}
 
 	private record ValidationErrorResponse(String message, List<String> errors) {}
