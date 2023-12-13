@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
  * Configures {@link Filter}s for Bucket4Js rate limit.
  */
 @Configuration
-@ConditionalOnClass({ Filter.class, JCacheProxyManager.class })
+@ConditionalOnClass({ Filter.class })
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class })
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)

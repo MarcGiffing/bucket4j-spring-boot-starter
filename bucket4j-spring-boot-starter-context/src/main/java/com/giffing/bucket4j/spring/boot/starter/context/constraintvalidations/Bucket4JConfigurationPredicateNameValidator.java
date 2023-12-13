@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
@@ -16,10 +17,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefiniti
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
+
 public class Bucket4JConfigurationPredicateNameValidator implements ConstraintValidator<ValidPredicateNames, Bucket4JConfiguration> {
 
 	private final Map<FilterMethod, Map<String, ExecutePredicate<?>>> filterPredicates = new HashMap<>();
 
+	@Autowired
 	public Bucket4JConfigurationPredicateNameValidator(
 			List<ExecutePredicate<HttpServletRequest>> servletPredicates,
 			List<ExecutePredicate<ServerHttpRequest>> webfluxPredicates) {
