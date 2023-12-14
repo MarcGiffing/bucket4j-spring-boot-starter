@@ -34,15 +34,18 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 
 class ConfigPredicateNameValidatorTest {
 
-    List<ExecutePredicate<HttpServletRequest>> servletPredicates;
-    List<ExecutePredicate<ServerHttpRequest>> webfluxPredicates;
+    List<ExecutePredicate<?>> executePredicates;
     Bucket4JConfigurationPredicateNameValidator validator;
 
     @BeforeEach
     void setup() {
-        servletPredicates = Arrays.asList(new ServletPathExecutePredicate(), new ServletMethodPredicate());
-        webfluxPredicates = Arrays.asList(new WebfluxPathExecutePredicate(), new WebfluxHeaderExecutePredicate());
-        validator = new Bucket4JConfigurationPredicateNameValidator(servletPredicates, webfluxPredicates);
+		executePredicates = Arrays.asList(
+				//Servlet predicates
+				new ServletPathExecutePredicate(), new ServletMethodPredicate(),
+				//Webflux predicates
+				new WebfluxPathExecutePredicate(), new WebfluxHeaderExecutePredicate()
+		);
+        validator = new Bucket4JConfigurationPredicateNameValidator(executePredicates);
     }
 
     /**
@@ -144,10 +147,11 @@ class ConfigPredicateNameValidatorTest {
      */
     @Test
     void customPredicateTest() {
-        List<ExecutePredicate<HttpServletRequest>> customServletPredicates = new ArrayList<>(this.servletPredicates);
-        customServletPredicates.add(new CustomTestPredicate());
+        List<ExecutePredicate<?>> includingCustomPredicate = new ArrayList<>(this.executePredicates);
+		includingCustomPredicate.add(new CustomTestPredicate());
+
         Bucket4JConfigurationPredicateNameValidator customPredicateValidator =
-                new Bucket4JConfigurationPredicateNameValidator(customServletPredicates, webfluxPredicates);
+                new Bucket4JConfigurationPredicateNameValidator(includingCustomPredicate);
 
         List<String> executePredicates = List.of("CUSTOM-QUERY=custom-servlet");
         List<String> skipPredicates = List.of();

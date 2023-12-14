@@ -5,11 +5,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
@@ -23,9 +23,18 @@ public class Bucket4JConfigurationPredicateNameValidator implements ConstraintVa
 	private final Map<FilterMethod, Map<String, ExecutePredicate<?>>> filterPredicates = new HashMap<>();
 
 	@Autowired
-	public Bucket4JConfigurationPredicateNameValidator(
-			List<ExecutePredicate<HttpServletRequest>> servletPredicates,
-			List<ExecutePredicate<ServerHttpRequest>> webfluxPredicates) {
+	public Bucket4JConfigurationPredicateNameValidator(List<ExecutePredicate<?>> executePredicates) {
+		List<ExecutePredicate<?>> servletPredicates = new ArrayList<>();
+		List<ExecutePredicate<?>> webfluxPredicates = new ArrayList<>();
+		executePredicates.forEach(x -> {
+			Class<?> genericType = GenericTypeResolver.resolveTypeArgument(x.getClass(), ExecutePredicate.class);
+			if(genericType == null) return;
+			if(genericType.getName().equals("jakarta.servlet.http.HttpServletRequest")){
+				servletPredicates.add(x);
+			} else if (genericType == ServerHttpRequest.class){
+				webfluxPredicates.add(x);
+			}
+		});
 
 		filterPredicates.put(FilterMethod.SERVLET, servletPredicates.stream()
 				.collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
