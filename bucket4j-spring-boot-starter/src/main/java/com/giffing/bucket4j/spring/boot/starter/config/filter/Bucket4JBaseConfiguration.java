@@ -29,7 +29,6 @@ import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstan
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.Refill;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -138,14 +137,14 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
 			long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
 			var refillPeriod = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
 			var bucket4jBandWidth = switch(bandWidth.getRefillSpeed()) {
-				case GREEDY -> Bandwidth.classic(capacity, Refill.greedy(refillCapacity, refillPeriod)).withId(bandWidth.getId());
-				case INTERVAL -> Bandwidth.classic(capacity, Refill.intervally(refillCapacity, refillPeriod)).withId(bandWidth.getId());
-				default -> throw new IllegalStateException("Unsupported Refill type: " + bandWidth.getRefillSpeed());
-			};
+				case GREEDY -> Bandwidth.builder().capacity(capacity).refillGreedy(refillCapacity, refillPeriod).id(bandWidth.getId());
+				case INTERVAL -> Bandwidth.builder().capacity(capacity).refillIntervally(refillCapacity, refillPeriod).id(bandWidth.getId());
+            };
+
 			if(bandWidth.getInitialCapacity() != null) {
-				bucket4jBandWidth = bucket4jBandWidth.withInitialTokens(bandWidth.getInitialCapacity());
+				bucket4jBandWidth = bucket4jBandWidth.initialTokens(bandWidth.getInitialCapacity());
 			}
-			configBuilder = configBuilder.addLimit(bucket4jBandWidth);
+			configBuilder = configBuilder.addLimit(bucket4jBandWidth.build());
 		}
 		return configBuilder;
 	}

@@ -6,5 +6,7 @@
         <local-cache name="buckets_test" statistics="true">
             <memory max-count="1000000"/>
         </local-cache>
+        <local-cache name="filterConfigCache" statistics="true">
+        </local-cache>
     </cache-container>
 </infinispan>
