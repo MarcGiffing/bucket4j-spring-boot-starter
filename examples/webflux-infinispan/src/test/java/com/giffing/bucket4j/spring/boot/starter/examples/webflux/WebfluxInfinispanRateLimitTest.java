@@ -3,8 +3,10 @@ package com.giffing.bucket4j.spring.boot.starter.examples.webflux;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -14,12 +16,18 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest
 @ActiveProfiles("webflux-infinispan") // Like this
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WebfluxInfinispanRateLimitTest {
 
 	@Autowired
     ApplicationContext context;
 
+	@Autowired
+	Bucket4JBootProperties properties;
+
     WebTestClient rest;
+
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     public void setup() {
@@ -30,6 +38,7 @@ class WebfluxInfinispanRateLimitTest {
     }
 
 	@Test
+	@Order(1)
 	void helloTest() throws Exception {
 		String url = "/hello";
 		IntStream.rangeClosed(1, 5)
@@ -44,6 +53,7 @@ class WebfluxInfinispanRateLimitTest {
 
 	
 	@Test
+	@Order(1)
 	void worldTest() throws Exception {
 		String url = "/world";
 		IntStream.rangeClosed(1, 10)
@@ -56,7 +66,34 @@ class WebfluxInfinispanRateLimitTest {
 		
 			blockedWebRequestDueToRateLimit(url);
 		}
-	
+
+
+	@Test
+	@Order(2)
+	void replaceConfigTest() throws Exception {
+		String filterEndpoint = "/world";
+		int newFilterCapacity = 1000;
+
+		//get the /world filter
+		Bucket4JConfiguration filter = properties.getFilters().stream().filter(x -> filterEndpoint.matches(x.getUrl())).findFirst().orElse(null);
+		assert filter != null;
+
+		//update the first (and only) bandwidth capacity of the first (and only) rate limit of the Filter configuration
+		Bucket4JConfiguration clone = objectMapper.readValue(objectMapper.writeValueAsString(filter),Bucket4JConfiguration.class);
+		clone.setMajorVersion(clone.getMajorVersion() + 1);
+		clone.getRateLimits().get(0).getBandwidths().get(0).setCapacity(newFilterCapacity);
+
+		//update the filter cache
+		String url = "/filters/".concat(clone.getId());
+		rest.post().uri(url).bodyValue(clone).exchange().expectStatus().isOk();
+
+		//Short sleep to allow the cacheUpdateListeners to update the filter configuration
+		Thread.sleep(100);
+
+		//validate that the new capacity is applied to requests
+		successfulWebRequest(filterEndpoint, newFilterCapacity-1);
+	}
+
 	private void successfulWebRequest(String url, Integer remainingTries) {
 		rest
 			.get()

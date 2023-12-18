@@ -6,8 +6,10 @@ infinispan:
     config-xml: infinispan.xml
 bucket4j:
   enabled: true
+  filter-config-caching-enabled: true
   filters:
-  - cache-name: buckets_test
+  - id: filter1
+    cache-name: buckets_test
     filter-method: webflux
     url: ^(/hello).*
     rate-limits:
@@ -15,7 +17,8 @@ bucket4j:
       - capacity: 5
         time: 10
         unit: seconds
-  - cache-name: buckets_test
+  - id: filter2
+    cache-name: buckets_test
     filter-method: webflux
     url: ^(/world).*
     rate-limits:

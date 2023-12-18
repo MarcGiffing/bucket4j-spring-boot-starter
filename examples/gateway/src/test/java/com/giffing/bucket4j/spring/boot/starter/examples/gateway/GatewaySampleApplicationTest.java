@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
