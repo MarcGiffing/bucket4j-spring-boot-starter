@@ -35,6 +35,7 @@ public class JCacheBucket4jConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager.class)
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
 	public com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager<String, Bucket4JConfiguration> configCacheManager(
 	) {

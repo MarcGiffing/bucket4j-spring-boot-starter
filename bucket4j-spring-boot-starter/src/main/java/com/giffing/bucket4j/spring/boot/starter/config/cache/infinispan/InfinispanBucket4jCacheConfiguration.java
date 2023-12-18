@@ -34,6 +34,7 @@ public class InfinispanBucket4jCacheConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(CacheManager.class)
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		return new InfinispanCacheManager<>(cacheContainer.getCache(configCacheName));
