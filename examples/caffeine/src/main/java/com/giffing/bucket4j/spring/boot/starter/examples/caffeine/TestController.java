@@ -20,6 +20,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
+import org.springframework.web.util.HtmlUtils;
 
 @RestController
 public class TestController {
@@ -107,7 +108,8 @@ public class TestController {
 		//validate that the filter, ratelimit and bandwidth all exist
 		Bucket4JConfiguration config = configCacheManager.getValue(filterId);
 		if (config == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No filter with id '" + filterId + "' could be found.");
+			String errorMessage = "No filter with id '" + filterId + "' could be found.";
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HtmlUtils.htmlEscape(errorMessage));
 		}
 		RateLimit rl = config.getRateLimits().get(limitIndex);
 		if (rl == null) {
@@ -115,7 +117,8 @@ public class TestController {
 		}
 		Optional<BandWidth> bw = rl.getBandwidths().stream().filter(x -> Objects.equals(x.getId(), bandwidthId)).findFirst();
 		if (bw.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No bandwidth with id '" + bandwidthId + "' could be found.");
+			String errorMessage = "No bandwidth with id '" + bandwidthId + "' could be found.";
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HtmlUtils.htmlEscape(errorMessage));
 		}
 
 		//replace the bandwidth
