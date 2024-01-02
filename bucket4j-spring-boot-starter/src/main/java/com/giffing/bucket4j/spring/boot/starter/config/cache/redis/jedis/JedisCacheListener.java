@@ -1,5 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  * This class is intended to be used as bean.
@@ -47,10 +51,36 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 
 	public void subscribe() {
 		new Thread(() -> {
-			try (Jedis jedis = this.jedisPool.getResource()) {
-				jedis.subscribe(this, updateChannel);
-			} catch (Exception e) {
-				log.warn("Failed to instantiate the Jedis subscriber. {}",e.getMessage());
+			AtomicInteger reconnectBackoffTimeMillis = new AtomicInteger(1000);
+			ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+			ScheduledFuture<?> resetTask = null;
+
+			while(!Thread.currentThread().isInterrupted() && !this.jedisPool.isClosed()){
+				try (Jedis jedis = this.jedisPool.getResource()) {
+					// Schedule a reset of the backoff after 10 seconds.
+					// This is done in a different thread since subscribe is a blocking call.
+					resetTask = executorService.schedule(()-> reconnectBackoffTimeMillis.set(1000), 10000, TimeUnit.MILLISECONDS);
+
+					jedis.subscribe(this, updateChannel);
+				} catch (Exception e) {
+					log.error("Failed to connect the Jedis subscriber, attempting to reconnect in {} seconds. " +
+							"Exception was: {}", (reconnectBackoffTimeMillis.get() /1000), e.getMessage());
+
+					// Cancel the reset of the backoff
+					if(resetTask != null) {
+						resetTask.cancel(true);
+						resetTask = null;
+					}
+
+					// Wait before trying to reconnect and increase the backoff duration
+					try {
+						Thread.sleep(reconnectBackoffTimeMillis.get());
+						//exponential increase backoff with a max of 1 minute
+						reconnectBackoffTimeMillis.set(Math.min((reconnectBackoffTimeMillis.get() * 2), 60000));
+					} catch (InterruptedException ignored) {
+						Thread.currentThread().interrupt();
+					}
+				}
 			}
 		}, "JedisSubscriberThread").start();
 	}
