@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+
+import io.micrometer.core.instrument.util.NamedThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +52,10 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 	}
 
 	public void subscribe() {
-		new Thread(() -> {
+		Thread thread = new Thread(() -> {
 			AtomicInteger reconnectBackoffTimeMillis = new AtomicInteger(1000);
-			ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+			// Using a NamedThreadFactory for creating a Daemon thread, so it will never block the jvm from closing.
+			ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("reset-reconnect-backoff-thread"));
 			ScheduledFuture<?> resetTask = null;
 
 			while(!Thread.currentThread().isInterrupted() && !this.jedisPool.isClosed()){
@@ -75,14 +78,16 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 					// Wait before trying to reconnect and increase the backoff duration
 					try {
 						Thread.sleep(reconnectBackoffTimeMillis.get());
-						//exponential increase backoff with a max of 1 minute
-						reconnectBackoffTimeMillis.set(Math.min((reconnectBackoffTimeMillis.get() * 2), 60000));
+						// exponentially increase the backoff with a max of 30 seconds
+						reconnectBackoffTimeMillis.set(Math.min((reconnectBackoffTimeMillis.get() * 2), 30000));
 					} catch (InterruptedException ignored) {
-						Thread.currentThread().interrupt();
+						// ignored, already interrupted so the while loop will stop
 					}
 				}
 			}
-		}, "JedisSubscriberThread").start();
+		}, "JedisSubscriberThread");
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	@Override
