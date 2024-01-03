@@ -14,11 +14,6 @@ public class Bucket4JUtils {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No filter with id '" + newConfig.getId() + "' could be found.");
 		}
 
-		//validate that the id in the path matches the id in the body
-		if (!newConfig.getId().equals(oldConfig.getId())) {
-			return ResponseEntity.badRequest().body("The id of the new configuration does not match the id of the old configuration.");
-		}
-
 		//validate that the version increased
 		if (oldConfig.getBucket4JVersionNumber() >= newConfig.getBucket4JVersionNumber()) {
 			return ResponseEntity.badRequest().body("The new configuration should have a higher version than the current configuration.");

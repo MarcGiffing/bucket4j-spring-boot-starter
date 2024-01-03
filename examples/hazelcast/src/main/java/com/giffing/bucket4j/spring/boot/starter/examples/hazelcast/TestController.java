@@ -41,6 +41,11 @@ public class TestController {
 		@RequestBody @Valid Bucket4JConfiguration newConfig,
 		BindingResult bindingResult) {
 
+		//validate that the path id matches the body
+		if (!newConfig.getId().equals(filterId)) {
+			return ResponseEntity.badRequest().body("The id in the path does not match the id in the request body.");
+		}
+
 		//validate that there are no errors by the Jakarta validation
 		if (bindingResult.hasErrors()) {
 			List<String> errors = bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
