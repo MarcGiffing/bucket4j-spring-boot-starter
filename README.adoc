@@ -493,7 +493,6 @@ Some important considerations:
 - Most configuration errors can be prevented by using the Jakarta validator to validate updated configurations. In the example this is done by adding @Valid to the request body method parameter, but it is also possible to @Autowire the Validator and use it directly to validate the configuration.
 - Some Filter properties are not intended to be modified during runtime. To simplify validating a configuration update the Bucket4JUtils.validateConfigurationUpdate method has been added. This method executes the following validations and will return a ResponseEntity:
 ** old configuration != null  -> NOT_FOUND
-** id of the old filter is the same as the new filter id  -> BAD_REQUEST
 ** new configuration has a higher version than the old configuration -> BAD_REQUEST
 ** filterMethod not changed -> BAD_REQUEST
 ** filterOrder not changed -> BAD_REQUEST
