@@ -61,6 +61,11 @@ public class MyController {
 		@PathVariable String filterId,
 		@RequestBody Bucket4JConfiguration newConfig) {
 
+		//validate that the path id matches the body
+		if (!newConfig.getId().equals(filterId)) {
+			return ResponseEntity.badRequest().body("The id in the path does not match the id in the request body.");
+		}
+
 		//validate that there are no errors by the Jakarta validation
 		Set<ConstraintViolation<Bucket4JConfiguration>> violations = validator.validate(newConfig);
 		if (!violations.isEmpty()) {
