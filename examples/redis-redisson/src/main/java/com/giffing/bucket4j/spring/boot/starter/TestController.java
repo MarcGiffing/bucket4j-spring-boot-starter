@@ -1,13 +1,26 @@
 package com.giffing.bucket4j.spring.boot.starter;
 
+import java.util.List;
+import java.util.Set;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
 
 @RestController
 public class TestController {
+
+	@Autowired
+	Validator validator;
 
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
@@ -19,7 +32,7 @@ public class TestController {
 	public ResponseEntity<String> hello() {
 		return ResponseEntity.ok("Hello World");
 	}
-	
+
 	@GetMapping("world")
 	public ResponseEntity<String> world() {
 		return ResponseEntity.ok("Hello World");
@@ -30,14 +43,12 @@ public class TestController {
 	 * Example of how a filter configuration can be updated during runtime
 	 * @param filterId id of the filter to update
 	 * @param newConfig the new filter configuration
-	 * @param bindingResult the result of the Jakarta validation
 	 * @return
 	 */
 	@PostMapping("filters/{filterId}")
 	public ResponseEntity<?> updateConfig(
 		@PathVariable String filterId,
-		@RequestBody @Valid Bucket4JConfiguration newConfig,
-		BindingResult bindingResult) {
+		@RequestBody Bucket4JConfiguration newConfig) {
 
 		//validate that the path id matches the body
 		if (!newConfig.getId().equals(filterId)) {
@@ -45,8 +56,9 @@ public class TestController {
 		}
 
 		//validate that there are no errors by the Jakarta validation
-		if (bindingResult.hasErrors()) {
-			List<String> errors = bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
+		Set<ConstraintViolation<Bucket4JConfiguration>> violations = validator.validate(newConfig);
+		if (!violations.isEmpty()) {
+			List<String> errors = violations.stream().map(ConstraintViolation::getMessage).toList();
 			return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
 		}
 
