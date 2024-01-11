@@ -32,6 +32,7 @@ Project version overview:
 * <<cache_key>>
 * <<refill_speed>>
 * <<skip_execution_predicates>>
+* <<dynamic_config_updates>>
 * <<bucket4j_complete_properties>>
 * <<monitoring>>
 * <<configuration_examples>>
@@ -411,6 +412,72 @@ public class MyQueryExecutePredicate extends ExecutePredicate<HttpServletRequest
 }
 ----
 
+[[dynamic_config_updates]]
+== Dynamically updating rate limits (experimental)
+Sometimes it might be useful to modify filter configurations during runtime.
+In order to support this behaviour a cache-based configuration update system has been added.
+The following section describes what configurations are required to enable this feature.
+
+=== Properties
+
+==== base properties
+In order to dynamically update rate limits, it is required to enable caching for filter configurations.
+[source, properties]
+----
+bucket4j.filter-config-caching-enabled=true  #Enable/disable caching of filter configurations.
+bucket4j.filter-config-cache-name=filterConfigCache #The name of the cache where the configurations are stored. Defaults to 'filterConfigCache'.
+----
+
+==== Filter properties
+- When filter caching is enabled, it is mandatory to configure a unique id for every filter.
+- Configurations are implicitly replaced based on a combination of the major and minor version. If changes are made to the configuration without increasing either of the version numbers, it is most likely that the changes will not be applied. Instead the cached configuration will be used.
+[source, properties]
+----
+bucket4j.filters[0].id=filter1 #The id of the filter. This should always be a unique string.
+bucket4j.filters[0].major-version=1 #[min = 1, max = 92 million] Major version number.
+bucket4j.filters[0].minor-version=1 #[min = 1, max = 99 billion] Minor version number. (intended for internal updates, for example based on CPU-usage, but can also be used for regular updates)
+----
+
+==== RateLimit properties
+For each ratelimit a tokens inheritance strategy can be configured. This strategy will determine how to handle existing rate limits when replacing a configuration. If no strategy is configured it will default to 'RESET'.
+
+Further explanation of the strategies can be found at https://bucket4j.com/8.1.1/toc.html#tokensinheritancestrategy-explanation[Bucket4J TokensInheritanceStrategy explanation]
+
+[source, properties]
+----
+bucket4j.filters[0].rate-limits[0].tokens-inheritance-strategy=RESET #[RESET, AS_IS, ADDITIVE, PROPORTIONALLY]
+----
+
+==== Bandwidth properties
+This property is only mandatory when *BOTH* of the following statements apply to your configuration.
+
+- The rate-limit uses a different TokensInheritanceStrategy than 'RESET'
+- The rate-limit contains more than 1 bandwidth
+
+This is required so Bucket4J knows how to map the current bandwidth tokens to the updated bandwidths.
+It is possible to configure id's when 'RESET' strategy is applied, but the id's should still be unique within the rate-limit then.
+[source, properties]
+----
+bucket4j.filters[0].rate-limits[0].bandwidths[0].id=bandwidthId #The id of the bandwidth; Optional when the rate-limit only contains 1 bandwidth or when using tokensInheritanceStrategy.RESET.
+----
+
+=== Example project
+An example on how to dynamically update a filter can be found at:
+{url-examples}/caffeine[Caffeine example project].
+
+Some important considerations:
+
+- This is an experimental feature and might be subject to changes.
+- Configurations will be read from the cache during startup (when using a persistent cache). This means that putting corrupted configurations into the cache during runtime can cause the application to crash during startup.
+- Most configuration errors can be prevented by using the Jakarta validator to validate updated configurations. In the example this is done by adding @Valid to the request body method parameter, but it is also possible to @Autowire the Validator and use it directly to validate the configuration.
+- Some Filter properties are not intended to be modified during runtime. To simplify validating a configuration update the Bucket4JUtils.validateConfigurationUpdate method has been added. This method executes the following validations and will return a ResponseEntity:
+** old configuration != null  -> NOT_FOUND
+** new configuration has a higher version than the old configuration -> BAD_REQUEST
+** filterMethod not changed -> BAD_REQUEST
+** filterOrder not changed -> BAD_REQUEST
+** cacheName not changed -> BAD_REQUEST
+- The configCacheManager currently does *not* contain validation in the setValue method. The configuration should be validated before calling the this method.
+
 [[bucket4j_complete_properties]]
 == Bucket4j properties
 
@@ -419,16 +486,21 @@ public class MyQueryExecutePredicate extends ExecutePredicate<HttpServletRequest
 ----
 bucket4j.enabled=true # enable/disable bucket4j support
 bucket4j.cache-to-use= # If you use multiple caching implementation in your project and you want to choose a specific one you can set the cache here (jcache, hazelcast, ignite, redis)
+bucket4j.filter-config-caching-enabled=true  #Enable/disable caching of filter configurations.
+bucket4j.filter-config-cache-name=filterConfigCache #The name of the cache where the configurations are stored. Defaults to 'filterConfigCache'.
+bucket4j.filters[0].id=filter1 # The id of the filter. This field is mandatory when configuration caching is enabled and should always be a unique string.
+bucket4j.filters[0].major-version=1 # [min = 1, max = 92 million] Major version number of the configuration.
+bucket4j.filters[0].minor-version=1 # [min = 1, max = 99 billion] Minor version number of the configuration. (intended for internal updates, for example based on CPU-usage, but can also be used for regular updates)
 bucket4j.filters[0].cache-name=buckets # the name of the cache key
 bucket4j.filters[0].filter-method=servlet # [servlet,webflux,gateway]
-bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.  
+bucket4j.filters[0].filter-order= # Per default the lowest integer plus 10. Set it to a number higher then zero to execute it after e.g. Spring Security.
 bucket4j.filters[0].http-content-type=application/json
 bucket4j.filters[0].http-status-code=TOO_MANY_REQUESTS # Enum value of org.springframework.http.HttpStatus
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].http-response-headers.<MY_CUSTOM_HEADER>=MY_CUSTOM_HEADER_VALUE # You can add any numbers of custom headers
 bucket4j.filters[0].hide-http-response-headers=true # Hides response headers like x-rate-limit-remaining or x-rate-limit-retry-after-seconds on rate limiting
 bucket4j.filters[0].url=.* # a regular expression
-bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching 
+bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching
 bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
@@ -436,6 +508,8 @@ bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello,/world # On
 bucket4j.filters[0].rate-limits[0].execute-predicates[1]=METHOD=GET,POST # On the HTTP Method
 bucket4j.filters[0].rate-limits[0].execute-predicates[2]=QUERY=HELLO # Checks for the existence of a Query Parameter
 bucket4j.filters[0].rate-limits[0].skip-condition=1==1 # an optional SpEl expression to skip the rate limit
+bucket4j.filters[0].rate-limits[0].tokens-inheritance-strategy=RESET # [RESET, AS_IS, ADDITIVE, PROPORTIONALLY], defaults to RESET and is only used for dynamically updating configurations
+bucket4j.filters[0].rate-limits[0].bandwidths[0].id=bandwidthId # Optional when using tokensInheritanceStrategy.RESET or if the rate-limit only contains 1 bandwidth. The id should be unique within the rate-limit.
 bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=10
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-capacity= # default is capacity
 bucket4j.filters[0].rate-limits[0].bandwidths[0].time=1

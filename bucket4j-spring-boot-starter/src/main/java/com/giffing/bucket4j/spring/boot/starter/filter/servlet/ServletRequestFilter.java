@@ -29,6 +29,10 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
     public ServletRequestFilter(FilterConfiguration<HttpServletRequest> filterConfig) {
     	this.filterConfig = filterConfig;
     }
+
+	public void setFilterConfig(FilterConfiguration<HttpServletRequest> filterConfig){
+		this.filterConfig = filterConfig;
+	}
     
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {

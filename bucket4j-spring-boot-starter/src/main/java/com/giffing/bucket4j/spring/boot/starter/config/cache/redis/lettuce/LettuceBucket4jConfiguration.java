@@ -1,13 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,8 +18,29 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "redis-lettuce", matchIfMissing = true)
 public class LettuceBucket4jConfiguration {
 
+	private final RedisClient redisClient;
+	private final String configCacheName;
+	public LettuceBucket4jConfiguration(RedisClient redisClient, Bucket4JBootProperties properties){
+		this.redisClient = redisClient;
+		this.configCacheName = properties.getFilterConfigCacheName();
+	}
+
 	@Bean
-	public AsyncCacheResolver bucket4RedisResolver(RedisClient redisClient) {
-		return new LettuceCacheResolver(redisClient);
+	@ConditionalOnMissingBean(AsyncCacheResolver.class)
+	public AsyncCacheResolver bucket4RedisResolver() {
+		return new LettuceCacheResolver(this.redisClient);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(CacheManager.class)
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
+		return new LettuceCacheManager<>(redisClient, configCacheName, Bucket4JConfiguration.class);
+	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	public LettuceCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+		return new LettuceCacheListener<>(redisClient, configCacheName, String.class, Bucket4JConfiguration.class);
 	}
 }

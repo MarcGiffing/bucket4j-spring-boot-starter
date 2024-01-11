@@ -7,11 +7,15 @@ management:
       exposure:
         include: "*"
 bucket4j:
-  default-tags:
+  filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
+  default-metric-tags:
   - expression: "1" 
     key: xx
   filters:
-  - metrics:
+  - id: filter1
+    major-version: 1
+    metrics:
       types:
       - consumed-counter
       - rejected-counter
@@ -23,13 +27,13 @@ bucket4j:
     url: .*
     filter-order: -100000
     rate-limits:
-      - bandwidths:
-          - capacity: 5
-            time: 10
-            unit: seconds
-            refill-speed: interval
-      - bandwidths:
-          - capacity: 5
-            time: 10
-            unit: seconds
-            refill-speed: interval
+      - tokens-inheritance-strategy: reset
+        bandwidths:
+        - capacity: 5
+          time: 10
+          unit: seconds
+          refill-speed: interval
+        - capacity: 43200
+          time: 1
+          unit: days
+          refill-speed: interval

@@ -1,17 +1,15 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import org.infinispan.Cache;
-import org.infinispan.functional.impl.FunctionalMapImpl;
-import org.infinispan.functional.impl.ReadWriteMapImpl;
-import org.infinispan.manager.CacheContainer;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
-
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
+import org.infinispan.Cache;
+import org.infinispan.functional.impl.FunctionalMapImpl;
+import org.infinispan.functional.impl.ReadWriteMapImpl;
+import org.infinispan.manager.CacheContainer;
 
 /**
  * To use Infinispan you need a special bucket4j-infinispan dependency.
@@ -27,7 +25,7 @@ import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
  */
 public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 
-	private CacheContainer cacheContainer;
+	private final CacheContainer cacheContainer;
 
 	public InfinispanJCacheCacheResolver(CacheContainer cacheContainer) {
 		this.cacheContainer = cacheContainer;
@@ -41,10 +39,11 @@ public class InfinispanJCacheCacheResolver implements SyncCacheResolver {
 
 		FunctionalMapImpl<String, byte[]> functionalMap = FunctionalMapImpl.create(cache.getAdvancedCache());
 		InfinispanProxyManager<String> infinispanProxyManager = new InfinispanProxyManager<>(ReadWriteMapImpl.create(functionalMap));
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			Bucket bucket = infinispanProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			Bucket bucket = infinispanProxyManager.builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
-
 }

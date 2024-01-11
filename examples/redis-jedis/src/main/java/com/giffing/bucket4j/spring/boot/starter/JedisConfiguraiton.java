@@ -12,7 +12,7 @@ import java.time.Duration;
 public class JedisConfiguraiton {
 
     @Bean
-    public JedisPool jedisPool(@Value("${spring.redis.port}") String port) {
+    public JedisPool jedisPool(@Value("${spring.data.redis.port}") String port) {
         final JedisPoolConfig poolConfig = buildPoolConfig();
         return new JedisPool(poolConfig, "localhost", Integer.valueOf(port));
     }

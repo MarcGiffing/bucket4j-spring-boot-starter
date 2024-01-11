@@ -2,13 +2,9 @@ package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -16,36 +12,23 @@ import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.StringUtils;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.Condition;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
-import com.giffing.bucket4j.spring.boot.starter.context.KeyFilter;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.MetricTag;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateBeanNotFoundException;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
 import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
-import com.giffing.bucket4j.spring.boot.starter.exception.FilterURLInvalidException;
-import com.giffing.bucket4j.spring.boot.starter.exception.MissingKeyFilterExpressionException;
-import com.giffing.bucket4j.spring.boot.starter.exception.MissingMetricTagExpressionException;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConfigurationBuilder;
-import io.github.bucket4j.Refill;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,8 +39,14 @@ import lombok.extern.slf4j.Slf4j;
  * configuration classes
  */
 @Slf4j
-public abstract class Bucket4JBaseConfiguration<R> {
-	
+public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListener<String, Bucket4JConfiguration> {
+
+	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
+
+	public Bucket4JBaseConfiguration(CacheManager<String, Bucket4JConfiguration> configCacheManager){
+		this.configCacheManager = configCacheManager;
+	}
+
 	public abstract List<MetricHandler> getMetricHandlers();
 	
 	public FilterConfiguration<R> buildFilterConfig(
@@ -65,9 +54,7 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			ProxyManagerWrapper proxyWrapper,
 			ExpressionParser expressionParser, 
 			ConfigurableBeanFactory  beanFactory) {
-		
-		validate(config);
-		
+
 		FilterConfiguration<R> filterConfig = mapFilterConfiguration(config);
 		
 		config.getRateLimits().forEach(rl -> {
@@ -75,14 +62,22 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			var configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
 			var executionPredicate = prepareExecutionPredicates(rl);
 			var skipPredicate = prepareSkipPredicates(rl);
-			var bucketConfiguration = configurationBuilder.build();			
+			var bucketConfiguration = configurationBuilder.build();
 			RateLimitCheck<R> rlc = servletRequest -> {
 		        var skipRateLimit = performSkipRateLimitCheck(expressionParser, beanFactory, rl, executionPredicate, skipPredicate, servletRequest);
 		        if(!skipRateLimit) {
 		        	var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
 		        	var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, servletRequest);
 		        	log.debug("try-and-consume;key:{};tokens:{}", key, rl.getNumTokens());
-		        	return proxyWrapper.tryConsumeAndReturnRemaining(key, rl.getNumTokens(), bucketConfiguration, metricBucketListener);
+					final long configVersion = config.getBucket4JVersionNumber();
+		        	return proxyWrapper.tryConsumeAndReturnRemaining(
+							key,
+							rl.getNumTokens(),
+							bucketConfiguration,
+							metricBucketListener,
+							configVersion,
+							rl.getTokensInheritanceStrategy()
+					);
 		        }
 				return null;
 			};
@@ -134,70 +129,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 	}
 
 	protected abstract ExecutePredicate<R> getExecutePredicateByName(String name);
-	
-	protected void validate(Bucket4JConfiguration config) {
-		throwExceptionOnInvalidFilterUrl(config);
-		validateRateLimit(config);
-		validatePredicates(config);
-		validateMetricTags(config);
-	}
-	
-	private void throwExceptionOnInvalidFilterUrl(Bucket4JConfiguration filterConfig) {
-		try {
-			Pattern.compile(filterConfig.getUrl());
-			if(filterConfig.getUrl().equals("/*")) {
-				throw new PatternSyntaxException(filterConfig.getUrl(), "/*", 0);
-			}
-		} catch( PatternSyntaxException exception) {
-			throw new FilterURLInvalidException(filterConfig.getUrl(), exception.getDescription());
-		}
-	}
-	
-	private void validateRateLimit(Bucket4JConfiguration config) {
-		config
-			.getRateLimits()
-			.forEach(rl -> {
-				var cacheKeyexpression = rl.getCacheKey();
-				if (!StringUtils.hasText(cacheKeyexpression)) {
-					throw new MissingKeyFilterExpressionException();
-				}
-			});
-	}
-	
-	private void validatePredicates(Bucket4JConfiguration config) {
-		var executePredicates = config
-				.getRateLimits()
-				.stream()
-				.map(r -> r.getExecutePredicates());
-		var skipPredicates = config
-				.getRateLimits()
-				.stream()
-				.map(r -> r.getSkipPredicates());
-		
-		var allExecutePredicateNames = Stream.concat(executePredicates, skipPredicates)
-				.flatMap(List::stream)
-				.map(x -> x.getName())
-				.distinct().collect(Collectors.toSet());
-			allExecutePredicateNames.forEach(predicateName -> {
-				if(getExecutePredicateByName(predicateName) == null) {
-					throw new ExecutePredicateBeanNotFoundException(predicateName);
-				}
-			});
-	}
-	
-	private void validateMetricTags(Bucket4JConfiguration config) {
-		config
-			.getMetrics()
-			.getTags()
-			.stream()
-			.forEach(metricMetaTag -> {
-			String expression = metricMetaTag.getExpression();
-			if (!StringUtils.hasText(expression)) {
-				throw new MissingMetricTagExpressionException(metricMetaTag.getKey());
-			}
-		});
-		
-	}
 
 	private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
 		var configBuilder = BucketConfiguration.builder();
@@ -206,14 +137,13 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
 			var refillPeriod = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
 			var bucket4jBandWidth = switch(bandWidth.getRefillSpeed()) {
-				case GREEDY -> Bandwidth.builder().capacity(capacity).refillGreedy(refillCapacity, refillPeriod);
-				case INTERVAL -> Bandwidth.builder().capacity(capacity).refillIntervally(refillCapacity, refillPeriod);
+				case GREEDY -> Bandwidth.builder().capacity(capacity).refillGreedy(refillCapacity, refillPeriod).id(bandWidth.getId());
+				case INTERVAL -> Bandwidth.builder().capacity(capacity).refillIntervally(refillCapacity, refillPeriod).id(bandWidth.getId());
             };
 
 			if(bandWidth.getInitialCapacity() != null) {
 				bucket4jBandWidth = bucket4jBandWidth.initialTokens(bandWidth.getInitialCapacity());
 			}
-
 			configBuilder = configBuilder.addLimit(bucket4jBandWidth.build());
 		}
 		return configBuilder;
@@ -257,9 +187,6 @@ public abstract class Bucket4JBaseConfiguration<R> {
 				
 				return new MetricTagResult(metricMetaTag.getKey(), value, metricMetaTag.getTypes());
 		}).toList();
-		if(metricTagResults == null) {
-			metricTagResults = new ArrayList<>();
-		}
 		return metricTagResults;
 	}
 
@@ -370,5 +297,28 @@ public abstract class Bucket4JBaseConfiguration<R> {
 			throw new ExecutePredicateInstantiationException(pd.getName(), predicate.getClass());
 		}
 	}
-	
+
+	/**
+	 * Try to load a filter configuration from the cache with the same id as the provided filter.
+	 *
+	 * If caching is disabled or no matching filter is found, the provided filter will be added to the cache and returned to the caller.
+	 * If the provided filter has a higher version than the cached filter, the cache will be overridden and the provided filter will be returned.
+	 * If the cached filter has a higher or equal version, the cached filter will be returned.
+	 *
+	 * @param filter the Bucket4JConfiguration to find or update in the cache. The id of this filter should not be null.
+	 * @return returns the Bucket4JConfiguration with the highest version, either the cached or provided filter.
+	 */
+	protected Bucket4JConfiguration getOrUpdateConfigurationFromCache(Bucket4JConfiguration filter) {
+		//if caching is disabled or if the filter does not have an id, return the provided filter
+		if(this.configCacheManager == null || filter.getId() == null) return filter;
+
+		Bucket4JConfiguration cachedFilter = this.configCacheManager.getValue(filter.getId());
+		if (cachedFilter != null && cachedFilter.getBucket4JVersionNumber() >= filter.getBucket4JVersionNumber()) {
+			return cachedFilter;
+		} else{
+			this.configCacheManager.setValue(filter.getId(), filter);
+		}
+		return filter;
+	}
+
 }

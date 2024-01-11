@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
@@ -26,9 +25,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class AbstractReactiveFilter {
 
-	private final FilterConfiguration<ServerHttpRequest> filterConfig;
+	private FilterConfiguration<ServerHttpRequest> filterConfig;
 
 	public AbstractReactiveFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
+		this.filterConfig = filterConfig;
+	}
+
+	public void setFilterConfig(FilterConfiguration<ServerHttpRequest> filterConfig){
 		this.filterConfig = filterConfig;
 	}
 

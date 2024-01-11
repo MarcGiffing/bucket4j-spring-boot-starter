@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.examples.ehcache.config.securit
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,10 +15,13 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(x -> x.ignoringRequestMatchers("/filters/**"));
 		http.authorizeHttpRequests(auth -> {
 			auth.requestMatchers("/unsecure").permitAll();
 			auth.requestMatchers("/actuator/*").permitAll();
 			auth.requestMatchers("/login").permitAll();
+			auth.requestMatchers("/filters/**").permitAll();
+			auth.requestMatchers("/hello").permitAll();
 			auth.requestMatchers("/secure").hasAnyRole("ADMIN", "USER");
 		});
 		return http.build();

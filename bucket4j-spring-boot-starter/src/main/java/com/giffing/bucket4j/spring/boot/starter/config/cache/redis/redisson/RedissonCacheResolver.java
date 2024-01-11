@@ -13,26 +13,26 @@ import java.time.Duration;
 
 /**
  * This class is the Redis implementation of the {@link CacheResolver}.
- *
  */
 public class RedissonCacheResolver implements AsyncCacheResolver {
-	
+
 	private final CommandAsyncExecutor commandExecutor;
-	
+
 	public RedissonCacheResolver(CommandAsyncExecutor commandExecutor) {
 		this.commandExecutor = commandExecutor;
 	}
-	
-	@Override 
+
+	@Override
 	public ProxyManagerWrapper resolve(String cacheName) {
-		var proxyManager =  RedissonBasedProxyManager.builderFor(commandExecutor)
+		var proxyManager = RedissonBasedProxyManager.builderFor(commandExecutor)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();
-		
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			AsyncBucketProxy bucket = proxyManager.asAsync().builder().build(key, bucketConfiguration).toListenable(metricsListener);
+
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			AsyncBucketProxy bucket = proxyManager.asAsync().builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
-			
 	}
 }

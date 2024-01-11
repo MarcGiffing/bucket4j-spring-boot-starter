@@ -1,17 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
-
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 
 /**
  * This class is the JCache (JSR-107) implementation of the {@link CacheResolver}.
@@ -20,7 +19,7 @@ import io.github.bucket4j.grid.jcache.JCacheProxyManager;
  */
 public class JCacheCacheResolver implements SyncCacheResolver {
 	
-	private CacheManager cacheManager;
+	private final CacheManager cacheManager;
 
 	public JCacheCacheResolver(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;
@@ -33,10 +32,11 @@ public class JCacheCacheResolver implements SyncCacheResolver {
 		}
 
 		JCacheProxyManager<String> jCacheProxyManager = new JCacheProxyManager<>(springCache);
-		return (key, numTokens, bucketConfiguration, metricsListener) -> {
-			Bucket bucket = jCacheProxyManager.builder().build(key, bucketConfiguration).toListenable(metricsListener);
+		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
+			Bucket bucket = jCacheProxyManager.builder()
+					.withImplicitConfigurationReplacement(version, replaceStrategy)
+					.build(key, bucketConfiguration).toListenable(metricsListener);
 			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
 		};
 	}
-	
 }

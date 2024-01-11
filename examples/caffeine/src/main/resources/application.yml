@@ -14,15 +14,18 @@ spring:
       provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
     cache-names:
     - buckets
+    - filterConfigCache
     caffeine:
       spec: maximumSize=1000000,expireAfterAccess=3600s
 bucket4j:
   enabled: true
+  filter-config-caching-enabled: true
   filters:
-  - cache-name: buckets
+  - id: filter1
+    cache-name: buckets
     url: .*
     rate-limits:
-    - cache-key: getRemoteAddr() 
+    - cache-key: getRemoteAddr()
       execute-predicates:
       - name: PATH=/hell**
       - name: METHOD=GET

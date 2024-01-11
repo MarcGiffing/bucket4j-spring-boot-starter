@@ -15,8 +15,10 @@ infinispan:
     config-xml: infinispan.xml
 bucket4j:
   enabled: true
+  filter-config-caching-enabled: true
   filters:
-  - cache-name: buckets
+  - id: filter1
+    cache-name: buckets
     filter-method: webflux
     url: .*
     http-content-type: application/json;charset=UTF-8
