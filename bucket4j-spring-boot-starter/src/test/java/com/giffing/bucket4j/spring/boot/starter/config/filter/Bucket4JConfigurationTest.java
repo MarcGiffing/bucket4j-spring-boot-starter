@@ -1,26 +1,20 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.bucket4j.Bandwidth;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class Bucket4JConfigurationTest {
@@ -41,33 +35,33 @@ public class Bucket4JConfigurationTest {
 	}
 
 	@Test
-	public void setFilterIdTest() {
+	void setFilterIdTest() {
 		config.setId("id");
 		assert(config.getId().equals("id"));
 		validator.validateProperty(config, "id"); //validate that autoconfigure allows string values
 	}
 	@Test
-	public void setFilterIdWithSpacesTest() {
+	void setFilterIdWithSpacesTest() {
 		config.setId(" id ");
 		assert(config.getId().equals("id"));
 		validator.validateProperty(config, "id"); //validate that autoconfigure allows string values
 	}
 
 	@Test
-	public void setFilterIdNullTest() {
+	void setFilterIdNullTest() {
 		config.setId(null);
 		assert (config.getId() == null);
 		validator.validateProperty(config, "id"); //validate that autoconfigure allows null values
 	}
 
 	@Test
-	public void setFilterIdEmptyStringTest(){
+	void setFilterIdEmptyStringTest(){
 		config.setId("");
 		assert (config.getId() == null);
 	}
 
 	@Test
-	public void setFilterIdSpacesTest(){
+	void setFilterIdSpacesTest(){
 		config.setId(" ");
 		assert (config.getId() == null);
 	}

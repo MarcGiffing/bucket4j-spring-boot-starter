@@ -2,11 +2,14 @@ package com.giffing.bucket4j.spring.boot.starter.utils;
 
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Bucket4JUtils {
 
 	public static ResponseEntity<String> validateConfigurationUpdate(Bucket4JConfiguration oldConfig, Bucket4JConfiguration newConfig){

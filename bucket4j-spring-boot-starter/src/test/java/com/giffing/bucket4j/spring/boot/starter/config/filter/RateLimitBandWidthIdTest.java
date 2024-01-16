@@ -24,7 +24,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 
 import io.github.bucket4j.TokensInheritanceStrategy;
 
-public class RateLimitBandWidthIdTest {
+class RateLimitBandWidthIdTest {
 
     final RateLimitBandWidthIdsValidator validator = new RateLimitBandWidthIdsValidator();
     ConstraintValidatorContext context;

@@ -6,7 +6,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager.JedisBasedProxyManagerBuilder;
 import org.springframework.boot.autoconfigure.condition.*;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;

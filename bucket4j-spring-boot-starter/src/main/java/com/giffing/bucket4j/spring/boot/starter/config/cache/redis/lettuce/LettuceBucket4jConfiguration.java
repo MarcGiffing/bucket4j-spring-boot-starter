@@ -7,7 +7,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfi
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
 import org.springframework.boot.autoconfigure.condition.*;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
