@@ -20,8 +20,12 @@ public enum FilterMethod {
 	 * Spring Cloud Gateway GlobalFilter
 	 */
 
-	GATEWAY;
-	
+	GATEWAY,
+
+	/**
+	 * See GitHub - Extend FilterMehod enum for custom filters (like JMS) #216
+	 */
+	JMS
 	
 	
 }
