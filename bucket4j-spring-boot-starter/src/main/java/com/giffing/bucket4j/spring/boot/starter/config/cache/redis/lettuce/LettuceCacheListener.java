@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 /**
  * This class is intended to be used as bean.
  *
- * It will listen to Lettuce events on the {cacheName}:update channel, parse them to CacheUpdateEvent<K, V>
+ * It will listen to Lettuce events on the {cacheName}:update channel, parse them to  {@code CacheUpdateEvent<K, V>}
  * and publish these to the Spring ApplicationEventPublisher
  *
  * @param <K> Type of the cache key

@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * This class is intended to be used as bean.
  * <p>
  * It will listen to Redisson events on the {cacheName}:update channel
- * and publish these to the Spring ApplicationEventPublisher as CacheUpdateEvent<K, V>
+ * and publish these to the Spring ApplicationEventPublisher as  {@code CacheUpdateEvent<K, V>}
  *
  * @param <K> Type of the cache key
  * @param <V> Type of the cache value

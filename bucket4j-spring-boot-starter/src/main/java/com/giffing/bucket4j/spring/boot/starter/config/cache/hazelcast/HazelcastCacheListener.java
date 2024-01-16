@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationEventPublisher;
 /**
  * This class is intended to be used as bean.
  * <p>
- * It will listen to changes in the cache, parse them to a CacheUpdateEvent<K, V>
+ * It will listen to changes in the cache, parse them to a {@code CacheUpdateEvent<K, V>}
  * and publish the event to the Spring ApplicationEventPublisher.
  *
  * @param <K> Type of the cache key
