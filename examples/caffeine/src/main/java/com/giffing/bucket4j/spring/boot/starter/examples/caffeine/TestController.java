@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -26,9 +27,10 @@ import org.springframework.web.util.HtmlUtils;
 public class TestController {
 
 	private final Validator validator;
+
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public TestController(Validator validator, CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+	public TestController(Validator validator, @Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
 		this.validator = validator;
 		this.configCacheManager = configCacheManager;
 	}
@@ -60,6 +62,7 @@ public class TestController {
 			@PathVariable String filterId,
 			@RequestBody @Valid Bucket4JConfiguration newConfig,
 			BindingResult bindingResult) {
+		if(configCacheManager == null) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
 
 		//validate that the path id matches the body
 		if (!newConfig.getId().equals(filterId)) {

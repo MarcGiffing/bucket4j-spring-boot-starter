@@ -3,10 +3,13 @@ package com.giffing.bucket4j.spring.boot.starter.examples.ehcache.controller;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,7 +32,7 @@ public class TestController {
 
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public TestController(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+	public TestController(@Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
 		this.configCacheManager = configCacheManager;
 	}
 
@@ -93,6 +96,7 @@ public class TestController {
 		@PathVariable String filterId,
 		@RequestBody @Valid Bucket4JConfiguration newConfig,
 		BindingResult bindingResult) {
+		if(configCacheManager == null) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
 
 		//validate that the path id matches the body
 		if (!newConfig.getId().equals(filterId)) {
