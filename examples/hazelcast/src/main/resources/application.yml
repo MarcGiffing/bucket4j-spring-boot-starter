@@ -8,6 +8,7 @@ spring:
 bucket4j:
   enabled: true
   filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
   filters:
   - id: filter1
     cache-name: buckets

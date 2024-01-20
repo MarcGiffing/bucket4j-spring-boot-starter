@@ -12,6 +12,8 @@ management:
 bucket4j:
   enabled: true
   cache-to-use: redis-redisson
+  filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
   filters:
     - id: filter1
       major-version: 1
@@ -39,7 +41,6 @@ bucket4j:
               time: 10
               unit: seconds
               refill-speed: interval
-  filter-config-caching-enabled: true
 
 spring:
   main:

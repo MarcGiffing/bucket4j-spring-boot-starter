@@ -13,6 +13,8 @@ management:
 bucket4j:
   enabled: true
   cache-to-use: redis-lettuce
+  filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
   filters:
     - cache-name: buckets_test
       id: filter1
@@ -34,7 +36,6 @@ bucket4j:
               time: 10
               unit: seconds
               refill-speed: interval
-  filter-config-caching-enabled: true
 
 spring:
   main:
