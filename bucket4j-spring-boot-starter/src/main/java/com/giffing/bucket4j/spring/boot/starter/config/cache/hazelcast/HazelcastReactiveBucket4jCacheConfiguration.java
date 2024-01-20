@@ -40,14 +40,14 @@ public class HazelcastReactiveBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
 		return new HazelcastCacheManager<>(map);
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
 	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener() {
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
 		return new HazelcastCacheListener<>(map);
