@@ -36,14 +36,14 @@ public class JCacheBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
 	public com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager<String, Bucket4JConfiguration> configCacheManager(
 	) {
 		return new com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheCacheManager<>(cacheManager.getCache(configCacheName));
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true", matchIfMissing = true)
+	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
 	public JCacheCacheListener<String, Bucket4JConfiguration> configCacheListener() {
 		return new JCacheCacheListener<>(cacheManager.getCache(configCacheName));
 	}

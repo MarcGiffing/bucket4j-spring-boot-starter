@@ -3,9 +3,11 @@ package com.giffing.bucket4j.spring.boot.starter.examples.webflux;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
+import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -22,7 +24,7 @@ public class MyController {
 
     private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-    public MyController(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+    public MyController(@Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
         this.configCacheManager = configCacheManager;
     }
 
@@ -55,6 +57,7 @@ public class MyController {
     public ResponseEntity<?> updateConfig(
         @PathVariable String filterId,
         @RequestBody Bucket4JConfiguration newConfig) {
+        if(configCacheManager == null) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
 
 		//validate that the path id matches the body
 		if (!newConfig.getId().equals(filterId)) {

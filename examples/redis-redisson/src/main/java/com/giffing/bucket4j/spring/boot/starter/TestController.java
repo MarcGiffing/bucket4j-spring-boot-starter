@@ -20,7 +20,7 @@ public class TestController {
 
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public TestController(CacheManager<String, Bucket4JConfiguration> configCacheManager){
+	public TestController(@Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager){
 		this.configCacheManager = configCacheManager;
 	}
 
@@ -45,6 +45,7 @@ public class TestController {
 	public ResponseEntity<?> updateConfig(
 		@PathVariable String filterId,
 		@RequestBody Bucket4JConfiguration newConfig) {
+		if(configCacheManager == null) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
 
 		//validate that the path id matches the body
 		if (!newConfig.getId().equals(filterId)) {

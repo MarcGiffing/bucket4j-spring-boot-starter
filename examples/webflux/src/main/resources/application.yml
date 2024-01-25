@@ -6,16 +6,21 @@ management:
     web:
       exposure:
         include: "*"
-spring:  cache:    type: hazelcast
+spring:
+  cache:
+    type: hazelcast
 bucket4j:
   enabled: true
+  filter-config-caching-enabled: true
+  filter-config-cache-name: filterConfigCache
   filters:
   - cache-name: buckets
     filter-method: webflux
     url: .*
     http-content-type: application/json;charset=UTF-8
     http-response-body: '{ "name": "hello"}'
-    http-response-headers:      HELLO: WORLD
+    http-response-headers:
+      HELLO: WORLD
     filter-order: 1
     rate-limits:
     - execute-predicates:
