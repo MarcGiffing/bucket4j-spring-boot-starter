@@ -266,7 +266,7 @@ To differentiate incoming request you can provide an expression which is used as
 The expression uses the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[Spring Expression Language] (SpEL) which
 provides the most flexible solution to determine the cache key written in one line of code. https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html#expressions-spel-compilation[The expression compiles to a Java class which will be used].
 
-Depending on the filter method [servlet,webflux,gateway] different SpEL root objects object can be used in the expression so that you have a direct access to the method of these request objects:
+Depending on the filter method [servlet, webflux, gateway] different SpEL root objects can be used in the expression so that you have a direct access to the method of these request objects:
 
 * servlet: jakarta.servlet.http.HttpServletRequest (e.g. getRemoteAddr() or getRequestURI())
 * webflux: org.springframework.http.server.reactive.ServerHttpRequest
