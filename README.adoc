@@ -9,10 +9,9 @@ https://github.com/vladimir-bukhtoyarov/bucket4j
 
 Project version overview:
 
-* 0.10.0 - Bucket4j 8.4.0 - Spring Boot 3.1.x
-* 0.9.0  - Bucket4j 8.1.0 - Spring Boot 3.0.x
-* 0.8.0  - Bucket4j 8.1.0 - Spring Boot 2.7.x
-* 0.7.0  - Bucket4j 7.5.0 - Spring Boot 2.7.x
+* 0.11.x - Bucket4j 8.8.0 - Spring Boot 3.2.x
+* 0.10.x - Bucket4j 8.7.0 - Spring Boot 3.1.x
+
 
 *Examples:*
 
