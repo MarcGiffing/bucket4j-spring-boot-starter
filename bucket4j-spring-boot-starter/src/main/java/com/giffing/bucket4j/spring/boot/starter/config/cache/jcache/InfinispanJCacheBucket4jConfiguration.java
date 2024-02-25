@@ -7,9 +7,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.Infinisp
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-
 import org.infinispan.manager.CacheContainer;
-
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.ApplicationEventPublisher;
@@ -52,7 +50,7 @@ public class InfinispanJCacheBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public InfinispanCacheListener<String, Bucket4JConfiguration> configCacheListener() {
-		return new InfinispanCacheListener<>(cacheContainer.getCache(configCacheName));
+	public InfinispanCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		return new InfinispanCacheListener<>(cacheContainer.getCache(configCacheName), eventPublisher);
 	}
 }

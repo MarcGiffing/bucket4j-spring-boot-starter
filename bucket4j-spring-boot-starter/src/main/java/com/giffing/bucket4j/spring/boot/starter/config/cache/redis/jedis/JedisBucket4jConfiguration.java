@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager.JedisBasedProxyManagerBuilder;
 import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;
@@ -40,7 +41,7 @@ public class JedisBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public JedisCacheListener<String, Bucket4JConfiguration> configCacheListener() {
-		return new JedisCacheListener<>(jedisPool, configCacheName, String.class, Bucket4JConfiguration.class);
+	public JedisCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		return new JedisCacheListener<>(jedisPool, configCacheName, String.class, Bucket4JConfiguration.class, eventPublisher);
 	}
 }

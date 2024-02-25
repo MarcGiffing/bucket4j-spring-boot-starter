@@ -10,6 +10,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.hazelcast.spring.cache.HazelcastCacheManager;
 import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,9 +50,9 @@ public class HazelcastSpringBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener() {
+	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
-		return new HazelcastCacheListener<>(map);
+		return new HazelcastCacheListener<>(map, eventPublisher);
 	}
 
 }

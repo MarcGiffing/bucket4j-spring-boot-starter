@@ -1,22 +1,21 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-
 import io.micrometer.core.instrument.util.NamedThreadFactory;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
-import redis.clients.jedis.exceptions.JedisConnectionException;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class is intended to be used as bean.
@@ -30,12 +29,11 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 @Slf4j
 public class JedisCacheListener<K, V> extends JedisPubSub {
 
-	@Autowired
-	private ApplicationEventPublisher eventPublisher;
 	private final JedisPool jedisPool;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final String updateChannel;
 	private final JavaType deserializeType;
+	private ApplicationEventPublisher eventPublisher;
 
 	/**
 	 * @param jedisPool The pool to use for listening/publishing events
@@ -43,11 +41,11 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 	 * @param keyType The type of the key. This is required for parsing events and should match the K of this class.
 	 * @param valueType The type of the value. This is required for parsing events and should match the V of this class.
 	 */
-	public JedisCacheListener(JedisPool jedisPool, String cacheName, Class<K> keyType, Class<V> valueType) {
+	public JedisCacheListener(JedisPool jedisPool, String cacheName, Class<K> keyType, Class<V> valueType, ApplicationEventPublisher eventPublisher) {
 		this.jedisPool = jedisPool;
 		this.updateChannel = cacheName.concat(":update");
 		this.deserializeType = objectMapper.getTypeFactory().constructParametricType(CacheUpdateEvent.class, keyType, valueType);
-
+		this.eventPublisher = eventPublisher;
 		subscribe();
 	}
 

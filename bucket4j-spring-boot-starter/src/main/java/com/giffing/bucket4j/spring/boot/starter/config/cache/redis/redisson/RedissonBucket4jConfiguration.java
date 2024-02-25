@@ -10,6 +10,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.command.CommandAsyncExecutor;
 import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -50,7 +51,7 @@ public class RedissonBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public RedissonCacheListener<String, Bucket4JConfiguration> configCacheListener() {
-		return new RedissonCacheListener<>(this.redissonClient, configCacheName);
+	public RedissonCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		return new RedissonCacheListener<>(this.redissonClient, configCacheName, eventPublisher);
 	}
 }

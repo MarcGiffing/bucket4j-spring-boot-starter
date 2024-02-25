@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.apache.ignite.Ignite;
 import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,7 +40,7 @@ public class IgniteBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public IgniteCacheListener<String, Bucket4JConfiguration> configCacheListener() {
-		return new IgniteCacheListener<>(ignite.cache(configCacheName));
+	public IgniteCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		return new IgniteCacheListener<>(ignite.cache(configCacheName), eventPublisher);
 	}
 }

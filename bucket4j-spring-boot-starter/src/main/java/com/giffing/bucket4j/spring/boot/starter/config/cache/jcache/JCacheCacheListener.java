@@ -1,8 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.cache.Cache;
@@ -15,7 +13,7 @@ import java.io.Serializable;
 
 /**
  * This class is intended to be used as bean.
- *
+ * <p>
  * It will listen to changes in the cache, parse them to a  {@code CacheUpdateEvent<K, V>}
  * and publish the event to the Spring ApplicationEventPublisher.
  *
@@ -24,20 +22,20 @@ import java.io.Serializable;
  */
 public class JCacheCacheListener<K, V> implements CacheEntryUpdatedListener<K, V>, Serializable {
 
-	@Autowired
-	private ApplicationEventPublisher eventPublisher;
+    private ApplicationEventPublisher eventPublisher;
 
-	public JCacheCacheListener(Cache<K,V> cache ){
-		cache.registerCacheEntryListener(
-				new MutableCacheEntryListenerConfiguration<K, V>
-						(FactoryBuilder.factoryOf(this), null, true, false));
-	}
+    public JCacheCacheListener(Cache<K, V> cache, ApplicationEventPublisher eventPublisher) {
+        cache.registerCacheEntryListener(
+                new MutableCacheEntryListenerConfiguration<>
+                        (FactoryBuilder.factoryOf(this), null, true, false));
+        this.eventPublisher = eventPublisher;
+    }
 
-	@Override
-	public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> iterable) throws CacheEntryListenerException {
-		iterable.forEach(event -> {
-			CacheUpdateEvent<K, V> updateEvent = new CacheUpdateEvent<>(event.getKey(), event.getOldValue(), event.getValue());
-			eventPublisher.publishEvent(updateEvent);
-		});
-	}
+    @Override
+    public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> iterable) throws CacheEntryListenerException {
+        iterable.forEach(event -> {
+            CacheUpdateEvent<K, V> updateEvent = new CacheUpdateEvent<>(event.getKey(), event.getOldValue(), event.getValue());
+            eventPublisher.publishEvent(updateEvent);
+        });
+    }
 }

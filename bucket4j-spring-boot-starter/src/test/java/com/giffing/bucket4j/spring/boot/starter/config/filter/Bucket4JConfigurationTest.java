@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class Bucket4JConfigurationTest {
@@ -37,33 +39,33 @@ public class Bucket4JConfigurationTest {
 	@Test
 	void setFilterIdTest() {
 		config.setId("id");
-		assert(config.getId().equals("id"));
+		assertEquals("id", config.getId());
 		validator.validateProperty(config, "id"); //validate that autoconfigure allows string values
 	}
 	@Test
 	void setFilterIdWithSpacesTest() {
 		config.setId(" id ");
-		assert(config.getId().equals("id"));
+		assertEquals("id", config.getId());
 		validator.validateProperty(config, "id"); //validate that autoconfigure allows string values
 	}
 
 	@Test
 	void setFilterIdNullTest() {
 		config.setId(null);
-		assert (config.getId() == null);
+		assertNull(config.getId());
 		validator.validateProperty(config, "id"); //validate that autoconfigure allows null values
 	}
 
 	@Test
 	void setFilterIdEmptyStringTest(){
 		config.setId("");
-		assert (config.getId() == null);
+		assertNull(config.getId());
 	}
 
 	@Test
 	void setFilterIdSpacesTest(){
 		config.setId(" ");
-		assert (config.getId() == null);
+		assertNull(config.getId());
 	}
 
 	@Test

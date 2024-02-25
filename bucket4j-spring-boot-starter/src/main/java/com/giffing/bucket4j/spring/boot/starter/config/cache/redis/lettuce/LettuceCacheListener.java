@@ -8,8 +8,6 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -24,11 +22,10 @@ import org.springframework.context.ApplicationEventPublisher;
 @Slf4j
 public class LettuceCacheListener<K, V> extends RedisPubSubAdapter<String, String> {
 
-	@Autowired
-	private ApplicationEventPublisher eventPublisher;
 	private final String cacheUpdateChannel;
 	private final ObjectMapper objectMapper;
 	private final JavaType deserializeType;
+	private ApplicationEventPublisher eventPublisher;
 
 	/**
 	 * @param redisClient The RedisClient to use for publishing/subscribing to events.
@@ -36,10 +33,11 @@ public class LettuceCacheListener<K, V> extends RedisPubSubAdapter<String, Strin
 	 * @param keyType The type of the key. This is required for parsing events and should match the K of this class.
 	 * @param valueType The type of the value. This is required for parsing events and should match the V of this class.
 	 */
-	public LettuceCacheListener(RedisClient redisClient, String cacheName, Class<K> keyType, Class<V> valueType) {
+	public LettuceCacheListener(RedisClient redisClient, String cacheName, Class<K> keyType, Class<V> valueType, ApplicationEventPublisher eventPublisher) {
 		this.cacheUpdateChannel = cacheName.concat(":update");
 		this.objectMapper = new ObjectMapper();
 		this.deserializeType = objectMapper.getTypeFactory().constructParametricType(CacheUpdateEvent.class, keyType, valueType);
+		this.eventPublisher = eventPublisher;
 
 		StatefulRedisPubSubConnection<String, String> subConnection = redisClient.connectPubSub();
 		subConnection.addListener(this);

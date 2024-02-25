@@ -4,7 +4,6 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.EntryUpdatedListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -18,11 +17,11 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class HazelcastCacheListener<K, V> implements EntryUpdatedListener<K, V> {
 
-    @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    public HazelcastCacheListener(IMap<K, V> map) {
+    public HazelcastCacheListener(IMap<K, V> map, ApplicationEventPublisher eventPublisher) {
         map.addEntryListener(this, true);
+        this.eventPublisher = eventPublisher;
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfi
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
 import io.lettuce.core.RedisClient;
 import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,7 +40,7 @@ public class LettuceBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public LettuceCacheListener<String, Bucket4JConfiguration> configCacheListener() {
-		return new LettuceCacheListener<>(redisClient, configCacheName, String.class, Bucket4JConfiguration.class);
+	public LettuceCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		return new LettuceCacheListener<>(redisClient, configCacheName, String.class, Bucket4JConfiguration.class, eventPublisher);
 	}
 }

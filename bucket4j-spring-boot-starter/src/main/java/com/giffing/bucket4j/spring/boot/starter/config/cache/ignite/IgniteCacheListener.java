@@ -2,8 +2,6 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import org.apache.ignite.IgniteCache;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.cache.configuration.FactoryBuilder;
@@ -24,13 +22,13 @@ import java.io.Serializable;
  */
 public class IgniteCacheListener<K,V> implements CacheEntryUpdatedListener<K,V>, Serializable {
 
-	@Autowired
 	private ApplicationEventPublisher eventPublisher;
 
-	public IgniteCacheListener(IgniteCache<K,V> cache){
+	public IgniteCacheListener(IgniteCache<K,V> cache, ApplicationEventPublisher eventPublisher){
 		cache.registerCacheEntryListener(
-				new MutableCacheEntryListenerConfiguration<K, V>
-						(FactoryBuilder.factoryOf(this), null, false, false));
+                new MutableCacheEntryListenerConfiguration<>
+                        (FactoryBuilder.factoryOf(this), null, false, false));
+		this.eventPublisher = eventPublisher;
 	}
 
 	@Override

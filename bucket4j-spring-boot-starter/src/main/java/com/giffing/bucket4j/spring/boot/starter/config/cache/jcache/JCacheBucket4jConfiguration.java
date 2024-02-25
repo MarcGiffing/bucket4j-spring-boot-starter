@@ -1,17 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-
+import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
@@ -44,8 +43,8 @@ public class JCacheBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
-	public JCacheCacheListener<String, Bucket4JConfiguration> configCacheListener() {
-		return new JCacheCacheListener<>(cacheManager.getCache(configCacheName));
+	public JCacheCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
+		return new JCacheCacheListener<>(cacheManager.getCache(configCacheName), eventPublisher);
 	}
 
 }

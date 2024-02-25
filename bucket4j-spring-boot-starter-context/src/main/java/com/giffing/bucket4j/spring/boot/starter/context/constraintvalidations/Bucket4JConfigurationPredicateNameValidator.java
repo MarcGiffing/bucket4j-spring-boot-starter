@@ -20,7 +20,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfi
 
 public class Bucket4JConfigurationPredicateNameValidator implements ConstraintValidator<ValidPredicateNames, Bucket4JConfiguration> {
 
-	private final Map<FilterMethod, Map<String, ExecutePredicate<?>>> filterPredicates = new HashMap<>();
+	private final EnumMap<FilterMethod, Map<String, ExecutePredicate<?>>> filterPredicates = new EnumMap<>(FilterMethod.class);
 
 	@Autowired
 	public Bucket4JConfigurationPredicateNameValidator(List<ExecutePredicate<?>> executePredicates) {
