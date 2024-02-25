@@ -96,7 +96,7 @@ public class AbstractReactiveFilter {
 				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes(UTF_8));
 				return response.writeWith(Flux.just(buffer));
 			} else {
-				return Mono.error(new ReactiveRateLimitException("HTTP ResponseBody is null"));
+				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpStatusCode(), null));
 			}
 		}
 		if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
