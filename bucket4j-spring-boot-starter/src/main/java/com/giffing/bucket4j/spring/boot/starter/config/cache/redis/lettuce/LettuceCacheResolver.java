@@ -1,24 +1,21 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
+import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
+import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
+import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
+import io.lettuce.core.RedisClient;
 
 import java.time.Duration;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-
-import io.github.bucket4j.distributed.AsyncBucketProxy;
-import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
-import io.github.bucket4j.distributed.proxy.ProxyManager;
-import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
-import io.lettuce.core.RedisClient;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class is the Redis implementation of the {@link CacheResolver}.
  */
-public class LettuceCacheResolver implements AsyncCacheResolver {
+public class LettuceCacheResolver extends AbstractCacheResolverTemplate<byte[]> implements AsyncCacheResolver {
 
 	private final RedisClient redisClient;
 
@@ -27,16 +24,19 @@ public class LettuceCacheResolver implements AsyncCacheResolver {
 	}
 
 	@Override
-	public ProxyManagerWrapper resolve(String cacheName) {
-		final ProxyManager<byte[]> proxyManager = LettuceBasedProxyManager.builderFor(redisClient)
+	public boolean isAsync() {
+		return true;
+	}
+
+	@Override
+	public AbstractProxyManager<byte[]> getProxyManager(String cacheName) {
+		return LettuceBasedProxyManager.builderFor(redisClient)
 				.withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
 				.build();
+	}
 
-		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
-			AsyncBucketProxy bucket = proxyManager.asAsync().builder()
-					.withImplicitConfigurationReplacement(version, replaceStrategy)
-					.build(key.getBytes(UTF_8), bucketConfiguration).toListenable(metricsListener);
-			return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
-		};
+	@Override
+	public byte[] castStringToCacheKey(String key) {
+		return key.getBytes(UTF_8);
 	}
 }
