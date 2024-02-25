@@ -1,13 +1,11 @@
 
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.distributed.AsyncBucketProxy;
+import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
 
@@ -16,7 +14,7 @@ import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
  * It uses the {@link HazelcastInstance} to retrieve the needed cache. 
  *
  */
-public class HazelcastCacheResolver implements AsyncCacheResolver {
+public class HazelcastCacheResolver extends AbstractCacheResolverTemplate<String> implements AsyncCacheResolver {
 
 	private final HazelcastInstance hazelcastInstance;
 	
@@ -26,23 +24,20 @@ public class HazelcastCacheResolver implements AsyncCacheResolver {
 		this.hazelcastInstance = hazelcastInstance;
 		this.async = async;
 	}
-	
+
 	@Override
-	public ProxyManagerWrapper resolve(String cacheName) {
+	public String castStringToCacheKey(String key) {
+		return key;
+	}
+
+	@Override
+	public boolean isAsync() {
+		return async;
+	}
+
+	@Override
+	public AbstractProxyManager<String> getProxyManager(String cacheName) {
 		IMap<String, byte[]> map = hazelcastInstance.getMap(cacheName);
-		HazelcastProxyManager<String> hazelcastProxyManager = new HazelcastProxyManager<>(map);
-		return (key, numTokens, bucketConfiguration, metricsListener, version, replaceStrategy) -> {
-			if(async) {
-				AsyncBucketProxy bucket = hazelcastProxyManager.asAsync().builder()
-						.withImplicitConfigurationReplacement(version, replaceStrategy)
-						.build(key, bucketConfiguration).toListenable(metricsListener);
-				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));	
-			} else {
-				Bucket bucket = hazelcastProxyManager.builder()
-						.withImplicitConfigurationReplacement(version, replaceStrategy)
-						.build(key, bucketConfiguration).toListenable(metricsListener);
-				return new ConsumptionProbeHolder(bucket.tryConsumeAndReturnRemaining(numTokens));
-			}
-		};
+		return new HazelcastProxyManager<>(map);
 	}
 }
