@@ -1,17 +1,16 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import com.giffing.bucket4j.spring.boot.starter.context.PostRateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import lombok.Data;
+import lombok.ToString;
+import org.springframework.http.HttpStatus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.http.HttpStatus;
-
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-
-import lombok.Data;
-import lombok.ToString;
 
 /**
  * This class is the main configuration class which is used to build the servlet|webflux|gateway request filter
@@ -19,7 +18,7 @@ import lombok.ToString;
  */
 @Data
 @ToString
-public class FilterConfiguration<R> {
+public class FilterConfiguration<R, P> {
 
 	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 	
@@ -32,7 +31,7 @@ public class FilterConfiguration<R> {
 	 * The order of the filter depending on other filters independently from the Bucket4j filters.
 	 */
 	private int order;
-	
+
 	/**
 	 * Hides the HTTP response headers 
 	 * x-rate-limit-remaining
@@ -58,6 +57,8 @@ public class FilterConfiguration<R> {
 	private Map<String, String> httpResponseHeaders = new HashMap<>();
 
 	private List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
+
+	private List<PostRateLimitCheck<R, P>> postRateLimitChecks = new ArrayList<>();
 	
 	public void addRateLimitCheck(RateLimitCheck<R> rateLimitCheck) {
 		this.rateLimitChecks.add(rateLimitCheck);
@@ -65,4 +66,7 @@ public class FilterConfiguration<R> {
 	
 	private Metrics metrics;
 
+	public void addPostRateLimitCheck(PostRateLimitCheck<R, P> prlc) {
+		getPostRateLimitChecks().add(prlc);
+	}
 }

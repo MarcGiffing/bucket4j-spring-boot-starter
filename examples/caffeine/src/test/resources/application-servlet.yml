@@ -26,3 +26,12 @@ bucket4j:
       - capacity: 10
         time: 10
         unit: seconds
+  - id: filter3
+    cache-name: buckets_test
+    url: ^(/secure).*
+    rate-limits:
+      - post-execute-condition: getStatus() eq 401
+        bandwidths:
+          - capacity: 5
+            time: 10
+            unit: seconds

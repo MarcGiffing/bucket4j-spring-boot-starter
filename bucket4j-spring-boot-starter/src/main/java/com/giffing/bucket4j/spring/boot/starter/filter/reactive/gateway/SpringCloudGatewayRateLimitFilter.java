@@ -4,6 +4,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
@@ -16,7 +17,7 @@ import reactor.core.publisher.Mono;
  */
 public class SpringCloudGatewayRateLimitFilter extends AbstractReactiveFilter implements GlobalFilter, Ordered {
 
-	public SpringCloudGatewayRateLimitFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
+	public SpringCloudGatewayRateLimitFilter(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig) {
 		super(filterConfig);
 	}
 

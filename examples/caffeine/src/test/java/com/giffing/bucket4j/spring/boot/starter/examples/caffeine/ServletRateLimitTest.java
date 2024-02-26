@@ -2,11 +2,13 @@ package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
@@ -54,10 +56,48 @@ class ServletRateLimitTest {
 			.boxed()
 			.sorted(Collections.reverseOrder())
 			.forEach(counter -> {
-				successfulWebRequest(url, counter - 1);
+				successfulWebRequest(url, counter - 1, HttpStatus.OK);
 			});
 
 		blockedWebRequestDueToRateLimit(url);
+	}
+
+	@Test
+	@Order(1)
+	void assert_rate_limit_when_unauthorized() throws Exception {
+		String url = "/secure";
+		IntStream.rangeClosed(1, 5)
+				.boxed()
+				.sorted(Collections.reverseOrder())
+				.forEach(counter -> {
+					System.out.println("################## counter" + counter);
+					successfulWebRequest(url, counter, HttpStatus.UNAUTHORIZED);
+				});
+
+		blockedWebRequestDueToRateLimit(url);
+	}
+
+	@Test
+	@Order(1)
+	void assert_no_rate_limit_when_authorized() throws Exception {
+		String url = "/secure";
+		IntStream.rangeClosed(1, 5)
+				.forEach(counter -> {
+                    try {
+                        this.mockMvc
+                                .perform(get(url)
+										.queryParam("username", "admin")
+								)
+                                .andExpect(status().isOk())
+								.andExpect(content().string(containsString("Hello World")))
+								// the rate limit does not decrease
+								.andExpect(header().string("X-Rate-Limit-Remaining", "5"));
+
+                    } catch (Exception e) {
+						e.printStackTrace();
+                        fail(e.getMessage());
+                    }
+                });
 	}
 
 
@@ -69,7 +109,7 @@ class ServletRateLimitTest {
 			.boxed()
 			.sorted(Collections.reverseOrder())
 			.forEach(counter -> {
-				successfulWebRequest(url, counter - 1);
+				successfulWebRequest(url, counter - 1, HttpStatus.OK);
 			});
 
 		blockedWebRequestDueToRateLimit(url);
@@ -182,8 +222,9 @@ class ServletRateLimitTest {
 		updateFilterCache(filter)
 			.andExpect(status().isOk());
 
-		Thread.sleep(100); //Short sleep to allow the cacheUpdateListeners to update the filter configuration
-		successfulWebRequest(url, newFilterCapacity - 1);
+		// Allow the cacheUpdateListeners to update the filter configuration
+		await().atMost(Duration.ofSeconds(1))
+				.untilAsserted(() -> successfulWebRequest(url, newFilterCapacity - 1, HttpStatus.OK));
 	}
 
 	private Bucket4JConfiguration getFilterConfigClone(String id) throws JsonProcessingException {
@@ -206,11 +247,11 @@ class ServletRateLimitTest {
 				.content(content));
 	}
 
-	private void successfulWebRequest(String url, Integer remainingTries) {
+	private void successfulWebRequest(String url, Integer remainingTries, HttpStatus httpStatus) {
 		try {
 			this.mockMvc
 				.perform(get(url))
-				.andExpect(status().isOk())
+				.andExpect(status().is(httpStatus.value()))
 				.andExpect(header().longValue("X-Rate-Limit-Remaining", remainingTries))
 				.andExpect(content().string(containsString("Hello World")));
 		} catch (Exception e) {

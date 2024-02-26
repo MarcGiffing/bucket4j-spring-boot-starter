@@ -1,37 +1,34 @@
 package com.giffing.bucket4j.spring.boot.starter.filter.reactive;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-
-import io.github.bucket4j.ConsumptionProbe;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Data
 @Slf4j
 public class AbstractReactiveFilter {
 
-	private FilterConfiguration<ServerHttpRequest> filterConfig;
+	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig;
 
-	public AbstractReactiveFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
+	public AbstractReactiveFilter(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig) {
 		this.filterConfig = filterConfig;
 	}
 
-	public void setFilterConfig(FilterConfiguration<ServerHttpRequest> filterConfig){
+	public void setFilterConfig(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig){
 		this.filterConfig = filterConfig;
 	}
 
@@ -41,13 +38,13 @@ public class AbstractReactiveFilter {
 
 	protected Mono<Void> chainWithRateLimitCheck(ServerWebExchange exchange, ReactiveFilterChain chain) {
 		log.debug("reate-limit-check;method:{};uri:{}", exchange.getRequest().getMethod(), exchange.getRequest().getURI());
-		ServerHttpRequest request = exchange.getRequest();
-		ServerHttpResponse response = exchange.getResponse();
-		List<Mono<ConsumptionProbe>> asyncConsumptionProbes = new ArrayList<>();
-		for (RateLimitCheck<ServerHttpRequest> rlc : filterConfig.getRateLimitChecks()) {
-			ConsumptionProbeHolder cph = rlc.rateLimit(request);
-			if(cph != null && cph.getConsumptionProbeCompletableFuture() != null){
-				asyncConsumptionProbes.add(Mono.fromFuture(cph.getConsumptionProbeCompletableFuture()));
+		var request = exchange.getRequest();
+		var response = exchange.getResponse();
+		List<Mono<RateLimitResult>> asyncConsumptionProbes = new ArrayList<>();
+		for (var rlc : filterConfig.getRateLimitChecks()) {
+			var wrapper = rlc.rateLimit(request);
+			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
+				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 				if(filterConfig.getStrategy() == RateLimitConditionMatchingStrategy.FIRST){
 					break;
 				}
@@ -59,11 +56,11 @@ public class AbstractReactiveFilter {
 		return Flux
 				.concat(asyncConsumptionProbes)
 				.reduce(this::reduceConsumptionProbe)
-				.flatMap(consumptionProbe -> handleConsumptionProbe(exchange, chain, response, consumptionProbe));
+				.flatMap(rateLimitResult -> handleConsumptionProbe(exchange, chain, response, rateLimitResult));
 	}
 
-	protected ConsumptionProbe reduceConsumptionProbe(ConsumptionProbe x, ConsumptionProbe y) {
-		ConsumptionProbe result;
+	protected RateLimitResult reduceConsumptionProbe(RateLimitResult x, RateLimitResult y) {
+		RateLimitResult result;
 		if(!x.isConsumed()) {
 			result = x;
 		} else if(!y.isConsumed()) {
@@ -79,14 +76,14 @@ public class AbstractReactiveFilter {
 	}
 
 	protected Mono<Void> handleConsumptionProbe(ServerWebExchange exchange, ReactiveFilterChain chain,
-			ServerHttpResponse response, ConsumptionProbe cp) {
+			ServerHttpResponse response, RateLimitResult rateLimitResult) {
 		log.debug("probe-results;isConsumed:{};remainingTokens:{};nanosToWaitForRefill:{};nanosToWaitForReset:{}",
-				cp.isConsumed(),
-				cp.getRemainingTokens(),
-				cp.getNanosToWaitForRefill(),
-				cp.getNanosToWaitForReset());
+				rateLimitResult.isConsumed(),
+				rateLimitResult.getRemainingTokens(),
+				rateLimitResult.getNanosToWaitForRefill(),
+				rateLimitResult.getNanosToWaitForReset());
 
-		if(!cp.isConsumed()) {
+		if(!rateLimitResult.isConsumed()) {
 			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 				filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);
 			}
@@ -100,9 +97,10 @@ public class AbstractReactiveFilter {
 			}
 		}
 		if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
-			log.debug("header;X-Rate-Limit-Remaining:{}", cp.getRemainingTokens());
-			response.getHeaders().set("X-Rate-Limit-Remaining", String.valueOf(cp.getRemainingTokens()));
+			log.debug("header;X-Rate-Limit-Remaining:{}", rateLimitResult.getRemainingTokens());
+			response.getHeaders().set("X-Rate-Limit-Remaining", String.valueOf(rateLimitResult.getRemainingTokens()));
 		}
 		return chain.apply(exchange);
+		// FIXME handle post execution filter
 	}
 }

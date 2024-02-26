@@ -1,13 +1,14 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.Collections;
-import java.util.stream.IntStream;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -17,16 +18,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.stream.IntStream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-import org.junit.jupiter.api.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 properties = {
@@ -178,8 +176,9 @@ class GatewaySampleApplicationTest {
 		updateFilterCache(filter)
 			.expectStatus().isOk();
 
-		Thread.sleep(100); //Short sleep to allow the cacheUpdateListeners to update the filter configuration
-		successfulWebRequest(url, newFilterCapacity - 1);
+		// Allow the cacheUpdateListeners to update the filter configuration
+		await().atMost(Duration.ofSeconds(1))
+				.untilAsserted(() -> successfulWebRequest(url, newFilterCapacity - 1));
 	}
 
 	private Bucket4JConfiguration getFilterConfigClone(String id) throws JsonProcessingException {

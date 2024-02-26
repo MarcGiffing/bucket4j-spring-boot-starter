@@ -1,20 +1,15 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
-import java.io.Serializable;
-import java.time.temporal.ChronoUnit;
-
-import jakarta.validation.constraints.AssertTrue;
+import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidDurationChronoUnit;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-
+import lombok.Data;
 import org.springframework.util.StringUtils;
 
-import com.giffing.bucket4j.spring.boot.starter.context.RefillSpeed;
-import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidDurationChronoUnit;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import java.io.Serializable;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Configures the rate of data which should be transfered

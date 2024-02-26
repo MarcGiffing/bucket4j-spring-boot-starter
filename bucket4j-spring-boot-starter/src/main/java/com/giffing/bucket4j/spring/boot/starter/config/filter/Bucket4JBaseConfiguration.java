@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -39,23 +40,23 @@ import lombok.extern.slf4j.Slf4j;
  * configuration classes
  */
 @Slf4j
-public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListener<String, Bucket4JConfiguration> {
+public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateListener<String, Bucket4JConfiguration> {
 
     private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-    public Bucket4JBaseConfiguration(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+    protected Bucket4JBaseConfiguration(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
         this.configCacheManager = configCacheManager;
     }
 
     public abstract List<MetricHandler> getMetricHandlers();
 
-    public FilterConfiguration<R> buildFilterConfig(
+    public FilterConfiguration<R, P> buildFilterConfig(
             Bucket4JConfiguration config,
             ProxyManagerWrapper proxyWrapper,
             ExpressionParser expressionParser,
             ConfigurableBeanFactory beanFactory) {
 
-        FilterConfiguration<R> filterConfig = mapFilterConfiguration(config);
+        FilterConfiguration<R, P> filterConfig = mapFilterConfiguration(config);
 
         config.getRateLimits().forEach(rl -> {
             log.debug("RL: {}", rl.toString());
@@ -73,6 +74,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
                     return proxyWrapper.tryConsumeAndReturnRemaining(
                             key,
                             rl.getNumTokens(),
+                            rl.getPostExecuteCondition() != null,
                             bucketConfiguration,
                             metricBucketListener,
                             configVersion,
@@ -82,12 +84,37 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
                 return null;
             };
             filterConfig.addRateLimitCheck(rlc);
+
+            if (rl.getPostExecuteCondition() != null) {
+                log.debug("PRL: {}", rl);
+                PostRateLimitCheck<R, P> postRlc = (request, response) -> {
+                    var skipRateLimit = performPostSkipRateLimitCheck(expressionParser, beanFactory, rl,
+                            executionPredicate, skipPredicate, request, response);
+                    if (!skipRateLimit) {
+                        var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(request);
+                        var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, request);
+                        log.debug("try-and-consume-post;key:{};tokens:{}", key, rl.getNumTokens());
+                        final long configVersion = config.getBucket4JVersionNumber();
+                        return proxyWrapper.tryConsumeAndReturnRemaining(
+                                key,
+                                rl.getNumTokens(),
+                                false,
+                                bucketConfiguration,
+                                metricBucketListener,
+                                configVersion,
+                                rl.getTokensInheritanceStrategy()
+                        );
+                    }
+                    return null;
+                };
+                filterConfig.addPostRateLimitCheck(postRlc);
+            }
         });
         return filterConfig;
     }
 
-    private FilterConfiguration<R> mapFilterConfiguration(Bucket4JConfiguration config) {
-        FilterConfiguration<R> filterConfig = new FilterConfiguration<>();
+    private FilterConfiguration<R, P> mapFilterConfiguration(Bucket4JConfiguration config) {
+        FilterConfiguration<R, P> filterConfig = new FilterConfiguration<>();
         filterConfig.setUrl(config.getUrl().strip());
         filterConfig.setOrder(config.getFilterOrder());
         filterConfig.setStrategy(config.getStrategy());
@@ -100,29 +127,51 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
         return filterConfig;
     }
 
+    private boolean performPostSkipRateLimitCheck(ExpressionParser expressionParser,
+                                                  ConfigurableBeanFactory beanFactory,
+                                                  RateLimit rl,
+                                                  Predicate<R> executionPredicate,
+                                                  Predicate<R> skipPredicate,
+                                                  R request,
+                                                  P response
+    ) {
+        var skipRateLimit =  performSkipRateLimitCheck(
+                expressionParser, beanFactory,
+                rl, executionPredicate,
+                skipPredicate, request);
 
-    private boolean performSkipRateLimitCheck(ExpressionParser expressionParser, ConfigurableBeanFactory beanFactory,
+        if (!skipRateLimit && rl.getPostExecuteCondition() != null) {
+            skipRateLimit = !executeResponseCondition(rl, expressionParser, beanFactory).evalute(response);
+            log.debug("skip-rate-limit - post-execute-condition: {}", skipRateLimit);
+        }
+
+        return skipRateLimit;
+    }
+
+    private boolean performSkipRateLimitCheck(ExpressionParser expressionParser,
+                                              ConfigurableBeanFactory beanFactory,
                                               RateLimit rl,
-                                              Predicate<R> executionPredicate, Predicate<R> skipPredicate,
-                                              R servletRequest) {
+                                              Predicate<R> executionPredicate,
+                                              Predicate<R> skipPredicate,
+                                              R request) {
         boolean skipRateLimit = false;
         if (rl.getSkipCondition() != null) {
-            skipRateLimit = skipCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
+            skipRateLimit = skipCondition(rl, expressionParser, beanFactory).evalute(request);
             log.debug("skip-rate-limit - skip-condition: {}", skipRateLimit);
         }
 
         if (!skipRateLimit) {
-            skipRateLimit = skipPredicate.test(servletRequest);
+            skipRateLimit = skipPredicate.test(request);
             log.debug("skip-rate-limit - skip-predicates: {}", skipRateLimit);
         }
 
         if (!skipRateLimit && rl.getExecuteCondition() != null) {
-            skipRateLimit = !executeCondition(rl, expressionParser, beanFactory).evalute(servletRequest);
+            skipRateLimit = !executeCondition(rl, expressionParser, beanFactory).evalute(request);
             log.debug("skip-rate-limit - execute-condition: {}", skipRateLimit);
         }
 
         if (!skipRateLimit) {
-            skipRateLimit = !executionPredicate.test(servletRequest);
+            skipRateLimit = !executionPredicate.test(request);
             log.debug("skip-rate-limit - execute-predicates: {}", skipRateLimit);
         }
         return skipRateLimit;
@@ -154,7 +203,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
     private MetricBucketListener createMetricListener(String cacheName,
                                                       ExpressionParser expressionParser,
                                                       ConfigurableBeanFactory beanFactory,
-                                                      FilterConfiguration<R> filterConfig,
+                                                      FilterConfiguration<R, P> filterConfig,
                                                       R servletRequest) {
 
         var metricTagResults = getMetricTags(
@@ -173,7 +222,7 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
     private List<MetricTagResult> getMetricTags(
             ExpressionParser expressionParser,
             ConfigurableBeanFactory beanFactory,
-            FilterConfiguration<R> filterConfig,
+            FilterConfiguration<R, P> filterConfig,
             R servletRequest) {
 
         return filterConfig
@@ -243,17 +292,36 @@ public abstract class Bucket4JBaseConfiguration<R> implements CacheUpdateListene
      * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
      */
     public Condition<R> executeCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+        return executeExpression(rateLimit.getExecuteCondition(), expressionParser, beanFactory);
+    }
+
+    /**
+     * Creates the lambda for the execute condition which will be evaluated on each request.
+     *
+     * @param rateLimit        the {@link RateLimit} configuration which holds the execute condition string
+     * @param expressionParser is used to evaluate the execution expression
+     * @param beanFactory      used to get full access to all java beans in the SpEl
+     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
+     */
+    public Condition<P> executeResponseCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
+        return executeExpression(rateLimit.getPostExecuteCondition(), expressionParser, beanFactory);
+    }
+
+    @Nullable
+    private static <R> Condition<R> executeExpression(String condition, ExpressionParser expressionParser, BeanFactory beanFactory) {
         var context = new StandardEvaluationContext();
         context.setBeanResolver(new BeanFactoryResolver(beanFactory));
 
-        if (rateLimit.getExecuteCondition() != null) {
+        if (condition != null) {
             return request -> {
-                Expression expr = expressionParser.parseExpression(rateLimit.getExecuteCondition());
-                return expr.getValue(context, request, Boolean.class);
+                Expression expr = expressionParser.parseExpression(condition);
+                return Boolean.TRUE.equals(expr.getValue(context, request, Boolean.class));
             };
         }
         return null;
     }
+
+
 
     protected void addDefaultMetricTags(Bucket4JBootProperties properties, Bucket4JConfiguration filter) {
         if (!properties.getDefaultMetricTags().isEmpty()) {

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +26,6 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
@@ -37,7 +38,7 @@ import reactor.core.publisher.Mono;
 class WebfluxRateLimitFilterTest {
 
 	private WebfluxWebFilter filter;
-	private FilterConfiguration<ServerHttpRequest> configuration;
+	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> configuration;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck1;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck2;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck3;
@@ -140,12 +141,12 @@ class WebfluxRateLimitFilterTest {
 	}
 
 	private void rateLimitConfig(Long remainingTokens, RateLimitCheck<ServerHttpRequest> rateLimitCheck) {
-		ConsumptionProbeHolder consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
-		ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
-		when(probe.isConsumed()).thenReturn(remainingTokens > 0);
-		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
-		when(consumptionHolder.getConsumptionProbeCompletableFuture())
-				.thenReturn(CompletableFuture.completedFuture(probe));
+		RateLimitResultWrapper consumptionHolder = Mockito.mock(RateLimitResultWrapper.class);
+		RateLimitResult rateLimitResult = Mockito.mock(RateLimitResult.class);
+		when(rateLimitResult.isConsumed()).thenReturn(remainingTokens > 0);
+		when(rateLimitResult.getRemainingTokens()).thenReturn(remainingTokens);
+		when(consumptionHolder.getRateLimitResultCompletableFuture())
+				.thenReturn(CompletableFuture.completedFuture(rateLimitResult));
 		when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
 	}
 

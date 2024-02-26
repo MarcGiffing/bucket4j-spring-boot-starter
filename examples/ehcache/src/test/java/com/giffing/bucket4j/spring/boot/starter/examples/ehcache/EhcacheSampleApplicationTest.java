@@ -22,11 +22,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -168,8 +170,9 @@ class EhcacheSampleApplicationTest {
 		updateFilterCache(filter)
 			.andExpect(status().isOk());
 
-		Thread.sleep(100); //Short sleep to allow the cacheUpdateListeners to update the filter configuration
-		successfulWebRequest(url, newFilterCapacity - 1);
+		// Allow the cacheUpdateListeners to update the filter configuration
+		await().atMost(Duration.ofSeconds(1))
+				.untilAsserted(() -> successfulWebRequest(url, newFilterCapacity - 1));
 	}
 
 	private Bucket4JConfiguration getFilterConfigClone(String id) throws JsonProcessingException {

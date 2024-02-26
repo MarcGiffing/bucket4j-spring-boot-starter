@@ -6,7 +6,6 @@ import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
 import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +18,12 @@ import java.util.Set;
 @RequestMapping
 public class MyController {
 
-    @Autowired
-    Validator validator;
+    private final Validator validator;
 
     private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-    public MyController(@Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+    public MyController(Validator validator, @Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+        this.validator = validator;
         this.configCacheManager = configCacheManager;
     }
 

@@ -2,6 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux;
 
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -14,7 +15,7 @@ import reactor.core.publisher.Mono;
 public class WebfluxWebFilter extends AbstractReactiveFilter implements WebFilter, Ordered {
 
 
-	public WebfluxWebFilter(FilterConfiguration<ServerHttpRequest> filterConfig) {
+	public WebfluxWebFilter(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig) {
 		super(filterConfig);
 	}
 

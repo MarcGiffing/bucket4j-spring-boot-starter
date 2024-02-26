@@ -2,11 +2,9 @@ package com.giffing.bucket4j.spring.boot.starter.examples.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.MethodOrderer;
@@ -23,17 +21,18 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -202,8 +201,9 @@ class RedisJedisTest {
 		updateFilterCache(filter)
 			.andExpect(status().isOk());
 
-		Thread.sleep(100); //Short sleep to allow the cacheUpdateListeners to update the filter configuration
-		successfulWebRequest(url, newFilterCapacity - 1);
+		// Allow the cacheUpdateListeners to update the filter configuration
+		await().atMost(Duration.ofSeconds(1))
+				.untilAsserted(() -> successfulWebRequest(url, newFilterCapacity - 1));
 	}
 
 	private Bucket4JConfiguration getFilterConfigClone(String id) throws JsonProcessingException {

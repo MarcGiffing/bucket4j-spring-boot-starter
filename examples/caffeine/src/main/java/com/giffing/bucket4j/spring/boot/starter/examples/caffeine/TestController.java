@@ -50,6 +50,11 @@ public class TestController {
 		return ResponseEntity.ok("Hello World");
 	}
 
+	@GetMapping("secure")
+	public ResponseEntity<String> secure() {
+		return ResponseEntity.ok("Hello World");
+	}
+
 	/**
 	 * Example of how a filter configuration can be updated during runtime
 	 * @param filterId id of the filter to update
