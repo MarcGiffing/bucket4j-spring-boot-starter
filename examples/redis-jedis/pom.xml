@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <testcontainers-redis-junit.version>1.6.4</testcontainers-redis-junit.version>
         <!-- Using version 5.0.0 or later the onMessage() in the subscriber is never called. This does work with 4.4.x -->
-        <jedis.version>4.4.6</jedis.version>
+        <jedis.version>5.1.1</jedis.version>
     </properties>
 
     <dependencies>
