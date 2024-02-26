@@ -83,11 +83,11 @@ public class AbstractReactiveFilter {
 				rateLimitResult.getNanosToWaitForRefill(),
 				rateLimitResult.getNanosToWaitForReset());
 
-		if(!rateLimitResult.isConsumed()) {
-			if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
+		if (!rateLimitResult.isConsumed()) {
+			if (Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 				filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);
 			}
-			if(filterConfig.getHttpResponseBody() != null) {
+			if (filterConfig.getHttpResponseBody() != null) {
 				response.setStatusCode(filterConfig.getHttpStatusCode());
 				response.getHeaders().set("Content-Type", filterConfig.getHttpContentType());
 				DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(filterConfig.getHttpResponseBody().getBytes(UTF_8));
@@ -96,11 +96,19 @@ public class AbstractReactiveFilter {
 				return Mono.error(new ReactiveRateLimitException(filterConfig.getHttpStatusCode(), null));
 			}
 		}
-		if(Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
+		if (Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
 			log.debug("header;X-Rate-Limit-Remaining:{}", rateLimitResult.getRemainingTokens());
 			response.getHeaders().set("X-Rate-Limit-Remaining", String.valueOf(rateLimitResult.getRemainingTokens()));
 		}
-		return chain.apply(exchange);
-		// FIXME handle post execution filter
+
+		Mono<Void> postRateLimitMonos = Mono.empty();
+		filterConfig.getPostRateLimitChecks().forEach(rlc -> {
+			var wrapper = rlc.rateLimit(exchange.getRequest(), response);
+			if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
+				postRateLimitMonos.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
+			}
+		});
+
+		return chain.apply(exchange).then(postRateLimitMonos);
 	}
 }
