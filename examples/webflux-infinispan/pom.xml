@@ -66,6 +66,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+			<artifactId>general-tests</artifactId>
+			<version>${project.version}</version>
+			<scope>tests</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

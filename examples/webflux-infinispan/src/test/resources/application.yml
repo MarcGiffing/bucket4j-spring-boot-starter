@@ -1,0 +1,6 @@
+spring:
+  cache:
+    type: infinispan
+infinispan:
+  embedded:
+    config-xml: infinispan.xml

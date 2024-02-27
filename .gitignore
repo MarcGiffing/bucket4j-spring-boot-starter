@@ -7,3 +7,4 @@
 .factorypath
 .apt_generated
 .springBeans
+.flattened-pom.xml

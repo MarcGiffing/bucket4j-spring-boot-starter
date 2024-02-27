@@ -1,0 +1,7 @@
+spring:
+  cache:
+    cache-names:
+    - buckets
+    - filterConfigCache
+    caffeine:
+      spec: maximumSize=1000000,expireAfterAccess=3600s
