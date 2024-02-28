@@ -9,7 +9,9 @@ import org.junit.platform.suite.api.Suite;
         GreadyRefillSpeedTest.class,
         IntervalRefillSpeedTest.class,
         PostExecuteConditionTest.class,
-        EmptyHttpResponseTest.class
+        EmptyHttpResponseTest.class,
+        ChangeResponseHttpStatusCodeTest.class,
+        AddResponseHeaderTest.class
 })
 public class ServletTestSuite {
 }

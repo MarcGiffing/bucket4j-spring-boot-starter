@@ -28,9 +28,12 @@ public class MockMvcHelper {
     }
 
     public static void blockedWebRequestDueToRateLimit(MockMvc mockMvc, String url) throws Exception {
+        blockedWebRequestWithStatus(mockMvc, url, HttpStatus.TOO_MANY_REQUESTS);
+    }
+    public static void blockedWebRequestWithStatus(MockMvc mockMvc, String url, HttpStatus httpStatus) throws Exception {
         mockMvc
                 .perform(get(url))
-                .andExpect(status().is(HttpStatus.TOO_MANY_REQUESTS.value()))
+                .andExpect(status().is(httpStatus.value()))
                 .andExpect(content().string(containsString("{ \"message\": \"Too many requests!\" }")));
     }
 
