@@ -1,7 +1,13 @@
 
+
+:url-repo: https://github.com/MarcGiffing/bucket4j-spring-boot-starter
 :url: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master
 :url-examples: {url}/examples
 :url-config-cache: {url}/com/giffing/bucket4j/spring/boot/starter/config/cache
+
+image:{url-repo}/actions/workflows/maven.yml/badge.svg[Build Status,link={url-repo}/actions/worklows/maven.yml]
+image:{url-repo}/actions/workflows/codeql.yml/badge.svg[Build Status,link={url-repo}/actions/worklows/codeql.yml]
+image:{url-repo}/actions/workflows/pmd.yml/badge.svg[Build Status,link={url-repo}/actions/worklows/pmd.yml]
 
 = Spring Boot Starter for Bucket4j
 
