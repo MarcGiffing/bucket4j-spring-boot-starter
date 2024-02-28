@@ -10,7 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class MockMvcHelper {
 
-    public static void webRequestWithStatus(MockMvc mockMvc, String url, Integer remainingTries, HttpStatus httpStatus) {
+    public static void webRequestWithStatus(
+            MockMvc mockMvc,
+            String url,
+            HttpStatus httpStatus,
+            Integer remainingTries) {
         try {
             mockMvc
                     .perform(get(url))
@@ -28,5 +32,12 @@ public class MockMvcHelper {
                 .perform(get(url))
                 .andExpect(status().is(HttpStatus.TOO_MANY_REQUESTS.value()))
                 .andExpect(content().string(containsString("{ \"message\": \"Too many requests!\" }")));
+    }
+
+    public static void blockedWebRequestDueToRateLimitWithEmptyBody(MockMvc mockMvc, String url) throws Exception {
+        mockMvc
+                .perform(get(url))
+                .andExpect(status().is(HttpStatus.TOO_MANY_REQUESTS.value()))
+                .andExpect(jsonPath("$").doesNotExist());
     }
 }

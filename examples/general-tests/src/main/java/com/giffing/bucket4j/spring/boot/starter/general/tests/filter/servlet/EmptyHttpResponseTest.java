@@ -11,21 +11,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
-import static com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet.MockMvcHelper.blockedWebRequestDueToRateLimit;
-import static com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet.MockMvcHelper.webRequestWithStatus;
+import static com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet.MockMvcHelper.*;
 
 
 @SpringBootTest(properties = {
 		"bucket4j.filters[0].cache-name=buckets",
+		"bucket4j.filters[0].url=^(/hello).*",
+		"bucket4j.filters[0].http-response-body=null",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=interval",
-		"bucket4j.filters[0].url=^(/hello).*",
 })
 @AutoConfigureMockMvc
 @DirtiesContext
-public class IntervalRefillSpeedTest {
+public class EmptyHttpResponseTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -34,10 +34,10 @@ public class IntervalRefillSpeedTest {
 	void helloTest() throws Exception {
 		String url = "/hello";
 		IntStream.rangeClosed(1, 5)
-			.boxed()
-			.sorted(Collections.reverseOrder())
-			.forEach(counter -> webRequestWithStatus(mockMvc, url, HttpStatus.OK, counter - 1));
-		blockedWebRequestDueToRateLimit(mockMvc, url);
+				.boxed()
+				.sorted(Collections.reverseOrder())
+				.forEach(counter -> webRequestWithStatus(mockMvc, url, HttpStatus.OK, counter - 1));
+		blockedWebRequestDueToRateLimitWithEmptyBody(mockMvc, url);
 	}
 
 

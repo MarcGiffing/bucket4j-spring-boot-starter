@@ -8,7 +8,8 @@ import org.junit.platform.suite.api.Suite;
         ServletRateLimitTest.class,
         GreadyRefillSpeedTest.class,
         IntervalRefillSpeedTest.class,
-        PostExecuteConditionTest.class
+        PostExecuteConditionTest.class,
+        EmptyHttpResponseTest.class
 })
 public class ServletTestSuite {
 }

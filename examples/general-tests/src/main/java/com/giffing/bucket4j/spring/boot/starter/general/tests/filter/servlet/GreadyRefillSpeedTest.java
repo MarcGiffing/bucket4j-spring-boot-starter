@@ -36,7 +36,7 @@ public class GreadyRefillSpeedTest {
 		IntStream.rangeClosed(1, 5)
 			.boxed()
 			.sorted(Collections.reverseOrder())
-			.forEach(counter -> webRequestWithStatus(mockMvc, url, counter - 1, HttpStatus.OK));
+			.forEach(counter -> webRequestWithStatus(mockMvc, url, HttpStatus.OK, counter - 1));
 		blockedWebRequestDueToRateLimit(mockMvc, url);
 	}
 

@@ -47,7 +47,7 @@ public class PostExecuteConditionTest {
 		IntStream.rangeClosed(1, 5)
 				.boxed()
 				.sorted(Collections.reverseOrder())
-				.forEach(counter -> webRequestWithStatus(mockMvc, url, counter, HttpStatus.UNAUTHORIZED));
+				.forEach(counter -> webRequestWithStatus(mockMvc, url, HttpStatus.UNAUTHORIZED, counter));
 
 		blockedWebRequestDueToRateLimit(mockMvc, url);
 	}
