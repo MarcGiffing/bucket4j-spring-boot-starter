@@ -12,7 +12,8 @@ import org.junit.platform.suite.api.Suite;
         EmptyHttpResponseTest.class,
         ChangeResponseHttpStatusCodeTest.class,
         AddResponseHeaderTest.class,
-        SkipConditionTest.class
+        SkipConditionTest.class,
+        ExecuteConditionTest.class
 })
 public class ServletTestSuite {
 }
