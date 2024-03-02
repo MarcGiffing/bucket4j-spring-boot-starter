@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.WebFilter;
 
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
 @ConditionalOnBean(value = AsyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class})
 @Import(value = { WebfluxExecutePredicateConfiguration.class, Bucket4JAutoConfigurationWebfluxFilterBeans.class, SpringBootActuatorConfig.class })
-public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest> {
+public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest, ServerHttpResponse> {
 
 	private final Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
 
@@ -110,7 +111,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			.forEach(filter -> {
 				addDefaultMetricTags(properties, filter);
 				filterCount.incrementAndGet();
-				FilterConfiguration<ServerHttpRequest> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
+				FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
 						filter.getCacheName()),
 						webfluxFilterExpressionParser,
 						beanFactory);
@@ -142,7 +143,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		if (newConfig.getFilterMethod().equals(FilterMethod.WEBFLUX)) {
 			try {
 				WebfluxWebFilter filter = context.getBean(event.getKey(), WebfluxWebFilter.class);
-				FilterConfiguration<ServerHttpRequest> newFilterConfig = buildFilterConfig(
+				FilterConfiguration<ServerHttpRequest, ServerHttpResponse> newFilterConfig = buildFilterConfig(
 						newConfig,
 						cacheResolver.resolve(newConfig.getCacheName()),
 						webfluxFilterExpressionParser,

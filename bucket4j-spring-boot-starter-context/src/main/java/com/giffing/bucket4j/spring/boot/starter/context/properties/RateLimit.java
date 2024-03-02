@@ -21,7 +21,12 @@ public class RateLimit implements Serializable {
 	 * SpEl condition to check if the rate limit should be executed. If null there is no check. 
 	 */
 	private String executeCondition;
-	
+
+	/**
+	 * TODO comment
+	 */
+	private String postExecuteCondition;
+
 	@Valid
 	private List<ExecutePredicateDefinition> executePredicates = new ArrayList<>();
 	

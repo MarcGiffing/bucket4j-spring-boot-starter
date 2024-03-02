@@ -1,0 +1,7 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    redis:
+      host: localhost
+      port: 6379

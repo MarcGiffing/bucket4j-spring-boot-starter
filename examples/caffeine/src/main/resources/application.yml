@@ -25,16 +25,13 @@ bucket4j:
   - id: filter1
     cache-name: buckets
     url: .*
-    http-response-body: null
     rate-limits:
     - cache-key: getRemoteAddr()
-      execute-predicates:
-      - name: PATH=/hell**
-      - name: METHOD=GET
+      post-execute-condition: getStatus() eq 200
       bandwidths:
       - capacity: 10
         refill-capacity: 1
-        time: 1
+        time: 10
         unit: seconds
-        initial-capacity: 20
+        initial-capacity: 5
         refill-speed: interval

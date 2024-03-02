@@ -1,19 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.gateway;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,21 +18,23 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
-
-import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class SpringCloudGatewayRateLimitFilterTest {
 
 	private GlobalFilter filter;
-	private FilterConfiguration<ServerHttpRequest> configuration;
+	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> configuration;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck1;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck2;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck3;
@@ -143,12 +138,12 @@ class SpringCloudGatewayRateLimitFilterTest {
 	}
 
 	private void rateLimitConfig(Long remainingTokens, RateLimitCheck<ServerHttpRequest> rateLimitCheck) {
-		ConsumptionProbeHolder consumptionHolder = Mockito.mock(ConsumptionProbeHolder.class);
-		ConsumptionProbe probe = Mockito.mock(ConsumptionProbe.class);
-		when(probe.isConsumed()).thenReturn(remainingTokens > 0);
-		when(probe.getRemainingTokens()).thenReturn(remainingTokens);
-		when(consumptionHolder.getConsumptionProbeCompletableFuture())
-				.thenReturn(CompletableFuture.completedFuture(probe));
+		RateLimitResultWrapper consumptionHolder = Mockito.mock(RateLimitResultWrapper.class);
+		RateLimitResult rateLimitResult = Mockito.mock(RateLimitResult.class);
+		when(rateLimitResult.isConsumed()).thenReturn(remainingTokens > 0);
+		when(rateLimitResult.getRemainingTokens()).thenReturn(remainingTokens);
+		when(consumptionHolder.getRateLimitResultCompletableFuture())
+				.thenReturn(CompletableFuture.completedFuture(rateLimitResult));
 		when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
 	}
 }

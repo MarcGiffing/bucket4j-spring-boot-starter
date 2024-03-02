@@ -18,6 +18,7 @@
 	<modules>
 		<module>bucket4j-spring-boot-starter-context</module>
 		<module>bucket4j-spring-boot-starter</module>
+		<module>examples/general-tests</module>
 		<module>examples/caffeine</module>
 		<module>examples/ehcache</module>
 		<module>examples/hazelcast</module>
@@ -29,7 +30,7 @@
 		<module>examples/redis-redisson</module>
 		-->
         <module>examples/webflux-infinispan</module>
-	</modules>
+    </modules>
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
 	<licenses>
 		<license>
@@ -44,7 +45,7 @@
 		<tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
 	</scm>
 	<properties>
-		<revision>0.11.0</revision>
+		<revision>0.11.0-SNAPSHOT</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>

@@ -10,6 +10,9 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 import java.util.Arrays;
 import java.util.Map;
 
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,32 +21,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ConsumptionProbeHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 
-import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ExtendWith(MockitoExtension.class) 
 class ServletRateLimitFilterTest {
 
 	private ServletRequestFilter filter;
-	private FilterConfiguration<HttpServletRequest> configuration;
+	private FilterConfiguration<HttpServletRequest, HttpServletResponse> configuration;
 	@Mock private RateLimitCheck<HttpServletRequest> rateLimitCheck1;
 	@Mock private RateLimitCheck<HttpServletRequest> rateLimitCheck2;
 	@Mock private RateLimitCheck<HttpServletRequest> rateLimitCheck3;
 
 	
-	@Mock private ConsumptionProbeHolder consumptionProbeHolder;
-	@Mock private ConsumptionProbe consumptionProbe;
+	@Mock private RateLimitResultWrapper rateLimitResultWrapper;
+	@Mock private RateLimitResult rateLimitResult;
 	
 	@BeforeEach
     public void setup() {
-		when(consumptionProbe.isConsumed()).thenReturn(true);
-		when(consumptionProbeHolder.getConsumptionProbe()).thenReturn(consumptionProbe);
+		when(rateLimitResult.isConsumed()).thenReturn(true);
+		when(rateLimitResultWrapper.getRateLimitResult()).thenReturn(rateLimitResult);
         
         configuration = new FilterConfiguration<>();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
@@ -55,9 +56,9 @@ class ServletRateLimitFilterTest {
 	@Test
 	void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws Exception {
 		
-        when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbeHolder);
-        when(rateLimitCheck2.rateLimit(any())).thenReturn(consumptionProbeHolder);
-        when(rateLimitCheck3.rateLimit(any())).thenReturn(consumptionProbeHolder);
+        when(rateLimitCheck1.rateLimit(any())).thenReturn(rateLimitResultWrapper);
+        when(rateLimitCheck2.rateLimit(any())).thenReturn(rateLimitResultWrapper);
+        when(rateLimitCheck3.rateLimit(any())).thenReturn(rateLimitResultWrapper);
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
         
@@ -73,9 +74,9 @@ class ServletRateLimitFilterTest {
 	@Test
 	void should_execute_first_check_when_using_RateLimitConditionMatchingStrategy_All_but_first_is_not_consumed() throws Exception {
 		
-        when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbeHolder);
+        when(rateLimitCheck1.rateLimit(any())).thenReturn(rateLimitResultWrapper);
         
-        when(consumptionProbe.isConsumed()).thenReturn(false);
+        when(rateLimitResult.isConsumed()).thenReturn(false);
         
         configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
         
@@ -92,7 +93,7 @@ class ServletRateLimitFilterTest {
 	void should_execute_only_one_check_when_using_RateLimitConditionMatchingStrategy_FIRST() throws Exception {
         configuration.setStrategy(RateLimitConditionMatchingStrategy.FIRST);
 
-        when(rateLimitCheck1.rateLimit(any())).thenReturn(consumptionProbeHolder);
+        when(rateLimitCheck1.rateLimit(any())).thenReturn(rateLimitResultWrapper);
         
         standaloneSetup(new TestController())
 			.addFilters(filter).build()

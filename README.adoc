@@ -509,6 +509,7 @@ bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits config
 bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
 bucket4j.filters[0].rate-limits[0].execute-condition=1==1 # an optional SpEl expression to decide to execute the rate limit or not
+bucket4j.filters[1].rate-limits[0].post-execute-condition= # an optional SpEl expression to decide if the token consumption should only estimated for the incoming request and the returning response used to check if the token must be consumed: getStatus() eq 401
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello,/world # On the HTTP Path as a list
 bucket4j.filters[0].rate-limits[0].execute-predicates[1]=METHOD=GET,POST # On the HTTP Method
 bucket4j.filters[0].rate-limits[0].execute-predicates[2]=QUERY=HELLO # Checks for the existence of a Query Parameter
