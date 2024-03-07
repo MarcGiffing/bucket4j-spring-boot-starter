@@ -109,9 +109,9 @@ class WebfluxRateLimitFilterTest {
 			result.block();
 		});
 
-		verify(rateLimitCheck1).rateLimit(any());
-		verify(rateLimitCheck2).rateLimit(any());
-		verify(rateLimitCheck3).rateLimit(any());
+		verify(rateLimitCheck1).rateLimit(any(), any());
+		verify(rateLimitCheck2).rateLimit(any(), any());
+		verify(rateLimitCheck3).rateLimit(any(), any());
 	}
 
 	@Test
@@ -135,9 +135,9 @@ class WebfluxRateLimitFilterTest {
 		List<String> values = captor.getAllValues();
 		Assertions.assertEquals("30", values.stream().findFirst().get());
 
-		verify(rateLimitCheck1, times(1)).rateLimit(any());
-		verify(rateLimitCheck2, times(0)).rateLimit(any());
-		verify(rateLimitCheck3, times(0)).rateLimit(any());
+		verify(rateLimitCheck1, times(1)).rateLimit(any(), any());
+		verify(rateLimitCheck2, times(0)).rateLimit(any(), any());
+		verify(rateLimitCheck3, times(0)).rateLimit(any(), any());
 	}
 
 	private void rateLimitConfig(Long remainingTokens, RateLimitCheck<ServerHttpRequest> rateLimitCheck) {
@@ -147,7 +147,7 @@ class WebfluxRateLimitFilterTest {
 		when(rateLimitResult.getRemainingTokens()).thenReturn(remainingTokens);
 		when(consumptionHolder.getRateLimitResultCompletableFuture())
 				.thenReturn(CompletableFuture.completedFuture(rateLimitResult));
-		when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
+		when(rateLimitCheck.rateLimit(any(), any())).thenReturn(consumptionHolder);
 	}
 
 }

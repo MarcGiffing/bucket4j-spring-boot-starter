@@ -43,6 +43,9 @@ public class Bucket4JBootProperties {
 	 */
 	private String cacheToUse;
 
+	@Valid
+	private List<MethodProperties> methods = new ArrayList<>();
+
 	private boolean filterConfigCachingEnabled = false;
 
 	/**
@@ -50,6 +53,8 @@ public class Bucket4JBootProperties {
 	 */
 	@NotBlank
 	private String filterConfigCacheName = "filterConfigCache";
+
+
 
 	@Valid
 	private List<Bucket4JConfiguration> filters = new ArrayList<>();

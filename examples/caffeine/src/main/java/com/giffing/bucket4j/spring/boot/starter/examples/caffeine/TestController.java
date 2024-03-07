@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
@@ -41,6 +42,7 @@ public class TestController {
 	}
 
 	@GetMapping("hello")
+	@RateLimiting(name = "hello", executeCondition = "1 eq 1")
 	public ResponseEntity<String> hello() {
 		return ResponseEntity.ok("Hello World");
 	}

@@ -42,7 +42,7 @@ public class AbstractReactiveFilter {
 		var response = exchange.getResponse();
 		List<Mono<RateLimitResult>> asyncConsumptionProbes = new ArrayList<>();
 		for (var rlc : filterConfig.getRateLimitChecks()) {
-			var wrapper = rlc.rateLimit(request);
+			var wrapper = rlc.rateLimit(request, null);
 			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
 				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 				if(filterConfig.getStrategy() == RateLimitConditionMatchingStrategy.FIRST){

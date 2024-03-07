@@ -44,7 +44,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
-            var wrapper = rl.rateLimit(request);
+            var wrapper = rl.rateLimit(request, null);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {
@@ -58,7 +58,6 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
                     break;
                 }
             }
-
         }
 
         if (allConsumed) {
