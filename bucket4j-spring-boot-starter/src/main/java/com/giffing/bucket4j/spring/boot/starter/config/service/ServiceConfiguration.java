@@ -10,6 +10,9 @@ import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
+/**
+ * General Service configuration which can be imported from other autoconfiguration classes.
+ */
 @Configuration
 public class ServiceConfiguration {
 

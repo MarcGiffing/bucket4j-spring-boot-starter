@@ -47,7 +47,7 @@ Project version overview:
 == Introduction
 
 This project is a http://projects.spring.io/spring-boot/[Spring Boot Starter] for Bucket4j.
-It can be used limit the rate of access to your REST APIs.
+It can be used limit the rate of access to your REST APIs or method calls.
 
 * Prevention of DoS Attacks, brute-force logins attempts
 * Request throttling for specific regions, unauthenticated users, authenticated users, not paying users.
@@ -59,6 +59,10 @@ have to write a single line of code.
 == Migration Guide
 
 This section is meant to help you migrate your application to new version of this starter project.
+
+=== Spring Boot Starter Bucket4j 0.12
+
+* Removed deprecated expression property
 
 === Spring Boot Starter Bucket4j 0.9
 
@@ -72,21 +76,21 @@ This section is meant to help you migrate your application to new version of thi
 ==== Compatibility to Java 8
 
 The version 0.8 tries to be compatible with Java 8 as long as Bucket4j is supporting Java 8. With the release
-of Bucket4j 8.0.0 Bucket4j decided to migrate to Java 11 but provides dedicated artifacts for Java 8. 
+of Bucket4j 8.0.0 Bucket4j decided to migrate to Java 11 but provides dedicated artifacts for Java 8.
 The project is switching to the dedicated artifacts which supports Java 8. You can read more about
-it https://github.com/bucket4j/bucket4j#java-compatibility-matrix[here]. 
+it https://github.com/bucket4j/bucket4j#java-compatibility-matrix[here].
 
 ==== Rename property expression to cache-key
 
 The property *..rate-limits[0].expression* is renamed to *..rate-limits[0].cache-key*.
 An Exception is thrown on startup if the *expression* property is configured.
 
-To ensure that the property is not filled falsely the property is marked with *@Null*. This change requires 
+To ensure that the property is not filled falsely the property is marked with *@Null*. This change requires
 a Bean Validation implementation.
 
 ==== JSR 380 - Bean Validation implementation required
 
-To ensure that the Bucket4j property configuration is correct an Validation API implementation is required. 
+To ensure that the Bucket4j property configuration is correct an Validation API implementation is required.
 You can add the Spring Boot Starter Validation which will automatically configures one.
 
 [source, xml]
@@ -99,7 +103,7 @@ You can add the Spring Boot Starter Validation which will automatically configur
 
 ==== Explicit Configuration of the Refill Speed - API Break
 
-The refill speed of the Buckets can now configured explicitly with the Enum RefillSpeed. You can choose between 
+The refill speed of the Buckets can now configured explicitly with the Enum RefillSpeed. You can choose between
 a greedy or interval refill see the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
 
 Before 0.8 the refill speed was configured implicitly by setting the fixed-refill-interval property explicit.
@@ -122,7 +126,7 @@ You can read more about the refill speed configuration here <<refill_speed>>
 [[getting_started]]
 == Getting started
 
-To use the rate limit in your project you have to add the Bucket4j Spring Boot Starter dependency in 
+To use the rate limit in your project you have to add the Bucket4j Spring Boot Starter dependency in
 your project. Additionally you have to choose a caching provider <<cache_overview>>.
 
 The next example uses https://www.jcp.org/en/jsr/detail?id=107[JSR 107] Ehcache which will be auto configured with the https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html[Spring Boot Starter Cache].
@@ -145,7 +149,7 @@ The next example uses https://www.jcp.org/en/jsr/detail?id=107[JSR 107] Ehcache 
 
 > Don't forget to enable the caching feature by adding the @EnableCaching annotation to any of the configuration classes.
 
-The configuration can be done in the application.properties / application.yml. 
+The configuration can be done in the application.properties / application.yml.
 The following configuration limits all requests independently from the user. It allows a maximum of 5 requests within 10 seconds independently from the user.
 
 
@@ -164,7 +168,7 @@ bucket4j:
 ----
 
 For Ehcache 3 you also need a *ehcache.xml* which can be placed in the classpath.
-The configured cache name *buckets* must be defined in the configuration file.   
+The configured cache name *buckets* must be defined in the configuration file.
 
 [source,yml]
 ----
@@ -232,16 +236,16 @@ The following list contains the Caching implementation which will be autoconfigu
 
 |===
 
-Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver 
+Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver
 or the AsynchCacheResolver by yourself.
 
-You can enable the cache auto configuration explicitly by using the *cache-to-use* property name or setting 
-it to an invalid value to disable all auto configurations. 
+You can enable the cache auto configuration explicitly by using the *cache-to-use* property name or setting
+it to an invalid value to disable all auto configurations.
 
 [source, properties]
 ----
-bucket4j.cache-to-use=jcache # 
----- 
+bucket4j.cache-to-use=jcache #
+----
 
 [[filters]]
 == Filter
@@ -261,7 +265,7 @@ The *first* is the default strategy. This the default strategy which only execut
 
 ==== all
 
-The *all* strategy executes all rate limit independently. 
+The *all* strategy executes all rate limit independently.
 
 [[cache_key]]
 == Cache Key
@@ -307,7 +311,7 @@ public class SecurityService {
 		}
 		return name;
 	}
-	
+
 }
 ----
 
@@ -318,7 +322,7 @@ public class SecurityService {
 == Refill Speed
 
 The refill speed defines the period of the regeneration of consumed tokens.
-This starter supports two types of token regeneration. The refill speed can be set with the following 
+This starter supports two types of token regeneration. The refill speed can be set with the following
 property:
 
 [source, properties]
@@ -340,7 +344,7 @@ The following section describes the build in Execution Predicates and how to use
 
 === Path Predicates
 
-The Path Predicate takes a list of path parameters where any of the paths must match. 
+The Path Predicate takes a list of path parameters where any of the paths must match.
 See https://github.com/spring-projects/spring-framework/blob/main/spring-web/src/main/java/org/springframework/web/util/pattern/PathPattern.java[PathPattern] for the available configuration options. Segments are not evaluated further.
 
 [source, properties]
@@ -394,7 +398,7 @@ You can also define you own Execution Predicate:
 public class MyQueryExecutePredicate extends ExecutePredicate<HttpServletRequest> {
 
 	private String query;
-	
+
 	public String name() {
 		// The name which can be used on the properties
 		return "MY_QUERY";
@@ -410,7 +414,7 @@ public class MyQueryExecutePredicate extends ExecutePredicate<HttpServletRequest
 	public ExecutePredicate<HttpServletRequest> parseSimpleConfig(String simpleConfig) {
 		// the configuration which is configured behind the equal sign
 		// MY_QUERY=P_1 -> simpleConfig == "P_1"
-		// 
+		//
 		this.query = simpleConfig;
 		return this;
 	}
@@ -523,7 +527,7 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=minutes
 bucket4j.filters[0].rate-limits[0].bandwidths[0].initial-capacity= # Optional initial tokens
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,interval]
 bucket4j.filters[0].metrics.enabled=true
-bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter 
+bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter
 bucket4j.filters[0].metrics.tags[0].key=IP
 bucket4j.filters[0].metrics.tags[0].expression=getRemoteAddr()
 bucket4j.filters[0].metrics.tags[0].types=REJECTED_COUNTER # (optionial) this tag should for example only be applied for the rejected counter
@@ -551,7 +555,7 @@ Spring Boot ships with a great support for collecting metrics. This project auto
 bucket4j:
   enabled: true
   filters:
-  - cache-name: buckets   
+  - cache-name: buckets
     filter-method: servlet
     filter-order: 1
     url: .*
@@ -583,12 +587,12 @@ Simple configuration to allow a maximum of 5 requests within 10 seconds independ
 ----
 bucket4j:
   enabled: true
-  filters: 
-  - cache-name: buckets 
+  filters:
+  - cache-name: buckets
     url: .*
     rate-limits:
-      - bandwidths: 
-        - capacity: 5 
+      - bandwidths:
+        - capacity: 5
           time: 10
           unit: seconds
 ----
@@ -601,8 +605,8 @@ you havn't to check in the second rate-limit that the user is logged in. Only th
 bucket4j:
   enabled: true
   filters:
-  - cache-name: buckets   
-    filter-method: servlet 
+  - cache-name: buckets
+    filter-method: servlet
     url: .*
     rate-limits:
       - execute-condition:  @securityService.notSignedIn() # only for not logged in users
@@ -611,7 +615,7 @@ bucket4j:
         - capacity: 10
           time: 1
           unit: minutes
-      - execute-condition: "@securityService.username() != 'admin'" # strategy is only evaluate first. so the user must be logged in and user is not admin 
+      - execute-condition: "@securityService.username() != 'admin'" # strategy is only evaluate first. so the user must be logged in and user is not admin
         expression: @securityService.username()
         bandwidths:
         - capacity: 1000
@@ -636,27 +640,27 @@ bucket4j:
     url: /admin*
     rate-limits:
       bandwidths: # maximum of 5 requests within 10 seconds
-      - capacity: 5 
+      - capacity: 5
         time: 10
         unit: seconds
-  - cache-name: buckets 
+  - cache-name: buckets
     url: /public*
     rate-limits:
       - expression: getRemoteAddress() # IP based filter
         bandwidths: # maximum of 5 requests within 10 seconds
-        - capacity: 5 
+        - capacity: 5
           time: 10
           unit: seconds
-  - cache-name: buckets 
+  - cache-name: buckets
     url: /users*
     rate-limits:
       - skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
-        expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address 
-        bandwidths: 
+        expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
+        bandwidths:
         - capacity: 100
           time: 1
           unit: seconds
         - capacity: 10000
           time: 1
-          unit: minutes    
+          unit: minutes
 ----

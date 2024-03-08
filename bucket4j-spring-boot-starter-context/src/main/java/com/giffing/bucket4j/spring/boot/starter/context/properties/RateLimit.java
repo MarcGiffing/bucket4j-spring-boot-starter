@@ -24,7 +24,11 @@ public class RateLimit implements Serializable {
     private String executeCondition;
 
     /**
-     * TODO comment
+     * If you provide a post execution condition. The incoming check only estimates the
+     * token consumption. It will not consume a token. This check is based on the response
+     * to decide if the token should be consumed or not.
+     *
+     *
      */
     private String postExecuteCondition;
 

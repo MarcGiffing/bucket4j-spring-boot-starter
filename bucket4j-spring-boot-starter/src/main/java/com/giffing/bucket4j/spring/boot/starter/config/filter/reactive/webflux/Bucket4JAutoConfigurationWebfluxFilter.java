@@ -1,14 +1,23 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
+import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import jakarta.annotation.PostConstruct;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -26,24 +35,10 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.WebFilter;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.predicate.WebfluxExecutePredicateConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
-import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
-import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
-import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Configures Servlet Filters for Bucket4Js rate limit.
@@ -56,9 +51,8 @@ import org.slf4j.LoggerFactory;
 @ConditionalOnBean(value = AsyncCacheResolver.class)
 @EnableConfigurationProperties({ Bucket4JBootProperties.class})
 @Import(value = { ServiceConfiguration.class, WebfluxExecutePredicateConfiguration.class, Bucket4JAutoConfigurationWebfluxFilterBeans.class, SpringBootActuatorConfig.class })
+@Slf4j
 public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfiguration<ServerHttpRequest, ServerHttpResponse> {
-
-	private final Logger log = LoggerFactory.getLogger(Bucket4JAutoConfigurationWebfluxFilter.class);
 
 	private final Bucket4JBootProperties properties;
 
@@ -69,7 +63,6 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 	private final RateLimitService rateLimitService;
 
 	private final Bucket4jConfigurationHolder servletConfigurationHolder;
-
 
 	public Bucket4JAutoConfigurationWebfluxFilter(
 			Bucket4JBootProperties properties,
@@ -101,8 +94,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			.forEach(filter -> {
 				rateLimitService.addDefaultMetricTags(properties, filter);
 				filterCount.incrementAndGet();
-				FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig = buildFilterConfig(filter, cacheResolver.resolve(
-						filter.getCacheName()));
+				var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
 
 				servletConfigurationHolder.addFilterConfiguration(filter);
 
@@ -122,9 +114,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		if (newConfig.getFilterMethod().equals(FilterMethod.WEBFLUX)) {
 			try {
 				WebfluxWebFilter filter = context.getBean(event.getKey(), WebfluxWebFilter.class);
-				FilterConfiguration<ServerHttpRequest, ServerHttpResponse> newFilterConfig = buildFilterConfig(
-						newConfig,
-						cacheResolver.resolve(newConfig.getCacheName()));
+				var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
 				filter.setFilterConfig(newFilterConfig);
 			} catch (Exception exception) {
 				log.warn("Failed to update Webflux Filter configuration. {}", exception.getMessage());

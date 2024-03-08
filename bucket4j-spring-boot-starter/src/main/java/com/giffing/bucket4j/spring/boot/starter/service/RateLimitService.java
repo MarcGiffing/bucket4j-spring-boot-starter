@@ -35,13 +35,20 @@ public class RateLimitService {
     @Builder
     @Data
     public static class RateLimitConfig<R> {
-        @NonNull private List<RateLimit> rateLimits;
-        @NonNull private List<MetricHandler> metricHandlers;
-        @NonNull private Map<String, ExecutePredicate<R>> executePredicates;
-        @NonNull private String cacheName;
-        @NonNull private ProxyManagerWrapper proxyWrapper;
-        @NonNull private BiFunction<RateLimit, R, String> keyFunction;
-        @NonNull private Metrics metrics;
+        @NonNull
+        private List<RateLimit> rateLimits;
+        @NonNull
+        private List<MetricHandler> metricHandlers;
+        @NonNull
+        private Map<String, ExecutePredicate<R>> executePredicates;
+        @NonNull
+        private String cacheName;
+        @NonNull
+        private ProxyManagerWrapper proxyWrapper;
+        @NonNull
+        private BiFunction<RateLimit, ExpressionParams<R>, String> keyFunction;
+        @NonNull
+        private Metrics metrics;
         private long configVersion;
     }
 
@@ -55,13 +62,8 @@ public class RateLimitService {
     public <R, P> RateLimitConfigresult<R, P> configureRateLimit(RateLimitConfig<R> rateLimitConfig) {
 
 
-        var metricHandlers = rateLimitConfig.getMetricHandlers();
         var executePredicates = rateLimitConfig.getExecutePredicates();
-        var cacheName = rateLimitConfig.getCacheName();
-        var metrics = rateLimitConfig.getMetrics();
-        var keyFunction = rateLimitConfig.getKeyFunction();
-        var proxyWrapper = rateLimitConfig.getProxyWrapper();
-        var configVersion = rateLimitConfig.getConfigVersion();
+        
 
         List<RateLimitCheck<R>> rateLimitChecks = new ArrayList<>();
         List<PostRateLimitCheck<R, P>> postRateLimitChecks = new ArrayList<>();
@@ -71,51 +73,38 @@ public class RateLimitService {
             var executionPredicate = prepareExecutionPredicates(rl, executePredicates);
             var skipPredicate = prepareSkipPredicates(rl, executePredicates);
 
-            RateLimitCheck<R> rlc = (rootObject, overridableRateLimit) -> {
+            RateLimitCheck<R> rlc = (expressionParams, overridableRateLimit) -> {
 
                 var rlToUse = rl.copy();
                 rlToUse.consumeNotNullValues(overridableRateLimit);
 
-                var skipRateLimit = performSkipRateLimitCheck(rlToUse, executionPredicate, skipPredicate, rootObject);
+                var skipRateLimit = performSkipRateLimitCheck(rlToUse, executionPredicate, skipPredicate, expressionParams);
+                boolean isEstimation = rlToUse.getPostExecuteCondition() != null;
+                RateLimitResultWrapper rateLimitResultWrapper = null;
                 if (!skipRateLimit) {
-                    var key = keyFunction.apply(rlToUse, rootObject);
-                    var metricBucketListener = createMetricListener(cacheName, metrics, metricHandlers, rootObject);
-                    log.debug("try-and-consume;key:{};tokens:{}", key, rlToUse.getNumTokens());
-                    return proxyWrapper.tryConsumeAndReturnRemaining(
-                            key,
-                            rlToUse.getNumTokens(),
-                            rlToUse.getPostExecuteCondition() != null,
-                            bucketConfiguration,
-                            metricBucketListener,
-                            configVersion,
-                            rlToUse.getTokensInheritanceStrategy()
-                    );
+
+                    rateLimitResultWrapper = tryConsume(rateLimitConfig, expressionParams, rlToUse, isEstimation, bucketConfiguration);
                 }
-                return null;
+                return rateLimitResultWrapper;
             };
             rateLimitChecks.add(rlc);
 
 
             if (rl.getPostExecuteCondition() != null) {
                 log.debug("PRL: {}", rl);
-                PostRateLimitCheck<R, P> postRlc = (rootObject, response) -> {
+                PostRateLimitCheck<R, P> postRlc = (request, response) -> {
+                    ExpressionParams<R> expressionParams = new ExpressionParams<>(request);
                     var skipRateLimit = performPostSkipRateLimitCheck(rl,
-                            executionPredicate, skipPredicate, rootObject, response);
+                            executionPredicate,
+                            skipPredicate,
+                            expressionParams,
+                            response);
+                    boolean isEstimation = false;
+                    RateLimitResultWrapper rateLimitResultWrapper = null;
                     if (!skipRateLimit) {
-                        var key = keyFunction.apply(rl, rootObject);
-                        var metricBucketListener = createMetricListener(cacheName, metrics, metricHandlers, rootObject);
-                        log.debug("try-and-consume-post;key:{};tokens:{}", key, rl.getNumTokens());
-                        return proxyWrapper.tryConsumeAndReturnRemaining(
-                                key,
-                                rl.getNumTokens(),
-                                false,
-                                bucketConfiguration,
-                                metricBucketListener,
-                                configVersion,
-                                rl.getTokensInheritanceStrategy()
-                        );
+                        rateLimitResultWrapper = tryConsume(rateLimitConfig, expressionParams, rl, isEstimation, bucketConfiguration);
                     }
-                    return null;
+                    return rateLimitResultWrapper;
                 };
                 postRateLimitChecks.add(postRlc);
 
@@ -125,101 +114,85 @@ public class RateLimitService {
         return new RateLimitConfigresult<>(rateLimitChecks, postRateLimitChecks);
     }
 
+    private <R> RateLimitResultWrapper tryConsume(RateLimitConfig<R> rateLimitConfig, ExpressionParams<R> expressionParams, RateLimit rlToUse, boolean isEstimation, BucketConfiguration bucketConfiguration) {
+        RateLimitResultWrapper rateLimitResultWrapper;
+        var metricHandlers = rateLimitConfig.getMetricHandlers();
+        var cacheName = rateLimitConfig.getCacheName();
+        var metrics = rateLimitConfig.getMetrics();
+        var keyFunction = rateLimitConfig.getKeyFunction();
+        var proxyWrapper = rateLimitConfig.getProxyWrapper();
+        var configVersion = rateLimitConfig.getConfigVersion();
+
+        var key = keyFunction.apply(rlToUse, expressionParams);
+        var metricBucketListener = createMetricListener(cacheName, metrics, metricHandlers, expressionParams);
+        log.debug("try-and-consume;key:{};tokens:{}", key, rlToUse.getNumTokens());
+        rateLimitResultWrapper = proxyWrapper.tryConsumeAndReturnRemaining(
+                key,
+                rlToUse.getNumTokens(),
+                isEstimation,
+                bucketConfiguration,
+                metricBucketListener,
+                configVersion,
+                rlToUse.getTokensInheritanceStrategy()
+        );
+        return rateLimitResultWrapper;
+    }
+
 
     private <R, P> boolean performPostSkipRateLimitCheck(RateLimit rl,
-                                                  Predicate<R> executionPredicate,
-                                                  Predicate<R> skipPredicate,
-                                                  R request,
-                                                  P response
+                                                         Predicate<R> executionPredicate,
+                                                         Predicate<R> skipPredicate,
+                                                         ExpressionParams<R> expressionParams,
+                                                         P response
     ) {
-        var skipRateLimit =  performSkipRateLimitCheck(
+        var skipRateLimit = performSkipRateLimitCheck(
                 rl, executionPredicate,
-                skipPredicate, request);
+                skipPredicate, expressionParams);
 
         if (!skipRateLimit && rl.getPostExecuteCondition() != null) {
-            skipRateLimit = !executeResponseCondition(rl).evalute(response);
+            Condition<P> condition = exp -> expressionService.parseBoolean(rl.getPostExecuteCondition(), exp);
+            skipRateLimit = !condition.evaluate(new ExpressionParams<>(response).addParams(expressionParams.getParams()));
             log.debug("skip-rate-limit - post-execute-condition: {}", skipRateLimit);
         }
 
         return skipRateLimit;
     }
 
-    private <R> boolean  performSkipRateLimitCheck(RateLimit rl,
+    private <R> boolean performSkipRateLimitCheck(RateLimit rl,
                                                   Predicate<R> executionPredicate,
                                                   Predicate<R> skipPredicate,
-                                                  R rootObject) {
+                                                  ExpressionParams<R> expressionParams) {
         boolean skipRateLimit = false;
         if (rl.getSkipCondition() != null) {
-            skipRateLimit = skipCondition(rl).evalute(rootObject);
+            Condition<R> expresison = exp -> expressionService.parseBoolean(rl.getSkipCondition(), exp);
+            skipRateLimit = expresison.evaluate(expressionParams);
             log.debug("skip-rate-limit - skip-condition: {}", skipRateLimit);
         }
 
         if (!skipRateLimit) {
-            skipRateLimit = skipPredicate.test(rootObject);
+            skipRateLimit = skipPredicate.test(expressionParams.getRootObject());
             log.debug("skip-rate-limit - skip-predicates: {}", skipRateLimit);
         }
 
         if (!skipRateLimit && rl.getExecuteCondition() != null) {
-            skipRateLimit = !executeCondition(rl).evalute(rootObject);
+            Condition<R> condition = exp -> expressionService.parseBoolean(rl.getExecuteCondition(), exp);
+            skipRateLimit = !condition.evaluate(expressionParams);
             log.debug("skip-rate-limit - execute-condition: {}", skipRateLimit);
         }
 
         if (!skipRateLimit) {
-            skipRateLimit = !executionPredicate.test(rootObject);
+            skipRateLimit = !executionPredicate.test(expressionParams.getRootObject());
             log.debug("skip-rate-limit - execute-predicates: {}", skipRateLimit);
         }
         return skipRateLimit;
     }
 
-    /**
-     * Creates the lambda for the execute condition which will be evaluated on each request.
-     *
-     * @param rateLimit        the {@link RateLimit} configuration which holds the execute condition string
-     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
-     */
-    private <P> Condition<P> executeResponseCondition(RateLimit rateLimit) {
-        return executeExpression(rateLimit.getPostExecuteCondition());
-    }
-
-    /**
-     * Creates the lambda for the skip condition which will be evaluated on each request
-     *
-     * @param rateLimit        the {@link RateLimit} configuration which holds the skip condition string
-     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
-     */
-    private <R> Condition<R> skipCondition(RateLimit rateLimit) {
-        if (rateLimit.getSkipCondition() != null) {
-            return request -> expressionService.parseBoolean(rateLimit.getSkipCondition(), request);
-        }
-        return null;
-    }
-
-
-    /**
-     * Creates the lambda for the execute condition which will be evaluated on each request.
-     *
-     * @param rateLimit        the {@link RateLimit} configuration which holds the execute condition string
-     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
-     */
-    private <R> Condition<R> executeCondition(RateLimit rateLimit) {
-        return executeExpression(rateLimit.getExecuteCondition());
-    }
-
-
-
-    private <R> Condition<R> executeExpression(String condition) {
-        if (condition != null) {
-            return request -> expressionService.parseBoolean(condition, request);
-        }
-        return null;
-    }
-
-    public <R> List<MetricTagResult> getMetricTagResults(R rootObject, Metrics metrics) {
+    public <R> List<MetricTagResult> getMetricTagResults(ExpressionParams<R> expressionParams, Metrics metrics) {
         return metrics
                 .getTags()
                 .stream()
                 .map(metricMetaTag -> {
-                    var value = expressionService.parseString(metricMetaTag.getExpression(), rootObject);
+                    var value = expressionService.parseString(metricMetaTag.getExpression(), expressionParams);
                     return new MetricTagResult(metricMetaTag.getKey(), value, metricMetaTag.getTypes());
                 }).toList();
     }
@@ -228,13 +201,13 @@ public class RateLimitService {
      * Creates the key filter lambda which is responsible to decide how the rate limit will be performed. The key
      * is the unique identifier like an IP address or a username.
      *
-     * @param url              is used to generated a unique cache key
-     * @param rateLimit        the {@link RateLimit} configuration which holds the skip condition string
+     * @param url       is used to generated a unique cache key
+     * @param rateLimit the {@link RateLimit} configuration which holds the skip condition string
      * @return should not been null. If no filter key type is matching a plain 1 is returned so that all requests uses the same key.
      */
     public <R> KeyFilter<R> getKeyFilter(String url, RateLimit rateLimit) {
-        return request -> {
-            var value = expressionService.parseString(rateLimit.getCacheKey(), request);
+        return expressionParams -> {
+            String value = expressionService.parseString(rateLimit.getCacheKey(), expressionParams);
             return url + "-" + value;
         };
     }
@@ -262,14 +235,11 @@ public class RateLimitService {
     }
 
     private <R> MetricBucketListener createMetricListener(String cacheName,
-                                                      Metrics metrics,
-                                                      List<MetricHandler> metricHandlers,
-                                                      R rootObject) {
+                                                          Metrics metrics,
+                                                          List<MetricHandler> metricHandlers,
+                                                          ExpressionParams<R> expressionParams) {
 
-        var metricTagResults = getMetricTags(
-                metrics,
-                rootObject);
-
+        var metricTagResults = getMetricTags(metrics, expressionParams);
         return new MetricBucketListener(
                 cacheName,
                 metricHandlers,
@@ -279,9 +249,9 @@ public class RateLimitService {
 
     private <R> List<MetricTagResult> getMetricTags(
             Metrics metrics,
-            R servletRequest) {
+            ExpressionParams<R> expressionParams) {
 
-        return getMetricTagResults(servletRequest, metrics);
+        return getMetricTagResults(expressionParams, metrics);
     }
 
     public void addDefaultMetricTags(Bucket4JBootProperties properties, Bucket4JConfiguration filter) {
@@ -326,6 +296,13 @@ public class RateLimitService {
                  | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new ExecutePredicateInstantiationException(pd.getName(), predicate.getClass());
         }
+    }
+
+    public static long getRemainingLimit(Long remaining, RateLimitResult rateLimitResult) {
+        if (rateLimitResult != null && (remaining == null || rateLimitResult.getRemainingTokens() < remaining)) {
+                remaining = rateLimitResult.getRemainingTokens();
+        }
+        return remaining;
     }
 
 }

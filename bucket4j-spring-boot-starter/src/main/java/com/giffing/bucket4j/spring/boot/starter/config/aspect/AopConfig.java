@@ -4,6 +4,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfig
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,6 +18,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Enables the support for the {@link RateLimiting} annotation to rate limit on method level.
+ */
 @Configuration
 @ConditionalOnClass(Aspect.class)
 @ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, value = {"enabled"}, matchIfMissing = true)

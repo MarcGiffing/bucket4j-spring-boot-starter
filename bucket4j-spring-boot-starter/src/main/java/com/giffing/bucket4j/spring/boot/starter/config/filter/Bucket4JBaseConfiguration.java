@@ -39,14 +39,16 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
             Bucket4JConfiguration config,
             ProxyManagerWrapper proxyWrapper) {
 
-
         var rateLimitConfig = RateLimitService.RateLimitConfig.<R>builder()
                 .rateLimits(config.getRateLimits())
                 .metricHandlers(metricHandlers)
                 .executePredicates(executePredicates)
                 .cacheName(config.getCacheName())
                 .configVersion(config.getBucket4JVersionNumber())
-                .keyFunction((rl, sr) -> rateLimitService.getKeyFilter(config.getUrl(), rl).key(sr))
+                .keyFunction((rl, sr) -> {
+                    KeyFilter<R> keyFilter = rateLimitService.getKeyFilter(config.getUrl(), rl);
+                    return keyFilter.key(sr);
+                })
                 .metrics(config.getMetrics())
                 .proxyWrapper(proxyWrapper)
                 .build();

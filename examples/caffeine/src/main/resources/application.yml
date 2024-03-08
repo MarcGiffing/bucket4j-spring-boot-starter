@@ -26,18 +26,19 @@ bucket4j:
     cache-name: buckets
     rate-limit:
       cache-key: 1
-      post-execute-condition: true
+      execute-condition: true
+      post-execute-condition: "#root == 'alpha'"
       bandwidths:
         - capacity: 1
           refill-capacity: 1
-          time: 30
+          time: 2
           unit: seconds
           initial-capacity: 1
           refill-speed: interval
   filters:
   - id: filter1
     cache-name: buckets
-    url: .*
+    url: world
     rate-limits:
     - cache-key: getRemoteAddr()
       post-execute-condition: getStatus() eq 200

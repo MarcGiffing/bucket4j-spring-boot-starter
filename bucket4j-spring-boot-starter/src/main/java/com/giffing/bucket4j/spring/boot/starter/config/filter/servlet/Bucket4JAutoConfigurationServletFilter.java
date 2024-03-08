@@ -96,14 +96,12 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 			.forEach(filter -> {
 				rateLimitService.addDefaultMetricTags(properties, filter);
 				filterCount.incrementAndGet();
-				var filterConfig = buildFilterConfig(
-						filter,
-						cacheResolver.resolve(filter.getCacheName()));
+				var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
 
 				servletConfigurationHolder.addFilterConfiguration(filter);
 
 				//Use either the filter id as bean name or the prefix + counter if no id is configured
-				String beanName = filter.getId() != null ? filter.getId() : ("bucket4JServletRequestFilter" + filterCount);
+				var beanName = filter.getId() != null ? filter.getId() : ("bucket4JServletRequestFilter" + filterCount);
 				context.registerBean(beanName, Filter.class, () -> new ServletRequestFilter(filterConfig));
 
 				log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
@@ -116,10 +114,8 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 		Bucket4JConfiguration newConfig = event.getNewValue();
 		if(newConfig.getFilterMethod().equals(FilterMethod.SERVLET)) {
 			try {
-				ServletRequestFilter filter = context.getBean(event.getKey(), ServletRequestFilter.class);
-				var newFilterConfig = buildFilterConfig(
-						newConfig,
-						cacheResolver.resolve(newConfig.getCacheName()));
+				var filter = context.getBean(event.getKey(), ServletRequestFilter.class);
+				var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
 				filter.setFilterConfig(newFilterConfig);
 			} catch (Exception exception) {
 				log.warn("Failed to update Servlet Filter configuration. {}", exception.getMessage());
