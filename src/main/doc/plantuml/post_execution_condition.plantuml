@@ -1,0 +1,30 @@
+@startuml
+
+== First Request - 1 Token available ==
+
+User -> Bucket4jFilter: webRequest
+box "Webserver" #LightBlue
+participant Bucket4jFilter
+participant SpringSecurityFilter
+
+Bucket4jFilter -> Bucket4jFilter : check remaining tokens
+Bucket4jFilter -> SpringSecurityFilter : tokens available proceed
+SpringSecurityFilter -> SpringSecurityFilter : authenticate
+SpringSecurityFilter -> Bucket4jFilter : authentication Failed 401
+Bucket4jFilter -> Bucket4jFilter : if response status 401 consume token
+Bucket4jFilter -> User : response 401
+end box
+
+== Second Request - 0 Token available ==
+
+
+User -> Bucket4jFilter: webRequest
+box "Webserver" #LightBlue
+participant Bucket4jFilter
+participant SpringSecurityFilter
+
+Bucket4jFilter -> Bucket4jFilter : check remaining tokens -> no token available
+Bucket4jFilter -> User : reject request 429
+end box
+
+@enduml
