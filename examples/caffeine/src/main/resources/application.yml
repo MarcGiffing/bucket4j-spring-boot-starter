@@ -22,12 +22,10 @@ bucket4j:
   filter-config-caching-enabled: true
   filter-config-cache-name: filterConfigCache
   methods:
-  - name: hello
+  - name: default
     cache-name: buckets
     rate-limit:
       cache-key: 1
-      execute-condition: true
-      post-execute-condition: "#root == 'alpha'"
       bandwidths:
         - capacity: 1
           refill-capacity: 1
@@ -38,7 +36,7 @@ bucket4j:
   filters:
   - id: filter1
     cache-name: buckets
-    url: world
+    url: .*
     rate-limits:
     - cache-key: getRemoteAddr()
       post-execute-condition: getStatus() eq 200

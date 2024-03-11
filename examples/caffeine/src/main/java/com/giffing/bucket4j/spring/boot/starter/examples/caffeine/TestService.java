@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class TestService {
 
 
-    @RateLimiting(name = "hello",
+    @RateLimiting(name = "default",
             executeCondition = "#myParamName != 'admin'",
             ratePerMethod = true,
             fallbackMethodName = "dummy")
