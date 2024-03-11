@@ -39,28 +39,32 @@ Project version overview:
 [[introduction]]
 == Spring Boot Starter for Bucket4j
 
-This project is a http://projects.spring.io/spring-boot/[Spring Boot Starter] for https://github.com/vladimir-bukhtoyarov/bucket4j[Bucket4j]. You can use it to set access limits on your API. The benefit of this project is the configuration via *properties* or *yaml* files. You don't have to write a single line of code.
+This project is a Spring Boot Starter for Bucket4j, allowing you to set access limits on your API effortlessly. Its key advantage lies in the configuration via properties or yaml files, eliminating the need for manual code authoring.
 
-The following bullets are example use cases.
 
-* Prevention of DoS Attacks
-* Brute-force logins attempts
-* Request throttling for specific regions, unauthenticated users, authenticated users
-* Rate limit for not paying users or users with different permissions
 
-The following features are provided. Some of them use Springs Expression Language to dynamically interpret conditions.
+Here are some example use cases:
+
+* Preventing DoS Attacks
+* Thwarting brute-force login attempts
+* Implementing request throttling for specific regions, unauthenticated users, and authenticated users
+* Applying rate limits for non-paying users or users with varying permissions
+
+The project offers several features, some utilizing Spring's Expression Language for dynamic condition interpretation:
 
 * Cache key for differentiate the by username, IP address, ...)
-* Execute by a specific condition
-* Skip by a specific condition
+* Execution based on specific conditions
+* Skipping based on specific conditions
 * <<dynamic_config_updates>>
-* Post token consumption based on the filter/method result
+* Post-token consumption actions based on filter/method results
 
-You have two choices for rate limit configuration. The first is to add a filter for incoming web requests or a fine-grained on method level.
+You have two options for rate limit configuration: adding a filter for incoming web requests or applying fine-grained control at the method level.
 
 === Filter
 
-Filters are pluggable components that intercepts the incoming web requests and can reject it to stop the further processing. You can add multiple filters for different urls or skip the rate limit at all for authenticated users. If the limit exceeds, the web requests is aborted and the request is declined with the HTTP Status 429 Too Many Requests.
+Filters are customizable components designed to intercept incoming web requests, capable of rejecting requests to halt further processing. You can incorporate multiple filters for various URLs or opt to bypass rate limits entirely for authenticated users. When the limit is exceeded, the web request is aborted, and the client receives an HTTP Status 429 Too Many Requests error.
+
+This project supports the following filters:
 
 This projects supports the following filters:
 
@@ -81,6 +85,8 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=intervall
 === Method
 
 By annotating your method with @RateLimiting, AOP is used to intercept the method. You have full access to the method parameters to define the rate limit key or skip the rate limit on your conditions.
+
+Utilizing the '@RateLimiting' annotation, AOP intercepts your method. This grants you comprehensive access to method parameters, empowering you to define the rate limit key or conditionally skip rate limiting with ease.
 
 [source,properties]
 ----
