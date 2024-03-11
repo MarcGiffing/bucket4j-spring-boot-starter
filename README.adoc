@@ -64,8 +64,6 @@ You have two options for rate limit configuration: adding a filter for incoming 
 
 Filters are customizable components designed to intercept incoming web requests, capable of rejecting requests to halt further processing. You can incorporate multiple filters for various URLs or opt to bypass rate limits entirely for authenticated users. When the limit is exceeded, the web request is aborted, and the client receives an HTTP Status 429 Too Many Requests error.
 
-This project supports the following filters:
-
 This projects supports the following filters:
 
 * https://docs.oracle.com/javaee%2F6%2Fapi%2F%2F/javax/servlet/Filter.html[Servlet Filter] (Default)
@@ -83,8 +81,6 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=intervall
 ----
 
 === Method
-
-By annotating your method with @RateLimiting, AOP is used to intercept the method. You have full access to the method parameters to define the rate limit key or skip the rate limit on your conditions.
 
 Utilizing the '@RateLimiting' annotation, AOP intercepts your method. This grants you comprehensive access to method parameters, empowering you to define the rate limit key or conditionally skip rate limiting with ease.
 
