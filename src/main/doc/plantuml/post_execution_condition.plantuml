@@ -1,30 +1,35 @@
 @startuml
 
-== First Request - 1 Token available ==
+User -> Bucket4jFilter: request
 
-User -> Bucket4jFilter: webRequest
-box "Webserver" #LightBlue
-participant Bucket4jFilter
-participant SpringSecurityFilter
+box "Webserver" #f5e4e4
 
-Bucket4jFilter -> Bucket4jFilter : check remaining tokens
-Bucket4jFilter -> SpringSecurityFilter : tokens available proceed
-SpringSecurityFilter -> SpringSecurityFilter : authenticate
-SpringSecurityFilter -> Bucket4jFilter : authentication Failed 401
-Bucket4jFilter -> Bucket4jFilter : if response status 401 consume token
-Bucket4jFilter -> User : response 401
+    Bucket4jFilter -> Bucket4jFilter : estimate_remaining_tokens
+    participant Bucket4jFilter
+    participant SpringSecurityFilter
+    alt 1 token available
+
+        note right of Bucket4jFilter: There is one token available. \nThe request will not be aborted
+        Bucket4jFilter -> SpringSecurityFilter : request
+        SpringSecurityFilter -> SpringSecurityFilter : authenticate
+        SpringSecurityFilter -> Bucket4jFilter : response(401)
+        alt HTTP Response Status == 401
+            note right of Bucket4jFilter: The token will only  be consumed\n if the HTTP Status is 401\n
+            Bucket4jFilter -> Bucket4jFilter : consume_token
+        end
+        Bucket4jFilter -> User : response(401)
+
+    else 0 token available
+        note right of Bucket4jFilter: The token was consumed \nbecause of the HTTP Response Status 401
+        Bucket4jFilter -> Bucket4jFilter : reject request
+        Bucket4jFilter -> User : response\n(429 Too Many Requests)
+    end
+
+
+
+
+
 end box
 
-== Second Request - 0 Token available ==
-
-
-User -> Bucket4jFilter: webRequest
-box "Webserver" #LightBlue
-participant Bucket4jFilter
-participant SpringSecurityFilter
-
-Bucket4jFilter -> Bucket4jFilter : check remaining tokens -> no token available
-Bucket4jFilter -> User : reject request 429
-end box
 
 @enduml
