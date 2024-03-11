@@ -6,7 +6,7 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
-       ServletTestSuite.class
+        ServletTestSuite.class,
 })
 public class EhcacheGeneralSuiteTest {
 }

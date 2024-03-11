@@ -1,8 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.filter.reactive;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ExpressionParams;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class AbstractReactiveFilter {
 		var response = exchange.getResponse();
 		List<Mono<RateLimitResult>> asyncConsumptionProbes = new ArrayList<>();
 		for (var rlc : filterConfig.getRateLimitChecks()) {
-			var wrapper = rlc.rateLimit(request);
+			var wrapper = rlc.rateLimit(new ExpressionParams<>(request), null);
 			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
 				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 				if(filterConfig.getStrategy() == RateLimitConditionMatchingStrategy.FIRST){

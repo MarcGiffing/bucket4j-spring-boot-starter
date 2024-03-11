@@ -1,36 +1,20 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
-import java.lang.reflect.InvocationTargetException;
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
+import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricBucketListener;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
-import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
-
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.ConfigurationBuilder;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Holds helper Methods which are reused by the
@@ -40,78 +24,45 @@ import lombok.extern.slf4j.Slf4j;
  * configuration classes
  */
 @Slf4j
+@RequiredArgsConstructor
 public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateListener<String, Bucket4JConfiguration> {
+
+    private final RateLimitService rateLimitService;
 
     private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-    protected Bucket4JBaseConfiguration(CacheManager<String, Bucket4JConfiguration> configCacheManager) {
-        this.configCacheManager = configCacheManager;
-    }
+    private final List<MetricHandler> metricHandlers;
 
-    public abstract List<MetricHandler> getMetricHandlers();
+    private final Map<String, ExecutePredicate<R>> executePredicates;
 
     public FilterConfiguration<R, P> buildFilterConfig(
             Bucket4JConfiguration config,
-            ProxyManagerWrapper proxyWrapper,
-            ExpressionParser expressionParser,
-            ConfigurableBeanFactory beanFactory) {
+            ProxyManagerWrapper proxyWrapper) {
+
+        var rateLimitConfig = RateLimitService.RateLimitConfig.<R>builder()
+                .rateLimits(config.getRateLimits())
+                .metricHandlers(metricHandlers)
+                .executePredicates(executePredicates)
+                .cacheName(config.getCacheName())
+                .configVersion(config.getBucket4JVersionNumber())
+                .keyFunction((rl, sr) -> {
+                    KeyFilter<R> keyFilter = rateLimitService.getKeyFilter(config.getUrl(), rl);
+                    return keyFilter.key(sr);
+                })
+                .metrics(config.getMetrics())
+                .proxyWrapper(proxyWrapper)
+                .build();
+
+        var rateLimitConfigResult = rateLimitService.<R,P>configureRateLimit(rateLimitConfig);
 
         FilterConfiguration<R, P> filterConfig = mapFilterConfiguration(config);
-
-        config.getRateLimits().forEach(rl -> {
-            log.debug("RL: {}", rl.toString());
-            var configurationBuilder = prepareBucket4jConfigurationBuilder(rl);
-            var executionPredicate = prepareExecutionPredicates(rl);
-            var skipPredicate = prepareSkipPredicates(rl);
-            var bucketConfiguration = configurationBuilder.build();
-            RateLimitCheck<R> rlc = servletRequest -> {
-                var skipRateLimit = performSkipRateLimitCheck(expressionParser, beanFactory, rl, executionPredicate, skipPredicate, servletRequest);
-                if (!skipRateLimit) {
-                    var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(servletRequest);
-                    var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, servletRequest);
-                    log.debug("try-and-consume;key:{};tokens:{}", key, rl.getNumTokens());
-                    final long configVersion = config.getBucket4JVersionNumber();
-                    return proxyWrapper.tryConsumeAndReturnRemaining(
-                            key,
-                            rl.getNumTokens(),
-                            rl.getPostExecuteCondition() != null,
-                            bucketConfiguration,
-                            metricBucketListener,
-                            configVersion,
-                            rl.getTokensInheritanceStrategy()
-                    );
-                }
-                return null;
-            };
-            filterConfig.addRateLimitCheck(rlc);
-
-            if (rl.getPostExecuteCondition() != null) {
-                log.debug("PRL: {}", rl);
-                PostRateLimitCheck<R, P> postRlc = (request, response) -> {
-                    var skipRateLimit = performPostSkipRateLimitCheck(expressionParser, beanFactory, rl,
-                            executionPredicate, skipPredicate, request, response);
-                    if (!skipRateLimit) {
-                        var key = getKeyFilter(filterConfig.getUrl(), rl, expressionParser, beanFactory).key(request);
-                        var metricBucketListener = createMetricListener(config.getCacheName(), expressionParser, beanFactory, filterConfig, request);
-                        log.debug("try-and-consume-post;key:{};tokens:{}", key, rl.getNumTokens());
-                        final long configVersion = config.getBucket4JVersionNumber();
-                        return proxyWrapper.tryConsumeAndReturnRemaining(
-                                key,
-                                rl.getNumTokens(),
-                                false,
-                                bucketConfiguration,
-                                metricBucketListener,
-                                configVersion,
-                                rl.getTokensInheritanceStrategy()
-                        );
-                    }
-                    return null;
-                };
-                filterConfig.addPostRateLimitCheck(postRlc);
-            }
-        });
+        rateLimitConfigResult.getRateLimitChecks().forEach(filterConfig::addRateLimitCheck);
+        rateLimitConfigResult.getPostRateLimitChecks().forEach(filterConfig::addPostRateLimitCheck);
+        
         return filterConfig;
     }
+
+
 
     private FilterConfiguration<R, P> mapFilterConfiguration(Bucket4JConfiguration config) {
         FilterConfiguration<R, P> filterConfig = new FilterConfiguration<>();
@@ -127,245 +78,7 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
         return filterConfig;
     }
 
-    private boolean performPostSkipRateLimitCheck(ExpressionParser expressionParser,
-                                                  ConfigurableBeanFactory beanFactory,
-                                                  RateLimit rl,
-                                                  Predicate<R> executionPredicate,
-                                                  Predicate<R> skipPredicate,
-                                                  R request,
-                                                  P response
-    ) {
-        var skipRateLimit =  performSkipRateLimitCheck(
-                expressionParser, beanFactory,
-                rl, executionPredicate,
-                skipPredicate, request);
 
-        if (!skipRateLimit && rl.getPostExecuteCondition() != null) {
-            skipRateLimit = !executeResponseCondition(rl, expressionParser, beanFactory).evalute(response);
-            log.debug("skip-rate-limit - post-execute-condition: {}", skipRateLimit);
-        }
-
-        return skipRateLimit;
-    }
-
-    private boolean performSkipRateLimitCheck(ExpressionParser expressionParser,
-                                              ConfigurableBeanFactory beanFactory,
-                                              RateLimit rl,
-                                              Predicate<R> executionPredicate,
-                                              Predicate<R> skipPredicate,
-                                              R request) {
-        boolean skipRateLimit = false;
-        if (rl.getSkipCondition() != null) {
-            skipRateLimit = skipCondition(rl, expressionParser, beanFactory).evalute(request);
-            log.debug("skip-rate-limit - skip-condition: {}", skipRateLimit);
-        }
-
-        if (!skipRateLimit) {
-            skipRateLimit = skipPredicate.test(request);
-            log.debug("skip-rate-limit - skip-predicates: {}", skipRateLimit);
-        }
-
-        if (!skipRateLimit && rl.getExecuteCondition() != null) {
-            skipRateLimit = !executeCondition(rl, expressionParser, beanFactory).evalute(request);
-            log.debug("skip-rate-limit - execute-condition: {}", skipRateLimit);
-        }
-
-        if (!skipRateLimit) {
-            skipRateLimit = !executionPredicate.test(request);
-            log.debug("skip-rate-limit - execute-predicates: {}", skipRateLimit);
-        }
-        return skipRateLimit;
-    }
-
-    protected abstract ExecutePredicate<R> getExecutePredicateByName(String name);
-
-    private ConfigurationBuilder prepareBucket4jConfigurationBuilder(RateLimit rl) {
-        var configBuilder = BucketConfiguration.builder();
-        for (BandWidth bandWidth : rl.getBandwidths()) {
-            long capacity = bandWidth.getCapacity();
-            long refillCapacity = bandWidth.getRefillCapacity() != null ? bandWidth.getRefillCapacity() : bandWidth.getCapacity();
-            var refillPeriod = Duration.of(bandWidth.getTime(), bandWidth.getUnit());
-            var bucket4jBandWidth = switch (bandWidth.getRefillSpeed()) {
-                case GREEDY ->
-                        Bandwidth.builder().capacity(capacity).refillGreedy(refillCapacity, refillPeriod).id(bandWidth.getId());
-                case INTERVAL ->
-                        Bandwidth.builder().capacity(capacity).refillIntervally(refillCapacity, refillPeriod).id(bandWidth.getId());
-            };
-
-            if (bandWidth.getInitialCapacity() != null) {
-                bucket4jBandWidth = bucket4jBandWidth.initialTokens(bandWidth.getInitialCapacity());
-            }
-            configBuilder = configBuilder.addLimit(bucket4jBandWidth.build());
-        }
-        return configBuilder;
-    }
-
-    private MetricBucketListener createMetricListener(String cacheName,
-                                                      ExpressionParser expressionParser,
-                                                      ConfigurableBeanFactory beanFactory,
-                                                      FilterConfiguration<R, P> filterConfig,
-                                                      R servletRequest) {
-
-        var metricTagResults = getMetricTags(
-                expressionParser,
-                beanFactory,
-                filterConfig,
-                servletRequest);
-
-        return new MetricBucketListener(
-                cacheName,
-                getMetricHandlers(),
-                filterConfig.getMetrics().getTypes(),
-                metricTagResults);
-    }
-
-    private List<MetricTagResult> getMetricTags(
-            ExpressionParser expressionParser,
-            ConfigurableBeanFactory beanFactory,
-            FilterConfiguration<R, P> filterConfig,
-            R servletRequest) {
-
-        return filterConfig
-                .getMetrics()
-                .getTags()
-                .stream()
-                .map(metricMetaTag -> {
-                    var context = new StandardEvaluationContext();
-                    context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-                    //TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-                    var expr = expressionParser.parseExpression(metricMetaTag.getExpression());
-                    var value = expr.getValue(context, servletRequest, String.class);
-
-                    return new MetricTagResult(metricMetaTag.getKey(), value, metricMetaTag.getTypes());
-                }).toList();
-    }
-
-    /**
-     * Creates the key filter lambda which is responsible to decide how the rate limit will be performed. The key
-     * is the unique identifier like an IP address or a username.
-     *
-     * @param url              is used to generated a unique cache key
-     * @param rateLimit        the {@link RateLimit} configuration which holds the skip condition string
-     * @param expressionParser is used to evaluate the expression if the filter key type is EXPRESSION.
-     * @param beanFactory      used to get full access to all java beans in the SpEl
-     * @return should not been null. If no filter key type is matching a plain 1 is returned so that all requests uses the same key.
-     */
-    public KeyFilter<R> getKeyFilter(String url, RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
-        var cacheKeyexpression = rateLimit.getCacheKey();
-        var context = new StandardEvaluationContext();
-        context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-        return request -> {
-            //TODO performance problem - how can the request object reused in the expression without setting it as a rootObject
-            Expression expr = expressionParser.parseExpression(cacheKeyexpression);
-            final String value = expr.getValue(context, request, String.class);
-            return url + "-" + value;
-        };
-    }
-
-    /**
-     * Creates the lambda for the skip condition which will be evaluated on each request
-     *
-     * @param rateLimit        the {@link RateLimit} configuration which holds the skip condition string
-     * @param expressionParser is used to evaluate the skip expression
-     * @param beanFactory      used to get full access to all java beans in the SpEl
-     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
-     */
-    public Condition<R> skipCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
-        var context = new StandardEvaluationContext();
-        context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-
-        if (rateLimit.getSkipCondition() != null) {
-            return request -> {
-                Expression expr = expressionParser.parseExpression(rateLimit.getSkipCondition());
-                return expr.getValue(context, request, Boolean.class);
-            };
-        }
-        return null;
-    }
-
-    /**
-     * Creates the lambda for the execute condition which will be evaluated on each request.
-     *
-     * @param rateLimit        the {@link RateLimit} configuration which holds the execute condition string
-     * @param expressionParser is used to evaluate the execution expression
-     * @param beanFactory      used to get full access to all java beans in the SpEl
-     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
-     */
-    public Condition<R> executeCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
-        return executeExpression(rateLimit.getExecuteCondition(), expressionParser, beanFactory);
-    }
-
-    /**
-     * Creates the lambda for the execute condition which will be evaluated on each request.
-     *
-     * @param rateLimit        the {@link RateLimit} configuration which holds the execute condition string
-     * @param expressionParser is used to evaluate the execution expression
-     * @param beanFactory      used to get full access to all java beans in the SpEl
-     * @return the lambda condition which will be evaluated lazy - null if there is no condition available.
-     */
-    public Condition<P> executeResponseCondition(RateLimit rateLimit, ExpressionParser expressionParser, BeanFactory beanFactory) {
-        return executeExpression(rateLimit.getPostExecuteCondition(), expressionParser, beanFactory);
-    }
-
-    @Nullable
-    private static <R> Condition<R> executeExpression(String condition, ExpressionParser expressionParser, BeanFactory beanFactory) {
-        var context = new StandardEvaluationContext();
-        context.setBeanResolver(new BeanFactoryResolver(beanFactory));
-
-        if (condition != null) {
-            return request -> {
-                Expression expr = expressionParser.parseExpression(condition);
-                return Boolean.TRUE.equals(expr.getValue(context, request, Boolean.class));
-            };
-        }
-        return null;
-    }
-
-
-
-    protected void addDefaultMetricTags(Bucket4JBootProperties properties, Bucket4JConfiguration filter) {
-        if (!properties.getDefaultMetricTags().isEmpty()) {
-            var metricTags = filter.getMetrics().getTags();
-            var filterMetricTagKeys = metricTags
-                    .stream()
-                    .map(MetricTag::getKey)
-                    .collect(Collectors.toSet());
-            properties.getDefaultMetricTags().forEach(defaultTag -> {
-                if (!filterMetricTagKeys.contains(defaultTag.getKey())) {
-                    metricTags.add(defaultTag);
-                }
-            });
-        }
-    }
-
-    private Predicate<R> prepareExecutionPredicates(RateLimit rl) {
-        return rl.getExecutePredicates()
-                .stream()
-                .map(this::createPredicate)
-                .reduce(Predicate::and)
-                .orElseGet(() -> p -> true);
-    }
-
-    private Predicate<R> prepareSkipPredicates(RateLimit rl) {
-        return rl.getSkipPredicates()
-                .stream()
-                .map(this::createPredicate)
-                .reduce(Predicate::and)
-                .orElseGet(() -> p -> false);
-    }
-
-    protected Predicate<R> createPredicate(ExecutePredicateDefinition pd) {
-        var predicate = getExecutePredicateByName(pd.getName());
-        log.debug("create-predicate;name:{};value:{}", pd.getName(), pd.getArgs());
-        try {
-            @SuppressWarnings("unchecked")
-            ExecutePredicate<R> newPredicateInstance = predicate.getClass().getDeclaredConstructor().newInstance();
-            return newPredicateInstance.init(pd.getArgs());
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new ExecutePredicateInstantiationException(pd.getName(), predicate.getClass());
-        }
-    }
 
     /**
      * Try to load a filter configuration from the cache with the same id as the provided filter.

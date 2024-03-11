@@ -52,11 +52,9 @@ public class Bucket4jEndpoint {
 			if(webfluxConfigs != null) {
 				result.put("webflux", webfluxConfigs.getFilterConfiguration());
 			}
-			
 			if(gatewayConfigs != null) {
 				result.put("gateway", gatewayConfigs.getFilterConfiguration());
 			}
-			
 			return result;
 		}
 		
