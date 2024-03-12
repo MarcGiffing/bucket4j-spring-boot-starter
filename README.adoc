@@ -173,7 +173,7 @@ bucket4j.filters[0].metrics.enabled=true
 bucket4j.filters[0].metrics.types=CONSUMED_COUNTER,REJECTED_COUNTER # (optional) if your not interested in the consumed counter you can specify only the rejected counter
 bucket4j.filters[0].metrics.tags[0].key=IP
 bucket4j.filters[0].metrics.tags[0].expression=getRemoteAddr()
-bucket4j.filters[0].metrics.tags[0].types=REJECTED_COUNTER # (optionial) this tag should for example only be applied for the rejected counter
+bucket4j.filters[0].metrics.tags[0].types=REJECTED_COUNTER # (optional) this tag should for example only be applied for the rejected counter
 bucket4j.filters[0].metrics.tags[1].key=URL
 bucket4j.filters[0].metrics.tags[1].expression=getRequestURI()
 bucket4j.filters[0].metrics.tags[2].key=USERNAME
@@ -286,7 +286,7 @@ public class MyQueryExecutePredicate extends ExecutePredicate<HttpServletRequest
 	public boolean test(HttpServletRequest t) {
 	    // the logic to implement the predicate
 		boolean result = t.getParameterMap().containsKey(query);
-		log.debug("my-query-parametetr;value:%s;result:%s".formatted(query, result));
+		log.debug("my-query-parameter;value:%s;result:%s".formatted(query, result));
 		return result;
 	}
 
@@ -421,6 +421,7 @@ Some important considerations:
 ** filterOrder not changed -> BAD_REQUEST
 ** cacheName not changed -> BAD_REQUEST
 - The configCacheManager currently does *not* contain validation in the setValue method. The configuration should be validated before calling the this method.
+
 
 [[monitoring]]
 === Monitoring - Spring Boot Actuator
@@ -614,7 +615,7 @@ bucket4j:
 ----
 
 Conditional filtering depending of anonymous or logged in user. Because the *bucket4j.filters[0].strategy* is *first*
-you havn't to check in the second rate-limit that the user is logged in. Only the first one is executed.
+you don't have to check in the second rate-limit that the user is logged in. Only the first one is executed.
 
 [source,yml]
 ----
