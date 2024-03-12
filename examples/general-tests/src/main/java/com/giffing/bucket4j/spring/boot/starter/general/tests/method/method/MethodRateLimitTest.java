@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.method;
+package com.giffing.bucket4j.spring.boot.starter.general.tests.method.method;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitException;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +83,18 @@ public class MethodRateLimitTest {
         }
         assertThrows(RateLimitException.class, () -> testService.withCacheKey("key1"));
         assertThrows(RateLimitException.class, () -> testService.withCacheKey("key2"));
+    }
+
+    @Test
+    public void assert_rate_limit_with_rate_per_method() {
+        for(int i = 0; i < 5; i++) {
+            // rate limit by parameter value
+            testService.withRatePerMethod1("key1");
+            testService.withRatePerMethod2("key2");
+            // all tokens consumed
+        }
+        assertThrows(RateLimitException.class, () -> testService.withRatePerMethod1("key1"));
+        assertThrows(RateLimitException.class, () -> testService.withRatePerMethod2("key2"));
     }
 
 }

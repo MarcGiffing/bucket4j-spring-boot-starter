@@ -17,6 +17,8 @@ Project version overview:
 == Contents
 
 * <<introduction>>
+**
+**
 * <<project_configuration>>
 ** <<bucket4j_complete_properties>>
 *** <<refill_speed>>
@@ -41,8 +43,6 @@ Project version overview:
 
 This project is a Spring Boot Starter for Bucket4j, allowing you to set access limits on your API effortlessly. Its key advantage lies in the configuration via properties or yaml files, eliminating the need for manual code authoring.
 
-
-
 Here are some example use cases:
 
 * Preventing DoS Attacks
@@ -60,7 +60,9 @@ The project offers several features, some utilizing Spring's Expression Language
 
 You have two options for rate limit configuration: adding a filter for incoming web requests or applying fine-grained control at the method level.
 
-=== Filter
+
+[[introduction_filter]]
+=== Use Filter for rate limiting
 
 Filters are customizable components designed to intercept incoming web requests, capable of rejecting requests to halt further processing. You can incorporate multiple filters for various URLs or opt to bypass rate limits entirely for authenticated users. When the limit is exceeded, the web request is aborted, and the client receives an HTTP Status 429 Too Many Requests error.
 
@@ -80,7 +82,8 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=intervall
 ----
 
-=== Method
+
+=== Use Annotations on methods for rate limiting
 
 Utilizing the '@RateLimiting' annotation, AOP intercepts your method. This grants you comprehensive access to method parameters, empowering you to define the rate limit key or conditionally skip rate limiting with ease.
 
@@ -99,23 +102,29 @@ bucket4j.methods[0].rate-limits[0].bandwidths[0].refill-speed=intervall
 @RateLimiting(
             // reference to the property file
             name = "not_an_admin",
+            // the rate limit is per user
+            cacheKey= "#username",
             // only when the parameter is not admin
-            executeCondition = "#myParamName != 'admin'",
+            executeCondition = "#username != 'admin'",
+            // skip when parameter equals admin
+            skipCondition = "#username eq 'admin",
             // the method name is added to the cache key to  prevent conflicts with other methods
             ratePerMethod = true,
             // if the limit is exceeded the fallback method is called. If not provided an exception is thrown
             fallbackMethodName = "myFallbackMethod")
-    public String execute(String myParamName) {
-        log.info("Method with Param {} executed", myParamName);
+    public String execute(String username) {
+        log.info("Method with Param {} executed", username);
         return myParamName;
     }
 
-    public String myFallbackMethod(String myParamName) {
-        log.info("Fallback-Method with Param {} executed", myParamName);
+    // the fallback method must have the same signature
+    public String myFallbackMethod(String username) {
+        log.info("Fallback-Method with Param {} executed", username);
         return myParamName;
     }
 ----
 
+You can find some Configuration examples in the test project: {url-examples}/general-tests/src/main/java/com/giffing/bucket4j/spring/boot/starter/general/tests/method[Examples]
 
 [[project_configuration]]
 == Project Configuration

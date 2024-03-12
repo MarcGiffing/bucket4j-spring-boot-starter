@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.method;
+package com.giffing.bucket4j.spring.boot.starter.general.tests.method.method;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

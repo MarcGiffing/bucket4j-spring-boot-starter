@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.method;
+package com.giffing.bucket4j.spring.boot.starter.general.tests.method.method;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +32,23 @@ public class TestService {
         log.info("Method withCacheKey with Param {} executed", cacheKey);
         return cacheKey;
     }
+
+    @RateLimiting(
+            name = "default",
+            ratePerMethod = true)
+    public String withRatePerMethod1(String cacheKey) {
+        log.info("Method withRatePerMethod1 with Param {} executed", cacheKey);
+        return cacheKey;
+    }
+
+    @RateLimiting(
+            name = "default",
+            ratePerMethod = true)
+    public String withRatePerMethod2(String cacheKey) {
+        log.info("Method withRatePerMethod1 with Param {} executed", cacheKey);
+        return cacheKey;
+    }
+
 
     @RateLimiting(name = "default", cacheKey = "'normal'", fallbackMethodName = "fallbackMethod")
     public String withFallbackMethod(String myParamName) {
