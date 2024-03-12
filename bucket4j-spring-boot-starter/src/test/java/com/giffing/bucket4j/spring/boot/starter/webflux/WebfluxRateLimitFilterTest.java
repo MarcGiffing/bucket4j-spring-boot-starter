@@ -1,20 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.webflux;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,15 +17,17 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
-
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
-
-import io.github.bucket4j.ConsumptionProbe;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class WebfluxRateLimitFilterTest {
 
@@ -109,9 +103,9 @@ class WebfluxRateLimitFilterTest {
 			result.block();
 		});
 
-		verify(rateLimitCheck1).rateLimit(any());
-		verify(rateLimitCheck2).rateLimit(any());
-		verify(rateLimitCheck3).rateLimit(any());
+		verify(rateLimitCheck1).rateLimit(any(), any());
+		verify(rateLimitCheck2).rateLimit(any(), any());
+		verify(rateLimitCheck3).rateLimit(any(), any());
 	}
 
 	@Test
@@ -135,9 +129,9 @@ class WebfluxRateLimitFilterTest {
 		List<String> values = captor.getAllValues();
 		Assertions.assertEquals("30", values.stream().findFirst().get());
 
-		verify(rateLimitCheck1, times(1)).rateLimit(any());
-		verify(rateLimitCheck2, times(0)).rateLimit(any());
-		verify(rateLimitCheck3, times(0)).rateLimit(any());
+		verify(rateLimitCheck1, times(1)).rateLimit(any(), any());
+		verify(rateLimitCheck2, times(0)).rateLimit(any(), any());
+		verify(rateLimitCheck3, times(0)).rateLimit(any(), any());
 	}
 
 	private void rateLimitConfig(Long remainingTokens, RateLimitCheck<ServerHttpRequest> rateLimitCheck) {
@@ -147,7 +141,7 @@ class WebfluxRateLimitFilterTest {
 		when(rateLimitResult.getRemainingTokens()).thenReturn(remainingTokens);
 		when(consumptionHolder.getRateLimitResultCompletableFuture())
 				.thenReturn(CompletableFuture.completedFuture(rateLimitResult));
-		when(rateLimitCheck.rateLimit(any())).thenReturn(consumptionHolder);
+		when(rateLimitCheck.rateLimit(any(), any())).thenReturn(consumptionHolder);
 	}
 
 }

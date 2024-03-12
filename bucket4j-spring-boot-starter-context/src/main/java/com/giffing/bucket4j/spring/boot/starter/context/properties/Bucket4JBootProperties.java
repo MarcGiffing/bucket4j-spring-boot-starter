@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -15,58 +16,65 @@ import lombok.Data;
 
 /**
  * Holds all the relevant starter properties which can be configured with
- * Spring Boots application.properties / application.yml configuration files. 
+ * Spring Boots application.properties / application.yml configuration files.
  */
 @Data
 @ConfigurationProperties(prefix = Bucket4JBootProperties.PROPERTY_PREFIX)
 @Validated
 public class Bucket4JBootProperties {
 
-	public static final String PROPERTY_PREFIX = "bucket4j";
-	
-	/**
-	 * Enables or disables the Bucket4j Spring Boot Starter.
-	 */
-	@NotNull
-	private Boolean enabled = true;
+    public static final String PROPERTY_PREFIX = "bucket4j";
 
-	/**
-	 * Sets the cache implementation which should be auto configured.
-	 * This property can be used if multiple caches are configured by the starter 
-	 * and you have to choose one due to a startup error.
-	 * <ul>
-	 * 	<li>jcache</li>
-	 *  <li>hazelcast</li>
-	 *  <li>ignite</li>
-	 *  <li>redis</li>
-	 * </ul>
-	 */
-	private String cacheToUse;
+    /**
+     * Enables or disables the Bucket4j Spring Boot Starter.
+     */
+    @NotNull
+    private Boolean enabled = true;
 
-	private boolean filterConfigCachingEnabled = false;
+    /**
+     * Sets the cache implementation which should be auto configured.
+     * This property can be used if multiple caches are configured by the starter
+     * and you have to choose one due to a startup error.
+     * <ul>
+     * 	<li>jcache</li>
+     *  <li>hazelcast</li>
+     *  <li>ignite</li>
+     *  <li>redis</li>
+     * </ul>
+     */
+    private String cacheToUse;
 
-	/**
-	 * If Filter configuration caching is enabled, a cache with this name should exist, or it will cause an exception.
-	 */
-	@NotBlank
-	private String filterConfigCacheName = "filterConfigCache";
+    /**
+     * Configuration for the {@link RateLimiting} annotation on method level.
+     */
+    @Valid
+    private List<MethodProperties> methods = new ArrayList<>();
 
-	@Valid
-	private List<Bucket4JConfiguration> filters = new ArrayList<>();
+    private boolean filterConfigCachingEnabled = false;
 
-	@AssertTrue(message = "FilterConfiguration caching is enabled, but not all filters have an identifier configured")
-	public boolean isValidFilterIds(){
-		return !filterConfigCachingEnabled || filters.stream().noneMatch(filter -> filter.getId() == null);
-	}
+    /**
+     * If Filter configuration caching is enabled, a cache with this name should exist, or it will cause an exception.
+     */
+    @NotBlank
+    private String filterConfigCacheName = "filterConfigCache";
 
-	/**
-	 * A list of default metric tags which should be applied to all filters
-	 */
-	@Valid
-	private List<MetricTag> defaultMetricTags = new ArrayList<>();
 
-	public static String getPropertyPrefix() {
-		return PROPERTY_PREFIX;
-	}
+    @Valid
+    private List<Bucket4JConfiguration> filters = new ArrayList<>();
+
+    @AssertTrue(message = "FilterConfiguration caching is enabled, but not all filters have an identifier configured")
+    public boolean isValidFilterIds() {
+        return !filterConfigCachingEnabled || filters.stream().noneMatch(filter -> filter.getId() == null);
+    }
+
+    /**
+     * A list of default metric tags which should be applied to all filters
+     */
+    @Valid
+    private List<MetricTag> defaultMetricTags = new ArrayList<>();
+
+    public static String getPropertyPrefix() {
+        return PROPERTY_PREFIX;
+    }
 
 }

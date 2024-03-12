@@ -9,11 +9,11 @@ public interface KeyFilter<R> {
 
 	/**
 	 * Return the unique Bucket4j storage key. You can think of the key as a unique identifier
-	 * which is for example an IP-Address or a user name. The rate limit is then applied to each individual key. 
+	 * which is for example an IP-Address or a username. The rate limit is then applied to each individual key.
 	 * 
-	 * @param request HTTP request information of the current request
-	 * @return the key to identify the the rate limit (IP, username, ...)
+	 * @param expressionParams the expression params
+	 * @return the key to identify the rate limit (IP, username, ...)
 	 */
-	String key(R request);
+	String key(ExpressionParams<R> expressionParams);
 	
 }

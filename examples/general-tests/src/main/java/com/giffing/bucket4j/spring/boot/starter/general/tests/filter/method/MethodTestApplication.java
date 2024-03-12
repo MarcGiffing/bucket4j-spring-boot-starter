@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
+package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.method;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,10 +8,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @SpringBootApplication
 @EnableCaching
 @EnableAspectJAutoProxy
-public class CaffeineApplication {
+public class MethodTestApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CaffeineApplication.class, args);
+		SpringApplication.run(MethodTestApplication.class, args);
 	}
 	
 }

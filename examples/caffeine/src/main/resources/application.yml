@@ -21,6 +21,18 @@ bucket4j:
   enabled: true
   filter-config-caching-enabled: true
   filter-config-cache-name: filterConfigCache
+  methods:
+  - name: default
+    cache-name: buckets
+    rate-limit:
+      cache-key: 1
+      bandwidths:
+        - capacity: 1
+          refill-capacity: 1
+          time: 2
+          unit: seconds
+          initial-capacity: 1
+          refill-speed: interval
   filters:
   - id: filter1
     cache-name: buckets

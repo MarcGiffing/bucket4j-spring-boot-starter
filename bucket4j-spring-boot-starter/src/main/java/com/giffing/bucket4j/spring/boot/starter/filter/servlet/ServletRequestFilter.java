@@ -1,10 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.filter.servlet;
 
+import com.giffing.bucket4j.spring.boot.starter.context.ExpressionParams;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,12 +45,12 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
             throws ServletException, IOException {
         boolean allConsumed = true;
         Long remainingLimit = null;
-        for (RateLimitCheck<HttpServletRequest> rl : filterConfig.getRateLimitChecks()) {
-            var wrapper = rl.rateLimit(request);
+        for (var rl : filterConfig.getRateLimitChecks()) {
+            var wrapper = rl.rateLimit(new ExpressionParams<>(request), null);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {
-                    remainingLimit = getRemainingLimit(remainingLimit, rateLimitResult);
+                    remainingLimit = RateLimitService.getRemainingLimit(remainingLimit, rateLimitResult);
                 } else {
                     allConsumed = false;
                     handleHttpResponseOnRateLimiting(response, rateLimitResult);
@@ -58,7 +60,6 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
                     break;
                 }
             }
-
         }
 
         if (allConsumed) {
@@ -90,16 +91,6 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
         }
     }
 
-    private long getRemainingLimit(Long remaining, RateLimitResult rateLimitResult) {
-        if (rateLimitResult != null) {
-            if (remaining == null) {
-                remaining = rateLimitResult.getRemainingTokens();
-            } else if (rateLimitResult.getRemainingTokens() < remaining) {
-                remaining = rateLimitResult.getRemainingTokens();
-            }
-        }
-        return remaining;
-    }
 
 
     @Override

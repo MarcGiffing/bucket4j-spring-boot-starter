@@ -1,27 +1,25 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.caffeine;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import jakarta.annotation.Nullable;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Valid;
-import jakarta.validation.Validator;
-
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.BandWidth;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
+import jakarta.annotation.Nullable;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 public class TestController {
@@ -30,9 +28,14 @@ public class TestController {
 
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public TestController(Validator validator, @Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+	private final TestService testService;
+
+	public TestController(Validator validator,
+						  @Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager,
+						  TestService testService) {
 		this.validator = validator;
 		this.configCacheManager = configCacheManager;
+		this.testService = testService;
 	}
 
 	@GetMapping("unsecure")
@@ -41,7 +44,8 @@ public class TestController {
 	}
 
 	@GetMapping("hello")
-	public ResponseEntity<String> hello() {
+	public ResponseEntity<String> hello(@RequestParam(required = false) String name) {
+		testService.execute(name);
 		return ResponseEntity.ok("Hello World");
 	}
 

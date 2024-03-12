@@ -9,9 +9,9 @@ public interface Condition<R> {
 	
 	/**
 	 * 
-	 * @param request e.g. to skip or execute rate limit based on the IP address
+	 * @param expressionParams parameters to evaluate the expression
 	 * @return true if the rate limit check should be skipped
 	 */
-	boolean evalute(R request);
+	boolean evaluate(ExpressionParams<R> expressionParams);
 	
 }
