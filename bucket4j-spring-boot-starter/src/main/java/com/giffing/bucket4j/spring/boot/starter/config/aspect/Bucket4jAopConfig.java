@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Import;
 @AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @Import(value = {ServiceConfiguration.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class})
-public class AopConfig {
+public class Bucket4jAopConfig {
 
     @Bean
     public RateLimitAspect rateLimitAspect(RateLimitService rateLimitService, Bucket4JBootProperties bucket4JBootProperties, SyncCacheResolver syncCacheResolver) {

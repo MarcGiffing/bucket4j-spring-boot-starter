@@ -1,5 +1,5 @@
 com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration
-com.giffing.bucket4j.spring.boot.starter.config.aspect.AopConfig
+com.giffing.bucket4j.spring.boot.starter.config.aspect.Bucket4jAopConfig
 com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter
 com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter
 com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter
