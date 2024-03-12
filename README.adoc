@@ -17,8 +17,8 @@ Project version overview:
 == Contents
 
 * <<introduction>>
-**
-**
+** <<introduction_filter>>
+** <<introduction_method>>
 * <<project_configuration>>
 ** <<bucket4j_complete_properties>>
 *** <<refill_speed>>
@@ -82,7 +82,7 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=intervall
 ----
 
-
+[[introduction_method]]
 === Use Annotations on methods for rate limiting
 
 Utilizing the '@RateLimiting' annotation, AOP intercepts your method. This grants you comprehensive access to method parameters, empowering you to define the rate limit key or conditionally skip rate limiting with ease.
