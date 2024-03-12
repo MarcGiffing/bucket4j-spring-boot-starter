@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface MetricHandler {
 
-    void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags);
+    void handle(MetricType type, String name, long counterIncrement, List<MetricTagResult> tags);
 
 }
