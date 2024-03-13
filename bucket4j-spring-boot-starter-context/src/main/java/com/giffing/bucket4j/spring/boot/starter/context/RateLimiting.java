@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(value = { ElementType.TYPE, ElementType.METHOD })
+@Target(value = {ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RateLimiting {
 
@@ -44,10 +44,10 @@ public @interface RateLimiting {
     boolean ratePerMethod() default false;
 
     /**
-     * An optional fall back method when the rate limit occurs instead of throwing an exception.
-     * The return type must be the same...
-     *
-     * TODO
+     * An optional fall back method which is executed when the rate limit occurs instead of throwing
+     * the {@link RateLimitException}.
+     * <p>
+     * The arguments and the return type of the fallback method must have the same signature.
      *
      * @return the name of the public method which resists in the same class.
      */

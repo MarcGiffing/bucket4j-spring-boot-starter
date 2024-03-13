@@ -42,7 +42,7 @@ public class ReactiveGreadyRefillSpeedTest {
 
     @Test
     @Order(1)
-    void helloTest() throws Exception {
+    void helloTest() {
         String url = "/hello";
         IntStream.rangeClosed(1, 5)
                 .boxed()
@@ -52,7 +52,7 @@ public class ReactiveGreadyRefillSpeedTest {
         blockedWebRequestDueToRateLimit(url);
     }
 
-    private void blockedWebRequestDueToRateLimit(String url) throws Exception {
+    private void blockedWebRequestDueToRateLimit(String url) {
         rest
                 .get()
                 .uri(url)

@@ -105,7 +105,7 @@ public class ServletController {
 	 * @return
 	 */
 	@PostMapping("filters/{filterId}/ratelimits/{limitIndex}/bandwidths/{bandwidthId}")
-	public ResponseEntity updateBandwidth(
+	public ResponseEntity<?> updateBandwidth(
 			@PathVariable String filterId,
 			@PathVariable int limitIndex,
 			@PathVariable String bandwidthId,

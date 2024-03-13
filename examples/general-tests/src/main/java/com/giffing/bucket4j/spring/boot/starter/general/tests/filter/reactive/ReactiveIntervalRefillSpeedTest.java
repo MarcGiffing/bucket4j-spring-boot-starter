@@ -51,7 +51,7 @@ public class ReactiveIntervalRefillSpeedTest {
         blockedWebRequestDueToRateLimit(url);
     }
 
-    private void blockedWebRequestDueToRateLimit(String url) throws Exception {
+    private void blockedWebRequestDueToRateLimit(String url) {
         rest
                 .get()
                 .uri(url)

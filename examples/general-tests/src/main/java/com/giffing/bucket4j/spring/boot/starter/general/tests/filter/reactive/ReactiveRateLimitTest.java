@@ -57,6 +57,12 @@ import static org.hamcrest.Matchers.containsString;
 @DirtiesContext
 public class ReactiveRateLimitTest {
 
+    private static final String NONEXISTENT_FILTER_ID = "nonexistent";
+
+    private static final String FILTER_ID = "filter1";
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
     ApplicationContext context;
 
@@ -64,8 +70,6 @@ public class ReactiveRateLimitTest {
     Bucket4JBootProperties properties;
 
     WebTestClient rest;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final String FILTER_ID = "filter1";
 
     @BeforeEach
     public void setup() {
@@ -77,7 +81,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void helloTest() throws Exception {
+    void helloTest() {
         String url = "/hello";
         IntStream.rangeClosed(1, 5)
                 .boxed()
@@ -89,7 +93,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void worldTest() throws Exception {
+    void worldTest() {
         String url = "/world";
         IntStream.rangeClosed(1, 10)
                 .boxed()
@@ -103,7 +107,7 @@ public class ReactiveRateLimitTest {
     @Order(1)
     void invalidNonMatchingIdReplaceConfigTest() throws Exception {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
-        updateFilterCache("nonexistent", objectMapper.writeValueAsString(filter))
+        updateFilterCache(NONEXISTENT_FILTER_ID, objectMapper.writeValueAsString(filter))
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath("$").value(
                         containsString("The id in the path does not match the id in the request body.")
@@ -114,7 +118,7 @@ public class ReactiveRateLimitTest {
     @Order(1)
     void invalidNonExistingReplaceConfigTest() throws Exception {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
-        filter.setId("nonexistent");
+        filter.setId(NONEXISTENT_FILTER_ID);
         updateFilterCache(filter)
                 .expectStatus().isNotFound()
                 .expectBody().jsonPath("$").value(
@@ -164,7 +168,7 @@ public class ReactiveRateLimitTest {
     void invalidCacheNameReplaceConfigTest() throws Exception {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.setMinorVersion(filter.getMinorVersion() + 1);
-        filter.setCacheName("nonexistent");
+        filter.setCacheName(NONEXISTENT_FILTER_ID);
         updateFilterCache(filter)
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath("$").value(
@@ -237,7 +241,7 @@ public class ReactiveRateLimitTest {
         return updateFilterCache(filter.getId(), objectMapper.writeValueAsString(filter));
     }
 
-    private WebTestClient.ResponseSpec updateFilterCache(String filterId, String content) throws Exception {
+    private WebTestClient.ResponseSpec updateFilterCache(String filterId, String content) {
         return rest.post()
                 .uri("/filters/".concat(filterId))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -254,7 +258,7 @@ public class ReactiveRateLimitTest {
                 .expectHeader().valueEquals("X-Rate-Limit-Remaining", String.valueOf(remainingTries));
     }
 
-    private void blockedWebRequestDueToRateLimit(String url) throws Exception {
+    private void blockedWebRequestDueToRateLimit(String url) {
         rest
                 .get()
                 .uri(url)

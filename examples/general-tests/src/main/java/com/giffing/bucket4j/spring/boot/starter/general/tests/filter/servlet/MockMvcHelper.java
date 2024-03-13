@@ -1,5 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -8,6 +11,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class MockMvcHelper {
 
     public static void webRequestWithStatus(
@@ -22,7 +27,7 @@ public class MockMvcHelper {
                     .andExpect(header().longValue("X-Rate-Limit-Remaining", remainingTries))
                     .andExpect(content().string(containsString("Hello World")));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             fail(e.getMessage());
         }
     }

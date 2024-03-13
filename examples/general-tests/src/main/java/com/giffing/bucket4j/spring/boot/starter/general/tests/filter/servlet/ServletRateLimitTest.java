@@ -7,6 +7,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootP
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -63,8 +64,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext
+@Slf4j
 public class ServletRateLimitTest {
 
+	public static final String NONEXISTENT_FILTER_ID = "nonexistent";
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -81,9 +84,7 @@ public class ServletRateLimitTest {
 		IntStream.rangeClosed(1, 5)
 			.boxed()
 			.sorted(Collections.reverseOrder())
-			.forEach(counter -> {
-				successfulWebRequest(url, counter - 1, HttpStatus.OK);
-			});
+			.forEach(counter -> successfulWebRequest(url, counter - 1, HttpStatus.OK));
 
 		blockedWebRequestDueToRateLimit(url);
 	}
@@ -95,17 +96,14 @@ public class ServletRateLimitTest {
 		IntStream.rangeClosed(1, 5)
 				.boxed()
 				.sorted(Collections.reverseOrder())
-				.forEach(counter -> {
-					System.out.println("################## counter" + counter);
-					successfulWebRequest(url, counter, HttpStatus.UNAUTHORIZED);
-				});
+				.forEach(counter -> successfulWebRequest(url, counter, HttpStatus.UNAUTHORIZED));
 
 		blockedWebRequestDueToRateLimit(url);
 	}
 
 	@Test
 	@Order(1)
-	void assert_no_rate_limit_when_authorized() throws Exception {
+	void assert_no_rate_limit_when_authorized() {
 		String url = "/secure";
 		IntStream.rangeClosed(1, 5)
 				.forEach(counter -> {
@@ -120,7 +118,7 @@ public class ServletRateLimitTest {
 								.andExpect(header().string("X-Rate-Limit-Remaining", "5"));
 
                     } catch (Exception e) {
-						e.printStackTrace();
+						log.error(e.getMessage(), e);
                         fail(e.getMessage());
                     }
                 });
@@ -143,7 +141,7 @@ public class ServletRateLimitTest {
 	@Order(1)
 	void invalidNonMatchingIdReplaceConfigTest() throws Exception {
 		Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
-		updateFilterCache("nonexistent", objectMapper.writeValueAsString(filter))
+		updateFilterCache(NONEXISTENT_FILTER_ID, objectMapper.writeValueAsString(filter))
 			.andExpect(status().isBadRequest())
 			.andExpect(content().string(containsString("The id in the path does not match the id in the request body.")));
 	}
@@ -152,7 +150,7 @@ public class ServletRateLimitTest {
 	@Order(1)
 	void invalidNonExistingReplaceConfigTest() throws Exception {
 		Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
-		filter.setId("nonexistent");
+		filter.setId(NONEXISTENT_FILTER_ID);
 		updateFilterCache(filter)
 			.andExpect(status().isNotFound())
 			.andExpect(content().string(containsString("No filter with id 'nonexistent' could be found.")));
@@ -194,7 +192,7 @@ public class ServletRateLimitTest {
 	void invalidCacheNameReplaceConfigTest() throws Exception {
 		Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
 		filter.setMinorVersion(filter.getMinorVersion() + 1);
-		filter.setCacheName("nonexistent");
+		filter.setCacheName(NONEXISTENT_FILTER_ID);
 		updateFilterCache(filter)
 			.andExpect(status().isBadRequest())
 			.andExpect(content().string(containsString("It is not possible to modify the cacheName of an existing filter.")));
@@ -279,7 +277,7 @@ public class ServletRateLimitTest {
 				.andExpect(header().longValue("X-Rate-Limit-Remaining", remainingTries))
 				.andExpect(content().string(containsString("Hello World")));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			fail(e.getMessage());
 		}
 	}
