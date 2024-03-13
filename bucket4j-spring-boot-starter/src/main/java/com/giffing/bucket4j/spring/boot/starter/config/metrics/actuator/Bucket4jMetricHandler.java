@@ -16,6 +16,8 @@ import io.micrometer.core.instrument.Metrics;
 @Primary
 public class Bucket4jMetricHandler implements MetricHandler {
 
+	public static final String METRIC_COUNTER_PREFIX = "bucket4j_summary_";
+
 	@Override
 	public void handle(MetricType type, String name, long counterIncrement, List<MetricTagResult> tags) {
 
@@ -33,27 +35,27 @@ public class Bucket4jMetricHandler implements MetricHandler {
 		switch (type) {
 		case CONSUMED_COUNTER:
 			Metrics
-				.counter("bucket4j_summary_consumed", extendedTagsArray)
+				.counter(METRIC_COUNTER_PREFIX + "consumed", extendedTagsArray)
 				.increment(counterIncrement);
 			break;
 		case REJECTED_COUNTER:
 			Metrics
-				.counter("bucket4j_summary_rejected", extendedTagsArray)
+				.counter(METRIC_COUNTER_PREFIX + "rejected", extendedTagsArray)
 				.increment(counterIncrement);
 			break;
 		case PARKED_COUNTER:
 			Metrics
-					.counter("bucket4j_summary_parked", extendedTagsArray)
+					.counter(METRIC_COUNTER_PREFIX + "parked", extendedTagsArray)
 					.increment(counterIncrement);
 			break;
 		case INTERRUPTED_COUNTER:
 		Metrics
-				.counter("bucket4j_summary_interrupted", extendedTagsArray)
+				.counter(METRIC_COUNTER_PREFIX + "interrupted", extendedTagsArray)
 				.increment(counterIncrement);
 		break;
 		case DELAYED_COUNTER:
 			Metrics
-					.counter("bucket4j_summary_delayed", extendedTagsArray)
+					.counter(METRIC_COUNTER_PREFIX + "delayed", extendedTagsArray)
 					.increment(counterIncrement);
 			break;
 		default:
