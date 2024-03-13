@@ -10,7 +10,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
-        "debug=true",
         "bucket4j.methods[0].name=default",
         "bucket4j.methods[0].cache-name=buckets",
         "bucket4j.methods[0].rate-limit.bandwidths[0].capacity=5",
@@ -24,6 +23,12 @@ public class MethodRateLimitTest {
 
     @Autowired
     private TestService testService;
+
+    @Autowired
+    private ClassLevelTestService classLevelTestService;
+
+    @Autowired
+    private IgnoreOnClassLevelTestService ignoreOnClassLevelTestService;
 
 
     @Test
@@ -95,6 +100,35 @@ public class MethodRateLimitTest {
         }
         assertThrows(RateLimitException.class, () -> testService.withRatePerMethod1("key1"));
         assertThrows(RateLimitException.class, () -> testService.withRatePerMethod2("key2"));
+    }
+
+    @Test
+    public void assert_rate_limit_with_class_level_rate_limit() {
+        for(int i = 0; i < 5; i++) {
+            // rate limit executed because it's not the admin
+            classLevelTestService.notAnnotatedMethod();
+        }
+        assertThrows(RateLimitException.class, () -> classLevelTestService.notAnnotatedMethod());
+    }
+
+    @Test
+    public void assert_no_rate_limit_with_ignored_method() {
+        assertAll(() -> {
+            for (int i = 0; i < 20; i++) {
+                // rate limit executed because it's not the admin
+                classLevelTestService.ignoreMethod();
+            }
+        });
+    }
+
+    @Test
+    public void assert_no_rate_limit_with_ignored_class() {
+        assertAll(() -> {
+            for (int i = 0; i < 20; i++) {
+                // rate limit executed because it's not the admin
+                classLevelTestService.ignoreMethod();
+            }
+        });
     }
 
 }

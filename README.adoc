@@ -124,6 +124,28 @@ bucket4j.methods[0].rate-limits[0].bandwidths[0].refill-speed=intervall
     }
 ----
 
+The '@RateLimiting' annotation on class level executes the rate limit on all public methods of the class. With '@IgnoreRateLimiting' you can ignore the rate limit at all on class level or for specific method on method level.
+
+
+[source,java]
+----
+@Component
+@Slf4j
+@RateLimiting(name = "default")
+public class TestService {
+
+    public void notAnnotatedMethod() {
+        log.info("Method notAnnotatedMethod");
+    }
+
+    @IgnoreRateLimiting
+    public void ignoreMethod() {
+        log.info("Method ignoreMethod");
+    }
+
+}
+----
+
 You can find some Configuration examples in the test project: {url-examples}/general-tests/src/main/java/com/giffing/bucket4j/spring/boot/starter/general/tests/method[Examples]
 
 [[project_configuration]]
