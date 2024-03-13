@@ -16,8 +16,10 @@ import io.micrometer.core.instrument.Metrics;
 @Primary
 public class Bucket4jMetricHandler implements MetricHandler {
 
+	public static final String METRIC_COUNTER_PREFIX = "bucket4j_summary_";
+
 	@Override
-	public void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags) {
+	public void handle(MetricType type, String name, long counterIncrement, List<MetricTagResult> tags) {
 
 		List<String> extendedTags = new ArrayList<>();
 		extendedTags.add("name");
@@ -33,13 +35,28 @@ public class Bucket4jMetricHandler implements MetricHandler {
 		switch (type) {
 		case CONSUMED_COUNTER:
 			Metrics
-				.counter("bucket4j_summary_consumed", extendedTagsArray)
-				.increment(tokens);
+				.counter(METRIC_COUNTER_PREFIX + "consumed", extendedTagsArray)
+				.increment(counterIncrement);
 			break;
 		case REJECTED_COUNTER:
 			Metrics
-				.counter("bucket4j_summary_rejected", extendedTagsArray)
-				.increment(tokens);
+				.counter(METRIC_COUNTER_PREFIX + "rejected", extendedTagsArray)
+				.increment(counterIncrement);
+			break;
+		case PARKED_COUNTER:
+			Metrics
+					.counter(METRIC_COUNTER_PREFIX + "parked", extendedTagsArray)
+					.increment(counterIncrement);
+			break;
+		case INTERRUPTED_COUNTER:
+		Metrics
+				.counter(METRIC_COUNTER_PREFIX + "interrupted", extendedTagsArray)
+				.increment(counterIncrement);
+		break;
+		case DELAYED_COUNTER:
+			Metrics
+					.counter(METRIC_COUNTER_PREFIX + "delayed", extendedTagsArray)
+					.increment(counterIncrement);
 			break;
 		default:
 			throw new IllegalStateException("Unsupported metric type: " + type);
