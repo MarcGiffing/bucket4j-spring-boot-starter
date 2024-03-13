@@ -26,9 +26,7 @@
 		<module>examples/gateway</module>
         <module>examples/redis-jedis</module>
 		<module>examples/redis-lettuce</module>
-		<!--
 		<module>examples/redis-redisson</module>
-		-->
         <module>examples/webflux-infinispan</module>
     </modules>
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
