@@ -480,7 +480,7 @@ bucket4j:
           expression: getRequestURI()
     rate-limits:
       - execute-condition:  "@securityService.username() == 'admin'"
-        expression: "@securityService.username()?: getRemoteAddr()"
+        cache-key: "@securityService.username()?: getRemoteAddr()"
         bandwidths:
         - capacity: 30
           time: 1
@@ -660,19 +660,19 @@ bucket4j:
     url: .*
     rate-limits:
       - execute-condition:  @securityService.notSignedIn() # only for not logged in users
-        expression: "getRemoteAddr()"
+        cache-key: "getRemoteAddr()"
         bandwidths:
         - capacity: 10
           time: 1
           unit: minutes
       - execute-condition: "@securityService.username() != 'admin'" # strategy is only evaluate first. so the user must be logged in and user is not admin
-        expression: @securityService.username()
+        cache-key: @securityService.username()
         bandwidths:
         - capacity: 1000
           time: 1
           unit: minutes
       - execute-condition:  "@securityService.username() == 'admin'"  # user is admin
-        expression: @securityService.username()
+        cache-key: @securityService.username()
         bandwidths:
         - capacity: 1000000000
           time: 1
@@ -696,7 +696,7 @@ bucket4j:
   - cache-name: buckets
     url: /public*
     rate-limits:
-      - expression: getRemoteAddress() # IP based filter
+      - cache-key: getRemoteAddress() # IP based filter
         bandwidths: # maximum of 5 requests within 10 seconds
         - capacity: 5
           time: 10
@@ -705,7 +705,7 @@ bucket4j:
     url: /users*
     rate-limits:
       - skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
-        expression: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
+        cache-key: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address
         bandwidths:
         - capacity: 100
           time: 1
