@@ -497,7 +497,7 @@ This section is meant to help you migrate your application to new version of thi
 
 ==== Spring Boot Starter Bucket4j 0.12
 
-* Removed deprecated expression property
+* Removed deprecated 'bucket4j.filters[x].rate-limits[x].expression' property. Use 'bucket4j.filters[x].rate-limits[x].cache-key' instead.
 * three new metric counter are added per default (PARKED, INTERRUPTED and DELAYED)
 
 ==== Spring Boot Starter Bucket4j 0.9
