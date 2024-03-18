@@ -31,7 +31,10 @@ properties = {
 		"httpbin=http://localhost:${wiremock.server.port}",
 		})
 @AutoConfigureWireMock(port = 0)
-@TestPropertySource(properties = {"bucket4j.filter-config-caching-enabled=true", "bucket4j.filter-config-cache-name=filterConfigCache"})
+@TestPropertySource(properties = {
+		"bucket4j.filter-config-caching-enabled=true",
+		"bucket4j.filter-config-cache-name=filterConfigCache"
+})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GatewaySampleApplicationTest {
 
@@ -66,9 +69,7 @@ class GatewaySampleApplicationTest {
 		IntStream.rangeClosed(1, 5)
 			.boxed()
 			.sorted(Collections.reverseOrder())
-			.forEach(counter -> {
-				successfulWebRequest(url, counter - 1);
-			});
+			.forEach(counter -> successfulWebRequest(url, counter - 1));
 		
 			blockedWebRequestDueToRateLimit(url);
 		}

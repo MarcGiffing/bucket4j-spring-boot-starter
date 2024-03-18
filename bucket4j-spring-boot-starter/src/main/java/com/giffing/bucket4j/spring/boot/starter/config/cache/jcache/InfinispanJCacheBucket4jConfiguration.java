@@ -5,6 +5,8 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.infinispan.manager.CacheContainer;
@@ -24,7 +26,7 @@ import javax.cache.Caching;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass({CacheContainer.class, Caching.class, JCacheCacheManager.class})
 @ConditionalOnBean(CacheContainer.class)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "jcache-ignite", matchIfMissing = true)
+@ConditionalOnCache("jcache-ignite")
 public class InfinispanJCacheBucket4jConfiguration {
 
 	private final CacheContainer cacheContainer;
@@ -43,13 +45,13 @@ public class InfinispanJCacheBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		return new InfinispanCacheManager<>(cacheContainer.getCache(configCacheName));
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public InfinispanCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
 		return new InfinispanCacheListener<>(cacheContainer.getCache(configCacheName), eventPublisher);
 	}
