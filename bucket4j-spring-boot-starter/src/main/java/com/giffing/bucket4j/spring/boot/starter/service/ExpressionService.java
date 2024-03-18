@@ -25,7 +25,7 @@ public class ExpressionService {
         var context = getContext(params.getParams());
         var expr = expressionParser.parseExpression(expression);
         String result = expr.getValue(context, params.getRootObject(), String.class);
-        log.info("parse-string-expression;result:{};expression:{};root:{};params:{}", result, expression, params.getRootObject(), params.getParams());
+        log.debug("parse-string-expression;result:{};expression:{};root:{};params:{}", result, expression, params.getRootObject(), params.getParams());
         return result;
     }
 
@@ -33,7 +33,7 @@ public class ExpressionService {
         var context = getContext(params.getParams());
         var expr = expressionParser.parseExpression(expression);
         boolean result = Boolean.TRUE.equals(expr.getValue(context, params.getRootObject(), Boolean.class));
-        log.info("parse-boolean-expression;result:{};expression:{};root:{};params:{}", result, expression, params.getRootObject(), params.getParams());
+        log.debug("parse-boolean-expression;result:{};expression:{};root:{};params:{}", result, expression, params.getRootObject(), params.getParams());
         return result;
     }
 
