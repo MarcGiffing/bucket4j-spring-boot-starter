@@ -17,7 +17,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <testcontainers-redis-junit.version>1.6.4</testcontainers-redis-junit.version>
-        <lettuce-core.version>6.3.1.RELEASE</lettuce-core.version>
+        <lettuce-core.version>6.3.2.RELEASE</lettuce-core.version>
     </properties>
 
     <dependencies>
