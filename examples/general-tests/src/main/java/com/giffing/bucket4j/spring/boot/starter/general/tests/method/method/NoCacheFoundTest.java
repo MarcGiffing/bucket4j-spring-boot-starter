@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.method.method;
 
+import com.giffing.bucket4j.spring.boot.starter.exception.NoCacheConfiguredException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanCreationException;
@@ -8,14 +9,13 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext
 public class NoCacheFoundTest {
 
     @Test
-    public void test() {
+    public void assert_startup_failure_when_cache_not_configured() {
         SpringApplication springApplication = new SpringApplication(MethodTestApplication.class);
         Properties properties = new Properties();
         properties.put("bucket4j.cache-to-use", "does_not_exist");
@@ -30,7 +30,7 @@ public class NoCacheFoundTest {
         var beanCreationException = Assertions.assertThrows(BeanCreationException.class, springApplication::run);
         assertNotNull(beanCreationException);
         Throwable rootCause = beanCreationException.getRootCause();
-        assertNotNull(rootCause);
-        assertEquals("cache not configured properly", rootCause.getMessage());
+        assertInstanceOf(NoCacheConfiguredException.class, rootCause);
+        assertEquals("does_not_exist", ((NoCacheConfiguredException) rootCause).getCacheToUse());
     }
 }
