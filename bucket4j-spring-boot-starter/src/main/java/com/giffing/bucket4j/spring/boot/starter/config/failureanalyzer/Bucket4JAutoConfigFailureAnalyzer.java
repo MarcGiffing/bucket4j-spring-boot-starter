@@ -49,6 +49,17 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
             """.formatted(e.getExpression(), String.join(", ", e.getMethodParameter()), e.getClassName(), e.getMethodName());
         }
 
+        if (cause instanceof RateLimitingMethodNameNotConfiguredException e) {
+            descriptionMessage = "Your name in @RateLimiting(name =\"your name\") is not configured in your properties";
+            actionMessage = """
+                your name: %s
+                available method configs: %s
+                class name: %s
+                method name: %s
+            """.formatted(e.getName(), String.join(",", e.getAvailableNames()), e.getClassName(), e.getMethodName());
+        }
+
+
         return new FailureAnalysis(descriptionMessage, actionMessage, cause);
     }
 

@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.method.method;
 
-import com.giffing.bucket4j.spring.boot.starter.general.tests.method.failures.InvalidParameterInExpressionTest;
+import com.giffing.bucket4j.spring.boot.starter.general.tests.method.failures.RateLimitConfigurationStartupFailuresTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
@@ -8,7 +8,7 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({
         MethodRateLimitTest.class,
         NoCacheFoundTest.class,
-        InvalidParameterInExpressionTest.class
+        RateLimitConfigurationStartupFailuresTest.class
 })
 public class MethodTestSuite {
 }

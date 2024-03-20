@@ -6,11 +6,14 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBucket4jEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.IgnoreRateLimiting;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.MethodProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.exception.RateLimitUnknownParameterException;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.exception.NoCacheConfiguredException;
+import com.giffing.bucket4j.spring.boot.starter.exception.RateLimitingMethodNameNotConfiguredException;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -73,20 +76,52 @@ public class Bucket4jStartupCheckConfiguration {
 
 
 
+
         var rateLimitingAnnotatedClasses = getRateLimitingAnnotatedClasses();
         for (var rateLimitClass : rateLimitingAnnotatedClasses) {
             for (var method : rateLimitClass.getMethods()) {
                 var rateLimitingAnnotation = getAnnotationFromMethodOrClass(method, RateLimiting.class);
                 if (rateLimitingAnnotation != null) {
-                    // TODO check configuration name exists in properties
-                    // TODO use expressions from property if not set in annotation
-                    assertValidExpression(rateLimitClass, method, rateLimitingAnnotation.executeCondition());
-                    assertValidExpression(rateLimitClass, method, rateLimitingAnnotation.skipCondition());
-                    assertValidExpression(rateLimitClass, method, rateLimitingAnnotation.cacheKey());
+
+                    assertMethodNameExistsInProperties(rateLimitClass, method, rateLimitingAnnotation);
+
+                    MethodProperties methodProperties = getPropertyFromConfigName(rateLimitingAnnotation.name());
+                    RateLimit rateLimit = methodProperties.getRateLimit();
+
+                    String executeConditionExpression = StringUtils.hasText(rateLimitingAnnotation.executeCondition())
+                            ? rateLimitingAnnotation.executeCondition() : rateLimit.getExecuteCondition();
+                    assertValidExpression(rateLimitClass, method, executeConditionExpression);
+
+                    String skipConditionExpression = StringUtils.hasText(rateLimitingAnnotation.skipCondition())
+                            ? rateLimitingAnnotation.skipCondition() : rateLimit.getSkipCondition();
+                    assertValidExpression(rateLimitClass, method, skipConditionExpression);
+
+                    String cacheKeyExpression = StringUtils.hasText(rateLimitingAnnotation.cacheKey())
+                            ? rateLimitingAnnotation.cacheKey() : rateLimit.getCacheKey();
+                    assertValidExpression(rateLimitClass, method, cacheKeyExpression);
+
+
                     // TODO check fallback method
+
+
                 }
 
             }
+        }
+    }
+
+    private MethodProperties getPropertyFromConfigName(String configName) {
+        return properties.getMethods()
+                .stream()
+                .filter(mc -> mc.getName().equals(configName))
+                .findFirst()
+                .orElseThrow( () -> new IllegalStateException("Could not find config with name " + configName));
+    }
+
+    private void assertMethodNameExistsInProperties(Class<?> rateLimitClass, Method method, RateLimiting rateLimitingAnnotation) {
+        var methodConfigNames = properties.getMethods().stream().map(MethodProperties::getName).collect(Collectors.toSet());
+        if(!methodConfigNames.contains(rateLimitingAnnotation.name())) {
+            throw new RateLimitingMethodNameNotConfiguredException(rateLimitingAnnotation.name(), methodConfigNames, rateLimitClass.getName(), method.getName());
         }
     }
 
@@ -104,6 +139,9 @@ public class Bucket4jStartupCheckConfiguration {
     @NotNull
     private static Set<String> getParametersFromSpelNode(SpelNode spelNode) {
         Set<String> params = new HashSet<>();
+        if(spelNode instanceof VariableReference r) {
+            params.add(r.toStringAST().substring(1));
+        }
         for(int childIndex = 0; childIndex < spelNode.getChildCount(); childIndex++) {
             SpelNode child = spelNode.getChild(childIndex);
             if(child instanceof VariableReference r) {
