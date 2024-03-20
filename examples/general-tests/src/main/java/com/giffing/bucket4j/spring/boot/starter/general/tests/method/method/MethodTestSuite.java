@@ -5,7 +5,8 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
-    MethodRateLimitTest.class
+        MethodRateLimitTest.class,
+        NoCacheFoundTest.class
 })
 public class MethodTestSuite {
 }

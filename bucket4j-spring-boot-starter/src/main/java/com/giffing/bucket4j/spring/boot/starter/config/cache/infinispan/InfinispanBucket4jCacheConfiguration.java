@@ -2,6 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.infinispan.manager.CacheContainer;
@@ -15,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass({CacheContainer.class})
 @ConditionalOnBean(CacheContainer.class)
 @ConditionalOnMissingBean(AsyncCacheResolver.class)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "infinispan", matchIfMissing = true)
+@ConditionalOnCache("infinispan")
 public class InfinispanBucket4jCacheConfiguration {
 
 	private final CacheContainer cacheContainer;
@@ -33,13 +35,13 @@ public class InfinispanBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		return new InfinispanCacheManager<>(cacheContainer.getCache(configCacheName));
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public InfinispanCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
 		return new InfinispanCacheListener<>(cacheContainer.getCache(configCacheName), eventPublisher);
 	}

@@ -2,6 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
@@ -15,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass(LettuceBasedProxyManager.class)
 @ConditionalOnBean(RedisClient.class)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "redis-lettuce", matchIfMissing = true)
+@ConditionalOnCache("redis-lettuce")
 public class LettuceBucket4jConfiguration {
 
 	private final RedisClient redisClient;
@@ -33,13 +35,13 @@ public class LettuceBucket4jConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		return new LettuceCacheManager<>(redisClient, configCacheName, Bucket4JConfiguration.class);
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public LettuceCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
 		return new LettuceCacheListener<>(redisClient, configCacheName, String.class, Bucket4JConfiguration.class, eventPublisher);
 	}

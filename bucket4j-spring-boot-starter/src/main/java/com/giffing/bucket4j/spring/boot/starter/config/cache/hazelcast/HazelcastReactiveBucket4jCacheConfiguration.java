@@ -3,6 +3,8 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.hazelcast.core.HazelcastInstance;
@@ -21,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass({HazelcastInstance.class})
 @ConditionalOnBean(HazelcastInstance.class)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "hazelcast-reactive", matchIfMissing = true)
+@ConditionalOnCache("hazelcast-reactive")
 public class HazelcastReactiveBucket4jCacheConfiguration {
 
 	private final HazelcastInstance hazelcastInstance;
@@ -41,14 +43,14 @@ public class HazelcastReactiveBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
 		return new HazelcastCacheManager<>(map);
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public HazelcastCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
 		IMap<String, Bucket4JConfiguration> map = hazelcastInstance.getMap(configCacheName);
 		return new HazelcastCacheListener<>(map, eventPublisher);

@@ -2,6 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.apache.ignite.Ignite;
@@ -14,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnClass({ Ignite.class })
 @ConditionalOnBean(Ignite.class)
-@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "cache-to-use", havingValue = "ignite", matchIfMissing = true)
+@ConditionalOnCache("ignite")
 public class IgniteBucket4jCacheConfiguration {
 	
 	private final Ignite ignite;
@@ -33,13 +35,13 @@ public class IgniteBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(CacheManager.class)
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public CacheManager<String, Bucket4JConfiguration> configCacheManager() {
 		return new IgniteCacheManager<>(ignite.cache(configCacheName));
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = Bucket4JBootProperties.PROPERTY_PREFIX, name = "filter-config-caching-enabled", havingValue = "true")
+	@ConditionalOnFilterConfigCacheEnabled
 	public IgniteCacheListener<String, Bucket4JConfiguration> configCacheListener(ApplicationEventPublisher eventPublisher) {
 		return new IgniteCacheListener<>(ignite.cache(configCacheName), eventPublisher);
 	}
