@@ -1,9 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.failureanalyzer;
 
-import com.giffing.bucket4j.spring.boot.starter.exception.Bucket4jGeneralException;
-import com.giffing.bucket4j.spring.boot.starter.exception.ExecutePredicateInstantiationException;
-import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
-import com.giffing.bucket4j.spring.boot.starter.exception.NoCacheConfiguredException;
+import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
 
@@ -40,6 +37,16 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
                 Use the debug=true property to determine which Bucket4j cache configuration has problems.
                 Provide your own SyncCacheResolver or AsyncCacheResolver.
             """;
+        }
+
+        if (cause instanceof RateLimitUnknownParameterException e) {
+            descriptionMessage = "Your expression contains parameters which does not exists in your method";
+            actionMessage = """
+                your expression: %s
+                available method parameter: %s
+                class name: %s
+                method name: %s
+            """.formatted(e.getExpression(), String.join(", ", e.getMethodParameter()), e.getClassName(), e.getMethodName());
         }
 
         return new FailureAnalysis(descriptionMessage, actionMessage, cause);
