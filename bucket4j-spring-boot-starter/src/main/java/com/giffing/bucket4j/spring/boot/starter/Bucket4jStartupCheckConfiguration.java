@@ -72,11 +72,13 @@ public class Bucket4jStartupCheckConfiguration {
         parser = new SpelExpressionParser(config);
 
 
+
         var rateLimitingAnnotatedClasses = getRateLimitingAnnotatedClasses();
         for (var rateLimitClass : rateLimitingAnnotatedClasses) {
             for (var method : rateLimitClass.getMethods()) {
                 var rateLimitingAnnotation = getAnnotationFromMethodOrClass(method, RateLimiting.class);
                 if (rateLimitingAnnotation != null) {
+                    // TODO check configuration name exists in properties
                     // TODO use expressions from property if not set in annotation
                     assertValidExpression(rateLimitClass, method, rateLimitingAnnotation.executeCondition());
                     assertValidExpression(rateLimitClass, method, rateLimitingAnnotation.skipCondition());
