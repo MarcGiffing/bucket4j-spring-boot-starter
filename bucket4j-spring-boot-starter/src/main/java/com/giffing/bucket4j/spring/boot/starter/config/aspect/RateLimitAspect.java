@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.MethodPropert
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Metrics;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.utils.RateLimitAopUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,13 +76,13 @@ public class RateLimitAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
-        var ignoreRateLimitAnnotation = getAnnotationFromMethodOrClass(method, IgnoreRateLimiting.class);
+        var ignoreRateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, IgnoreRateLimiting.class);
         // if the class or method is annotated with IgnoreRateLimiting we will skip rate limiting
         if(ignoreRateLimitAnnotation != null){
             return joinPoint.proceed();
         }
 
-        var rateLimitAnnotation = getAnnotationFromMethodOrClass(method, RateLimiting.class);
+        var rateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, RateLimiting.class);
 
         Method fallbackMethod = null;
         if(rateLimitAnnotation.fallbackMethodName() != null) {
@@ -123,15 +123,7 @@ public class RateLimitAspect {
         return methodResult;
     }
 
-    private <R extends Annotation>  R getAnnotationFromMethodOrClass(Method method, Class<R> rateLimitingAnnotation) {
-        R rateLimitAnnotation;
-        if(method.getAnnotation(rateLimitingAnnotation) != null) {
-            rateLimitAnnotation = method.getAnnotation(rateLimitingAnnotation);
-        } else {
-            rateLimitAnnotation = method.getDeclaringClass().getAnnotation(rateLimitingAnnotation);
-        }
-        return rateLimitAnnotation;
-    }
+
 
     private static void performPostRateLimit(RateLimitService.RateLimitConfigresult<Method, Object> rateLimitConfigResult, Method method, Object methodResult) {
         for (var rlc : rateLimitConfigResult.getPostRateLimitChecks()) {
