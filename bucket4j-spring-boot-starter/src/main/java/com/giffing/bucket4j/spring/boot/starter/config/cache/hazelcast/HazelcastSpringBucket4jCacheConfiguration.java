@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnSynchronousPropertyCondition;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import com.hazelcast.core.HazelcastInstance;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
  * to access the {@link HazelcastInstance} to retrieve the cache.
  */
 @Configuration
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnSynchronousPropertyCondition
 @ConditionalOnClass({HazelcastCacheManager.class})
 @ConditionalOnBean(HazelcastCacheManager.class)
 @ConditionalOnCache("hazelcast-spring")

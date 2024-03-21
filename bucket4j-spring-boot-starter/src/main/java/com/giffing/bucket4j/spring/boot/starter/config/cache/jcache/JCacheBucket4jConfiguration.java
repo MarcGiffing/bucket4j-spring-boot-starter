@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnSynchronousPropertyCondition;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.springframework.boot.autoconfigure.condition.*;
@@ -15,7 +16,7 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 
 @Configuration
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnSynchronousPropertyCondition
 @ConditionalOnClass({Caching.class, JCacheCacheManager.class})
 @ConditionalOnBean(CacheManager.class)
 @ConditionalOnCache("jcache")
