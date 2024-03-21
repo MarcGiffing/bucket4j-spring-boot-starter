@@ -40,25 +40,73 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
         }
 
         if (cause instanceof RateLimitUnknownParameterException e) {
-            descriptionMessage = "Your expression contains parameters which does not exists in your method";
-            actionMessage = """
-                your expression: %s
-                available method parameter: %s
-                class name: %s
-                method name: %s
+            descriptionMessage = """
+                Your Spring Expression contains parameters which does not exists in your method;
+                    your expression: %s
+                    available method parameter: %s
+                    class name: %s
+                    method name: %s
             """.formatted(e.getExpression(), String.join(", ", e.getMethodParameter()), e.getClassName(), e.getMethodName());
+            actionMessage = """
+                Please update your expression and use one of the available method parameters.
+                """;
         }
 
         if (cause instanceof RateLimitingMethodNameNotConfiguredException e) {
-            descriptionMessage = "Your name in @RateLimiting(name =\"your name\") is not configured in your properties";
-            actionMessage = """
-                your name: %s
-                available method configs: %s
-                class name: %s
-                method name: %s
-            """.formatted(e.getName(), String.join(",", e.getAvailableNames()), e.getClassName(), e.getMethodName());
+            descriptionMessage = """
+                Your name in @RateLimiting(name ="%s") is not configured in your properties
+                    your name: %s
+                    available method configs: %s
+                    class name: %s
+                    method name: %s
+                """.formatted(e.getName(), e.getName(), String.join(",", e.getAvailableNames()), e.getClassName(), e.getMethodName());
+            actionMessage = "Please check four property configuration bucket4j.methods[x].name for the reference in your annotation";
+
         }
 
+        if (cause instanceof RateLimitingFallbackMethodNotFoundException e) {
+            descriptionMessage = """
+            Your fallback method name in @RateLimiting(fallbackMethodName="%s") was not found
+                your fallback method name: %s
+                class name: %s
+                method name: %s
+            """.formatted(e.getFallbakcMethodName(), e.getFallbakcMethodName(),e.getClassName(), e.getMethodName());
+            actionMessage = "Ensure that the fallback method exists in the same class";
+        }
+
+        if (cause instanceof RateLimitingMultipleFallbackMethodsFoundException e) {
+            descriptionMessage = """
+                Multiple fallback method names found. The fallback method name should be unique.
+                    your fallback method name: %s
+                    class name: %s
+                    method name: %s
+                """.formatted(e.getFallbakcMethodName(),e.getClassName(), e.getMethodName());
+            actionMessage = "Please provide only one fallback method under the given name.";
+        }
+
+        if (cause instanceof RateLimitingFallbackReturnTypesMismatchException e) {
+            descriptionMessage = """
+            The return type of the fallback method does not match the rate limit method
+                your fallback method name: %s
+                class name: %s
+                method name: %s
+                return type: %s
+                fallback method return type: %s
+            """.formatted(e.getFallbackMethodName(),e.getClassName(), e.getMethodName(), e.getReturnType(), e.getFallbackMethodReturnType());
+            actionMessage = "Please update the return type of the fallback method.";
+        }
+
+        if (cause instanceof RateLimitingFallbackMethodParameterMismatchException e) {
+            descriptionMessage = """
+            The parameters of the fallback method does not match the rate limit method parameters
+                your fallback method name: %s
+                class name: %s
+                method name: %s
+                parameters: %s
+                fallback method parameters: %s
+            """.formatted(e.getFallbackMethodName(),e.getClassName(), e.getMethodName(), e.getParameters(), e.getFallbackMethodParameters());
+            actionMessage = "Please use the same parameter signature for your fallback method like in the rate limit method.";
+        }
 
         return new FailureAnalysis(descriptionMessage, actionMessage, cause);
     }

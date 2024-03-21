@@ -8,12 +8,10 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.IgnoreRateLimiting;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.MethodProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.RateLimitUnknownParameterException;
+import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.exception.NoCacheConfiguredException;
-import com.giffing.bucket4j.spring.boot.starter.exception.RateLimitingMethodNameNotConfiguredException;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -75,8 +73,6 @@ public class Bucket4jStartupCheckConfiguration {
         parser = new SpelExpressionParser(config);
 
 
-
-
         var rateLimitingAnnotatedClasses = getRateLimitingAnnotatedClasses();
         for (var rateLimitClass : rateLimitingAnnotatedClasses) {
             for (var method : rateLimitClass.getMethods()) {
@@ -100,14 +96,50 @@ public class Bucket4jStartupCheckConfiguration {
                             ? rateLimitingAnnotation.cacheKey() : rateLimit.getCacheKey();
                     assertValidExpression(rateLimitClass, method, cacheKeyExpression);
 
-
-                    // TODO check fallback method
-
-
+                    assertValidFallbackMethod(rateLimitClass, method, rateLimitingAnnotation);
                 }
-
             }
         }
+    }
+
+    private static void assertValidFallbackMethod(Class<?> rateLimitClass, Method method, RateLimiting rateLimitingAnnotation) {
+        var fallbackMethodName = rateLimitingAnnotation.fallbackMethodName();
+        if (StringUtils.hasText(fallbackMethodName)) {
+            var fallbackMethods = Arrays.stream(method.getDeclaringClass().getMethods())
+                    .filter(p -> p.getName().equals(fallbackMethodName))
+                    .toList();
+            if (fallbackMethods.isEmpty()) {
+                throw new RateLimitingFallbackMethodNotFoundException(fallbackMethodName, rateLimitClass.getName(), method.getName());
+            }
+            if (fallbackMethods.size() > 1) {
+                throw new RateLimitingMultipleFallbackMethodsFoundException(fallbackMethodName, rateLimitClass.getName(), method.getName());
+            }
+
+            var fallbackMethod = fallbackMethods.get(0);
+
+            if (!method.getReturnType().equals(fallbackMethod.getReturnType())) {
+                throw new RateLimitingFallbackReturnTypesMismatchException(
+                        fallbackMethodName,
+                        rateLimitClass.getName(),
+                        method.getName(),
+                        method.getReturnType().toGenericString(),
+                        fallbackMethod.getReturnType().toGenericString());
+            }
+
+
+            if (!Arrays.equals(method.getParameterTypes(), fallbackMethod.getParameterTypes())) {
+                throw new RateLimitingFallbackMethodParameterMismatchException(fallbackMethodName, rateLimitClass.getName(), method.getName(),
+                        getParametersAsString(method), getParametersAsString(fallbackMethod));
+            }
+
+        }
+    }
+
+    @NotNull
+    private static String getParametersAsString(Method method) {
+        return Arrays.stream(method.getParameters())
+                .map(p -> p.getName() + ":" + p.getType())
+                .collect(Collectors.joining(";"));
     }
 
     private MethodProperties getPropertyFromConfigName(String configName) {
@@ -115,22 +147,22 @@ public class Bucket4jStartupCheckConfiguration {
                 .stream()
                 .filter(mc -> mc.getName().equals(configName))
                 .findFirst()
-                .orElseThrow( () -> new IllegalStateException("Could not find config with name " + configName));
+                .orElseThrow(() -> new IllegalStateException("Could not find config with name " + configName));
     }
 
     private void assertMethodNameExistsInProperties(Class<?> rateLimitClass, Method method, RateLimiting rateLimitingAnnotation) {
         var methodConfigNames = properties.getMethods().stream().map(MethodProperties::getName).collect(Collectors.toSet());
-        if(!methodConfigNames.contains(rateLimitingAnnotation.name())) {
+        if (!methodConfigNames.contains(rateLimitingAnnotation.name())) {
             throw new RateLimitingMethodNameNotConfiguredException(rateLimitingAnnotation.name(), methodConfigNames, rateLimitClass.getName(), method.getName());
         }
     }
 
     private void assertValidExpression(Class<?> rateLimitClass, Method method, String expression) {
-        if(StringUtils.hasText(expression)) {
+        if (StringUtils.hasText(expression)) {
             var executeConditionExpression = (SpelExpression) parser.parseExpression(expression);
             Set<String> parameterInExpression = getParametersFromSpelNode(executeConditionExpression.getAST());
             Set<String> parameterFromMethod = Arrays.stream(method.getParameters()).map(Parameter::getName).collect(Collectors.toSet());
-            if(!parameterFromMethod.containsAll(parameterInExpression)) {
+            if (!parameterFromMethod.containsAll(parameterInExpression)) {
                 throw new RateLimitUnknownParameterException(expression, rateLimitClass.getName(), method.getName(), parameterFromMethod);
             }
         }
@@ -139,12 +171,12 @@ public class Bucket4jStartupCheckConfiguration {
     @NotNull
     private static Set<String> getParametersFromSpelNode(SpelNode spelNode) {
         Set<String> params = new HashSet<>();
-        if(spelNode instanceof VariableReference r) {
+        if (spelNode instanceof VariableReference r) {
             params.add(r.toStringAST().substring(1));
         }
-        for(int childIndex = 0; childIndex < spelNode.getChildCount(); childIndex++) {
+        for (int childIndex = 0; childIndex < spelNode.getChildCount(); childIndex++) {
             SpelNode child = spelNode.getChild(childIndex);
-            if(child instanceof VariableReference r) {
+            if (child instanceof VariableReference r) {
                 params.add(r.toStringAST().substring(1));
             }
             params.addAll(getParametersFromSpelNode(child));

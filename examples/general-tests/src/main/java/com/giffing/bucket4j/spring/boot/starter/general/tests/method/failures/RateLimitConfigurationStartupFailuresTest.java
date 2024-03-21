@@ -1,8 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.method.failures;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
-import com.giffing.bucket4j.spring.boot.starter.exception.RateLimitUnknownParameterException;
-import com.giffing.bucket4j.spring.boot.starter.exception.RateLimitingMethodNameNotConfiguredException;
+import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -36,6 +36,7 @@ public class RateLimitConfigurationStartupFailuresTest {
 
     @ParameterizedTest
     @MethodSource("invalidParameter")
+    @DirtiesContext
     public void assert_startup_failure_when_execute_expression_has_invalid_method_parameter(
             String profile, String expression, String className, String methodName, String parameters
     ) {
@@ -53,6 +54,7 @@ public class RateLimitConfigurationStartupFailuresTest {
     }
 
     @Test
+    @DirtiesContext
     public void assert_startup_failure_when_execute_expression_has_invalid_method_parameter() {
         SpringApplication springApplication = new SpringApplication(MyInternalApplication.class);
         springApplication.setAdditionalProfiles("invalidMethodName");
@@ -63,9 +65,68 @@ public class RateLimitConfigurationStartupFailuresTest {
         assertEquals("invalid_name", methodNameNotConfiguredException.getName());
         assertEquals(InvalidMethodNameExpression.class.getName(), methodNameNotConfiguredException.getClassName());
         assertEquals("testInvalidMethodName", methodNameNotConfiguredException.getMethodName());
-        assertEquals("default", String.join(",", methodNameNotConfiguredException.getAvailableNames()));
-
     }
+
+    @Test
+    @DirtiesContext
+    public void assert_startup_failure_when_fallback_method_not_exists() {
+        SpringApplication springApplication = new SpringApplication(MyInternalApplication.class);
+        springApplication.setAdditionalProfiles("invalidFallbackMethod");
+        Properties properties = getValidBucket4jProperties();
+        springApplication.setDefaultProperties(properties);
+
+        var exception = Assertions.assertThrows(RateLimitingFallbackMethodNotFoundException.class, springApplication::run);
+        assertEquals("doesNotExist", exception.getFallbakcMethodName());
+        assertEquals(InvalidFallbackMethodName.class.getName(), exception.getClassName());
+        assertEquals("testFallbackMethodNotExists", exception.getMethodName());
+    }
+
+    @Test
+    @DirtiesContext
+    public void assert_startup_failure_when_multiple_fallback_method_exists() {
+        SpringApplication springApplication = new SpringApplication(MyInternalApplication.class);
+        springApplication.setAdditionalProfiles("multipleFallbackMethods");
+        Properties properties = getValidBucket4jProperties();
+        springApplication.setDefaultProperties(properties);
+
+        var exception = Assertions.assertThrows(RateLimitingMultipleFallbackMethodsFoundException.class, springApplication::run);
+        assertEquals("myFallbackMethod", exception.getFallbakcMethodName());
+        assertEquals(MultipleFallbackMethods.class.getName(), exception.getClassName());
+        assertEquals("testMultipleFallbackMethods", exception.getMethodName());
+    }
+
+    @Test
+    @DirtiesContext
+    public void assert_startup_failure_when_return_type_from_fallback_method_differs() {
+        SpringApplication springApplication = new SpringApplication(MyInternalApplication.class);
+        springApplication.setAdditionalProfiles("invalidFallbackMethodReturnType");
+        Properties properties = getValidBucket4jProperties();
+        springApplication.setDefaultProperties(properties);
+
+        var exception = Assertions.assertThrows(RateLimitingFallbackReturnTypesMismatchException.class, springApplication::run);
+        assertEquals("fallback", exception.getFallbackMethodName());
+        assertEquals(InvalidFallbackMethodReturnType.class.getName(), exception.getClassName());
+        assertEquals("testFallbackMethodReturnTypeDiffers", exception.getMethodName());
+        assertEquals("public final class java.lang.String", exception.getReturnType());
+        assertEquals("public final class java.lang.Integer", exception.getFallbackMethodReturnType());
+    }
+
+    @Test
+    @DirtiesContext
+    public void assert_startup_failure_when_parameters_from_fallback_method_differs() {
+        SpringApplication springApplication = new SpringApplication(MyInternalApplication.class);
+        springApplication.setAdditionalProfiles("InvalidFallbackMethodParameter");
+        Properties properties = getValidBucket4jProperties();
+        springApplication.setDefaultProperties(properties);
+
+        var exception = Assertions.assertThrows(RateLimitingFallbackMethodParameterMismatchException.class, springApplication::run);
+        assertEquals("fallback", exception.getFallbackMethodName());
+        assertEquals(InvalidFallbackMethodParameter.class.getName(), exception.getClassName());
+        assertEquals("testFallbackMethodReturnTypeDiffers", exception.getMethodName());
+        assertEquals("firstParam:class java.lang.String;secondParam:class java.lang.Integer", exception.getParameters());
+        assertEquals("firstParam:class java.lang.String;secondParam:class java.lang.String", exception.getFallbackMethodParameters());
+    }
+
 
     private static Properties getValidBucket4jProperties() {
         Properties properties = new Properties();
@@ -107,6 +168,32 @@ public class RateLimitConfigurationStartupFailuresTest {
             return new InvalidMethodNameExpression();
         }
 
+        @Bean
+        @Profile("invalidFallbackMethod")
+        public InvalidFallbackMethodName invalidFallbackMethodName() {
+            return new InvalidFallbackMethodName();
+        }
+
+        @Bean
+        @Profile("invalidFallbackMethodReturnType")
+        public InvalidFallbackMethodReturnType invalidFallbackMethodReturnType() {
+            return new InvalidFallbackMethodReturnType();
+        }
+
+        @Bean
+        @Profile("multipleFallbackMethods")
+        public MultipleFallbackMethods multipleFallbackMethods() {
+            return new MultipleFallbackMethods();
+        }
+
+        @Bean
+        @Profile("InvalidFallbackMethodParameter")
+        public InvalidFallbackMethodParameter invalidFallbackMethodParameter() {
+            return new InvalidFallbackMethodParameter();
+        }
+
+
+
         public static void main(String[] args) {
             SpringApplication.run(com.giffing.bucket4j.spring.boot.starter.general.tests.method.method.MethodTestApplication.class, args);
         }
@@ -117,7 +204,7 @@ public class RateLimitConfigurationStartupFailuresTest {
     @NoArgsConstructor
     private static class InvalidExecuteExpression {
 
-        @RateLimiting(name = "default", executeCondition = "'fg' eq 'aaa'")
+        @RateLimiting(name = "default", executeCondition = "#notExistingParam eq 'aaa'")
         public void testInvalidExecuteExpression(String existingParam) {
 
         }
@@ -147,6 +234,57 @@ public class RateLimitConfigurationStartupFailuresTest {
         @RateLimiting(name = "invalid_name", cacheKey = "#cacheKeyX")
         public void testInvalidMethodName(String cacheKey) {
 
+        }
+    }
+
+    @NoArgsConstructor
+    private static class InvalidFallbackMethodName {
+
+        @RateLimiting(name = "default", fallbackMethodName = "doesNotExist")
+        public void testFallbackMethodNotExists(String cacheKey) {
+
+        }
+    }
+
+    @NoArgsConstructor
+    private static class MultipleFallbackMethods {
+
+        @RateLimiting(name = "default", fallbackMethodName = "myFallbackMethod")
+        public void testMultipleFallbackMethods(String cacheKey) {
+        }
+
+        public void myFallbackMethod(String cacheKey){
+
+        }
+
+        public void myFallbackMethod(String cacheKey, String otherParameter){
+
+        }
+    }
+
+    @NoArgsConstructor
+    private static class InvalidFallbackMethodReturnType {
+
+        @RateLimiting(name = "default", fallbackMethodName = "fallback")
+        public String testFallbackMethodReturnTypeDiffers(String cacheKey) {
+            return "A String";
+        }
+
+        public Integer fallback(String cacheKey) {
+            return 1;
+        }
+    }
+
+    @NoArgsConstructor
+    private static class InvalidFallbackMethodParameter {
+
+        @RateLimiting(name = "default", fallbackMethodName = "fallback")
+        public String testFallbackMethodReturnTypeDiffers(String firstParam, Integer secondParam) {
+            return "A String";
+        }
+
+        public String fallback(String firstParam, String secondParam) {
+            return "A String %s %s".formatted(firstParam, secondParam);
         }
     }
 
