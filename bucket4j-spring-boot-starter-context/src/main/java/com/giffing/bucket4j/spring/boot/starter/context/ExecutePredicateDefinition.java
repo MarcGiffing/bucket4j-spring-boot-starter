@@ -39,7 +39,7 @@ public class ExecutePredicateDefinition implements Serializable {
 					"Unable to parse ExecutePredicateDefinition text '" + name + "'" + ", must be of the form name=value");
 		}
 		this.name = name.substring(0, eqIdx);
-		var result = name.substring(eqIdx + 1, name.length());
+		var result = name.substring(eqIdx + 1);
 		this.args.put(SIMPLE_CONFIG_KEY, result);
 		log.debug("execute-predicate-simple-config;name:{};value:{}", this.name, result);
 	}

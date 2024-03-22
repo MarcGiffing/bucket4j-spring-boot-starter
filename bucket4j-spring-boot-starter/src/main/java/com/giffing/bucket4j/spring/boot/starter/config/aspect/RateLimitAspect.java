@@ -23,6 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Creates an Aspect around methods annotated with @{@link RateLimiting}. It prevents the execution of the method
+ * if rate limit should be executed.
+ */
 @Aspect
 @Component
 @RequiredArgsConstructor

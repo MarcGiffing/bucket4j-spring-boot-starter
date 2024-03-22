@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Configures the rate of data which should be transfered
+ * Configures the rate of data which should be transferred.
  *
  */
 @Data

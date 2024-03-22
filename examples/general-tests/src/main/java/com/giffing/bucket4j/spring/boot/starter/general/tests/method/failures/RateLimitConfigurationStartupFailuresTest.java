@@ -34,6 +34,11 @@ public class RateLimitConfigurationStartupFailuresTest {
         );
     }
 
+    /**
+     * This test ensures that a Spring Expression with a method parameter that does not exist will throw a
+     * {@link RateLimitUnknownParameterException} exception and stops the application to start.
+     * The test is executed for execute, skip and cache-Key expressions.
+     */
     @ParameterizedTest
     @MethodSource("invalidParameter")
     @DirtiesContext
@@ -53,9 +58,13 @@ public class RateLimitConfigurationStartupFailuresTest {
         assertEquals(parameters, String.join(",", unknownParameterException.getMethodParameter()));
     }
 
+    /**
+     * Asserts a {@link RateLimitingMethodNameNotConfiguredException} when the configuration name in the @{@link RateLimiting#name()}
+     * has no property reference 'bucket4j.methods[x].name'.
+     */
     @Test
     @DirtiesContext
-    public void assert_startup_failure_when_execute_expression_has_invalid_method_parameter() {
+    public void assert_startup_failure_when_cache_name_in_annotation_does_not_exist() {
         SpringApplication springApplication = new SpringApplication(MyInternalApplication.class);
         springApplication.setAdditionalProfiles("invalidMethodName");
         Properties properties = getValidBucket4jProperties();
@@ -67,6 +76,10 @@ public class RateLimitConfigurationStartupFailuresTest {
         assertEquals("testInvalidMethodName", methodNameNotConfiguredException.getMethodName());
     }
 
+    /**
+     * Asserts a {@link RateLimitingFallbackMethodNotFoundException} then the fallback method name in
+     * {@link RateLimiting#fallbackMethodName()} does not exists in the same class.
+     */
     @Test
     @DirtiesContext
     public void assert_startup_failure_when_fallback_method_not_exists() {
@@ -81,6 +94,10 @@ public class RateLimitConfigurationStartupFailuresTest {
         assertEquals("testFallbackMethodNotExists", exception.getMethodName());
     }
 
+    /**
+     * Asserts a {@link RateLimitingMultipleFallbackMethodsFoundException} when multiple {@link RateLimiting#fallbackMethodName()}s
+     * found in the same class. Only one is allowed.
+     */
     @Test
     @DirtiesContext
     public void assert_startup_failure_when_multiple_fallback_method_exists() {
@@ -95,6 +112,10 @@ public class RateLimitConfigurationStartupFailuresTest {
         assertEquals("testMultipleFallbackMethods", exception.getMethodName());
     }
 
+    /**
+     * Asserts a {@link RateLimitingFallbackReturnTypesMismatchException} when the return type of the fallback method
+     * does not have the same signature of the rate limit method.
+     */
     @Test
     @DirtiesContext
     public void assert_startup_failure_when_return_type_from_fallback_method_differs() {
@@ -111,6 +132,10 @@ public class RateLimitConfigurationStartupFailuresTest {
         assertEquals("public final class java.lang.Integer", exception.getFallbackMethodReturnType());
     }
 
+    /**
+     * Asserts a {@link RateLimitingFallbackMethodParameterMismatchException} when the parameters of the {@link RateLimiting#fallbackMethodName()}
+     * does not have the same count and signature as the rate limit method.
+     */
     @Test
     @DirtiesContext
     public void assert_startup_failure_when_parameters_from_fallback_method_differs() {
@@ -193,7 +218,6 @@ public class RateLimitConfigurationStartupFailuresTest {
         }
 
 
-
         public static void main(String[] args) {
             SpringApplication.run(com.giffing.bucket4j.spring.boot.starter.general.tests.method.method.MethodTestApplication.class, args);
         }
@@ -253,11 +277,11 @@ public class RateLimitConfigurationStartupFailuresTest {
         public void testMultipleFallbackMethods(String cacheKey) {
         }
 
-        public void myFallbackMethod(String cacheKey){
+        public void myFallbackMethod(String cacheKey) {
 
         }
 
-        public void myFallbackMethod(String cacheKey, String otherParameter){
+        public void myFallbackMethod(String cacheKey, String otherParameter) {
 
         }
     }
