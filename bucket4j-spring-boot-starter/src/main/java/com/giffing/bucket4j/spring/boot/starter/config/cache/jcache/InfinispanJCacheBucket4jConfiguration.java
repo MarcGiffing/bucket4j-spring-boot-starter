@@ -7,6 +7,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.Infinisp
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnSynchronousPropertyCondition;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
 import org.infinispan.manager.CacheContainer;
@@ -23,7 +24,7 @@ import javax.cache.Caching;
  * bucket4j. See {@link InfinispanCacheResolver} for more informations.
  */
 @Configuration
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnSynchronousPropertyCondition
 @ConditionalOnClass({CacheContainer.class, Caching.class, JCacheCacheManager.class})
 @ConditionalOnBean(CacheContainer.class)
 @ConditionalOnCache("jcache-ignite")

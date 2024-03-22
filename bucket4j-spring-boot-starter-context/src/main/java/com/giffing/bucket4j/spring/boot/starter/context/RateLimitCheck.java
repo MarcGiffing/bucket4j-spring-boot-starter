@@ -4,7 +4,7 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 
 /**
- * Used to check if the rate limit should be performed independently from the servlet|webflux|gateway request filter
+ * Used to check if the rate limit should be performed independently of the servlet|webflux|gateway request filter
  */
 @FunctionalInterface
 public interface RateLimitCheck<R> {

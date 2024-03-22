@@ -2,7 +2,6 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 
 /**
  * Functional interface to retrieve the Bucket4j key. The key is used to identify the Bucket4j storage.  
- *
  */
 @FunctionalInterface
 public interface KeyFilter<R> {

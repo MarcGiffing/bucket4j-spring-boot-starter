@@ -2,7 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.context;
 
 
 /**
- * The skip condition is used to skip or execute a rate limit check. 
+ * This condition is used to skip or execute a rate limit check.
  */
 @FunctionalInterface
 public interface Condition<R> {

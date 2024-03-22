@@ -5,6 +5,9 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * Used to test a @{@link RateLimiting} annotation on class level.
+ */
 @Component
 @Slf4j
 @RateLimiting(name = "default")
@@ -14,6 +17,9 @@ public class ClassLevelTestService {
         log.info("Method notAnnotatedMethod");
     }
 
+    /**
+     * Method should be ignored from rate limiting.
+     */
     @IgnoreRateLimiting
     public void ignoreMethod() {
         log.info("Method ignoreMethod");

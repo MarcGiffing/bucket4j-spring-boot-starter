@@ -2,6 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnAsynchronousPropertyCondition;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+@ConditionalOnAsynchronousPropertyCondition
 @ConditionalOnClass({ Ignite.class })
 @ConditionalOnBean(Ignite.class)
 @ConditionalOnCache("ignite")
