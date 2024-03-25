@@ -8,7 +8,8 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({
         MethodRateLimitTest.class,
         NoCacheFoundTest.class,
-        RateLimitConfigurationStartupFailuresTest.class
+        RateLimitConfigurationStartupFailuresTest.class,
+        Bucket4jDisabledTest.class
 })
 public class MethodTestSuite {
 }
