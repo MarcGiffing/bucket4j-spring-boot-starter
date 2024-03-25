@@ -13,7 +13,8 @@ import org.junit.platform.suite.api.Suite;
         ChangeResponseHttpStatusCodeTest.class,
         AddResponseHeaderTest.class,
         SkipConditionTest.class,
-        ExecuteConditionTest.class
+        ExecuteConditionTest.class,
+        Bucket4jDisabledTest.class
 })
 public class ServletTestSuite {
 }
