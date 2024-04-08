@@ -6,16 +6,16 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBucket4jEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.IgnoreRateLimiting;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.MethodProperties;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
-import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.MethodProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
+import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -57,6 +57,8 @@ public class Bucket4jStartupCheckConfiguration {
     private final AsyncCacheResolver asyncCacheResolver;
 
     private final AbstractApplicationContext context;
+
+    private final ConfigurableListableBeanFactory configurableListableBeanFactory;
 
     private SpelExpressionParser parser;
 
@@ -187,8 +189,9 @@ public class Bucket4jStartupCheckConfiguration {
 
     private List<? extends Class<?>> getRateLimitingAnnotatedClasses() {
         return Arrays.stream(context.getBeanDefinitionNames())
-                .map(context::getBean)
-                .map(AopUtils::getTargetClass)
+                .map(configurableListableBeanFactory::getBeanDefinition)
+                .map(bd -> bd.getResolvableType().resolve())
+                .filter(Objects::nonNull)
                 .filter(targetClass -> {
                     boolean excludeClassesAnnotatedWithIgnoreRateLimiting = !targetClass.isAnnotationPresent(IgnoreRateLimiting.class);
                     boolean methodsWhereTheClassIsAnnotatedWithRateLimiting = targetClass.isAnnotationPresent(RateLimiting.class);
