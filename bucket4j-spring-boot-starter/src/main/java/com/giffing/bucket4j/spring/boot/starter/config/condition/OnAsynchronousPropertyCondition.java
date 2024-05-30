@@ -14,17 +14,16 @@ public class OnAsynchronousPropertyCondition extends SpringBootCondition {
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
         var bucket4jProperties = Binder.get(context.getEnvironment()).bind("bucket4j", Bucket4JBootProperties.class).orElse(null);
-        if (bucket4jProperties != null) {
-            var reactiveFilterConfigurationExists = bucket4jProperties.getFilters()
-                    .stream()
-                    .anyMatch(x -> List.of(FilterMethod.WEBFLUX, FilterMethod.GATEWAY).contains(x.getFilterMethod()));
-            if (reactiveFilterConfigurationExists) {
-                return ConditionOutcome.match("@ConditionalOnAsynchronousPropertyCondition Found reactive filter");
-            } else {
-                return ConditionOutcome.noMatch("@ConditionalOnAsynchronousPropertyCondition No filter configuration with FilterMethod.WEBFLUX org FilterMethod.GATEWAY configured");
-            }
-        } else {
+        if (bucket4jProperties == null) {
             return ConditionOutcome.noMatch("@ConditionalOnAsynchronousPropertyCondition Bucket4jBootProperties not configured");
+        }
+        var reactiveFilterConfigurationExists = bucket4jProperties.getFilters()
+                .stream()
+                .anyMatch(x -> List.of(FilterMethod.WEBFLUX, FilterMethod.GATEWAY).contains(x.getFilterMethod()));
+        if (reactiveFilterConfigurationExists) {
+            return ConditionOutcome.match("@ConditionalOnAsynchronousPropertyCondition Found reactive filter");
+        } else {
+            return ConditionOutcome.noMatch("@ConditionalOnAsynchronousPropertyCondition No filter configuration with FilterMethod.WEBFLUX org FilterMethod.GATEWAY configured");
         }
     }
 }
