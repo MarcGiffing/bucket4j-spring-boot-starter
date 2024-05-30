@@ -12,12 +12,16 @@ public class OnSynchronousPropertyCondition extends SpringBootCondition {
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
         var bucket4jProperties = Binder.get(context.getEnvironment()).bind("bucket4j", Bucket4JBootProperties.class).orElse(null);
-        var methodConfigurationExists = !bucket4jProperties.getMethods().isEmpty();
-        var servletConfigurationExist = bucket4jProperties.getFilters().stream().anyMatch(x -> x.getFilterMethod().equals(FilterMethod.SERVLET));
-        if (methodConfigurationExists || servletConfigurationExist) {
-            return ConditionOutcome.match("@ConditionalOnSynchronPropertyCondition Found filter method and/or servlet configuration");
+        if(bucket4jProperties != null) {
+            var methodConfigurationExists = !bucket4jProperties.getMethods().isEmpty();
+            var servletConfigurationExist = bucket4jProperties.getFilters().stream().anyMatch(x -> x.getFilterMethod().equals(FilterMethod.SERVLET));
+            if (methodConfigurationExists || servletConfigurationExist) {
+                return ConditionOutcome.match("@ConditionalOnSynchronPropertyCondition Found filter method and/or servlet configuration");
+            } else {
+                return ConditionOutcome.noMatch("@ConditionalOnSynchronPropertyCondition No method configuration or filter configuration with FilterMethod.SERVLET configured");
+            }
         } else {
-            return ConditionOutcome.noMatch("@ConditionalOnSynchronPropertyCondition No method configuration or filter configuration with FilterMethod.SERVLET configured");
+            return ConditionOutcome.noMatch("@ConditionalOnSynchronPropertyCondition Bucket4jBootProperties not configured");
         }
     }
 }
