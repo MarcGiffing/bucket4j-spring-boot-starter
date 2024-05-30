@@ -72,7 +72,7 @@
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
             <artifactId>general-tests</artifactId>
             <version>${project.version}</version>
-            <scope>tests</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.platform</groupId>
