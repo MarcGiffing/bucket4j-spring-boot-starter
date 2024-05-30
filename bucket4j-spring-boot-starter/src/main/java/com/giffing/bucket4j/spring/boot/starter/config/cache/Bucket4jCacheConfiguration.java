@@ -2,6 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.HazelcastReactiveBucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.HazelcastSpringBucket4jCacheConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.ignite.IgniteBucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanBucket4jCacheConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.InfinispanJCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Import;
         JedisBucket4jConfiguration.class,
         LettuceBucket4jConfiguration.class,
         RedissonBucket4jConfiguration.class,
+        IgniteBucket4jCacheConfiguration.class
 })
 public class Bucket4jCacheConfiguration {
 }

@@ -39,7 +39,7 @@ public class HazelcastSpringBucket4jCacheConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(SyncCacheResolver.class)
-	public AsyncCacheResolver hazelcastCacheResolver() {
+	public SyncCacheResolver hazelcastCacheResolver() {
 		return new HazelcastCacheResolver(hazelcastInstance, false);
 	}
 

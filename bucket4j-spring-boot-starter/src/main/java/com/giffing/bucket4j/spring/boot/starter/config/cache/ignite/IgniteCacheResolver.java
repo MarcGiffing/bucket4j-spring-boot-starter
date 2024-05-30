@@ -21,7 +21,7 @@ public class IgniteCacheResolver extends AbstractCacheResolverTemplate<String> i
 
 	@Override
 	public boolean isAsync() {
-		return false;
+		return true;
 	}
 
 	@Override

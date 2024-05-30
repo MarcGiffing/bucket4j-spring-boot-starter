@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
@@ -14,7 +15,7 @@ import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
  * It uses the {@link HazelcastInstance} to retrieve the needed cache. 
  *
  */
-public class HazelcastCacheResolver extends AbstractCacheResolverTemplate<String> implements AsyncCacheResolver {
+public class HazelcastCacheResolver extends AbstractCacheResolverTemplate<String> implements SyncCacheResolver, AsyncCacheResolver {
 
 	private final HazelcastInstance hazelcastInstance;
 	
