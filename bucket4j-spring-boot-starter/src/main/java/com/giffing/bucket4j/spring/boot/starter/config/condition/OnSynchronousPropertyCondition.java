@@ -12,6 +12,9 @@ public class OnSynchronousPropertyCondition extends SpringBootCondition {
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
         var bucket4jProperties = Binder.get(context.getEnvironment()).bind("bucket4j", Bucket4JBootProperties.class).orElse(null);
+        if (bucket4jProperties == null) {
+            return ConditionOutcome.noMatch("@ConditionalOnSynchronPropertyCondition Bucket4jBootProperties not configured");
+        }
         var methodConfigurationExists = !bucket4jProperties.getMethods().isEmpty();
         var servletConfigurationExist = bucket4jProperties.getFilters().stream().anyMatch(x -> x.getFilterMethod().equals(FilterMethod.SERVLET));
         if (methodConfigurationExists || servletConfigurationExist) {
