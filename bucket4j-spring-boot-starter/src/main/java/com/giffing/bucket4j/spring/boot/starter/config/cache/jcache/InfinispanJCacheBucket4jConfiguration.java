@@ -27,7 +27,7 @@ import javax.cache.Caching;
 @ConditionalOnSynchronousPropertyCondition
 @ConditionalOnClass({CacheContainer.class, Caching.class, JCacheCacheManager.class})
 @ConditionalOnBean(CacheContainer.class)
-@ConditionalOnCache("jcache-ignite")
+@ConditionalOnCache("jcache-infinispan")
 public class InfinispanJCacheBucket4jConfiguration {
 
 	private final CacheContainer cacheContainer;
