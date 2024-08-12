@@ -64,7 +64,7 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 
 					jedis.subscribe(this, updateChannel);
 				} catch (Exception e) {
-					log.error("Failed to connect the Jedis subscriber, attempting to reconnect in {} seconds. " +
+					log.warn("Failed to connect the Jedis subscriber, attempting to reconnect in {} seconds. " +
 							"Exception was: {}", (reconnectBackoffTimeMillis.get() /1000), e.getMessage());
 
 					// Cancel the reset of the backoff
@@ -80,6 +80,7 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 						reconnectBackoffTimeMillis.set(Math.min((reconnectBackoffTimeMillis.get() * 2), 30000));
 					} catch (InterruptedException ignored) {
 						// ignored, already interrupted so the while loop will stop
+						log.error("Failed to connect the Jedis subscriber. Exception was: {}",  e.getMessage());
 					}
 				}
 			}
