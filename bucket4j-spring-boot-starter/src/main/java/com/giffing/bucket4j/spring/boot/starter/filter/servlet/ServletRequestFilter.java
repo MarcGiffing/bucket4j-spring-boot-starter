@@ -1,17 +1,17 @@
 package com.giffing.bucket4j.spring.boot.starter.filter.servlet;
 
 import com.giffing.bucket4j.spring.boot.starter.context.ExpressionParams;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.utils.RequestUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,16 +22,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Servlet {@link Filter} class to configure Bucket4j on each request.
  */
+@Setter
 @Slf4j
 public class ServletRequestFilter extends OncePerRequestFilter implements Ordered {
 
     private FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig;
 
     public ServletRequestFilter(FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig) {
-        this.filterConfig = filterConfig;
-    }
-
-    public void setFilterConfig(FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig) {
         this.filterConfig = filterConfig;
     }
 
@@ -46,7 +43,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (var rl : filterConfig.getRateLimitChecks()) {
-            var wrapper = rl.rateLimit(new ExpressionParams<>(request), null);
+            var wrapper = rl.rateLimit(new ExpressionParams<>(request).addParam(ExpressionParams.IP, RequestUtils.getIpFromRequest(request)), null);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {
@@ -71,7 +68,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
             filterConfig.getPostRateLimitChecks()
                     .forEach(rlc -> {
                         var result = rlc.rateLimit(request, response);
-                        if(result != null) {
+                        if (result != null) {
                             log.debug("post-rate-limit;remaining-tokens:{}", result.getRateLimitResult().getRemainingTokens());
                         }
                     });
@@ -90,7 +87,6 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
             httpResponse.getWriter().append(filterConfig.getHttpResponseBody());
         }
     }
-
 
 
     @Override

@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter;
 
+import com.giffing.bucket4j.spring.boot.starter.service.TestService;
 import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -19,8 +20,11 @@ public class TestController {
 
 	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	public TestController(@Nullable CacheManager<String,Bucket4JConfiguration> configCacheManager){
+	private final TestService testService;
+
+	public TestController(@Nullable CacheManager<String,Bucket4JConfiguration> configCacheManager, TestService testService) {
 		this.configCacheManager = configCacheManager;
+		this.testService = testService;
 	}
 
 	@GetMapping("hello")
@@ -32,6 +36,9 @@ public class TestController {
 	public ResponseEntity<String> world() {
 		return ResponseEntity.ok("Hello World");
 	}
+
+	@GetMapping("greeting/{name}")
+	public String greeting(@PathVariable final String name) {return testService.greetings(name);}
 
 
 	/**

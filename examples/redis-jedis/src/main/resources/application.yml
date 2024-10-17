@@ -2,6 +2,7 @@ debug: false
 logging:
   level:
     com.giffing.bucket4j: debug
+    redis.clients.jedis: trace
 management:
   endpoints:
     web:
@@ -37,7 +38,24 @@ bucket4j:
               time: 10
               unit: seconds
               refill-speed: interval
-
+  methods:
+    - name: method_test
+      cache-name: buckets_test
+      rate-limit:
+        bandwidths:
+          - capacity: 5
+            time: 30
+            unit: seconds
+            refill-speed: interval
+  default-metric-tags:
+    - key: IP
+      expression: "#ip"
+      types:
+        - REJECTED_COUNTER
+        - CONSUMED_COUNTER
+        - PARKED_COUNTER
+        - INTERRUPTED_COUNTER
+        - DELAYED_COUNTER
 spring:
   main:
     allow-bean-definition-overriding: true

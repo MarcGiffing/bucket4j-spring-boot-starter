@@ -15,6 +15,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.IpHandlerInterceptor;
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import jakarta.servlet.Filter;
@@ -35,6 +36,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,7 +57,7 @@ import java.util.stream.Collectors;
 @Import(value = { ServiceConfiguration.class, ServletRequestExecutePredicateConfiguration.class, Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
 @Slf4j
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest, HttpServletResponse>
-		implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+		implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>, WebMvcConfigurer {
 
 	private final Bucket4JBootProperties properties;
 
@@ -121,5 +124,17 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 				log.warn("Failed to update Servlet Filter configuration. {}", exception.getMessage());
 			}
 		}
+	}
+
+	/**
+	 * Add Spring MVC lifecycle interceptors for pre- and post-processing of
+	 * controller method invocations and resource handler requests.
+	 * Interceptors can be registered to apply to all requests or be limited
+	 * to a subset of URL patterns.
+	 *
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new IpHandlerInterceptor());
 	}
 }

@@ -2,7 +2,8 @@ package com.giffing.bucket4j.spring.boot.starter.config.aspect;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
-import com.giffing.bucket4j.spring.boot.starter.context.properties.MethodProperties;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
+import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Metrics;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
@@ -16,6 +17,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -35,19 +38,21 @@ public class RateLimitAspect {
 
     private final RateLimitService rateLimitService;
 
-    private final List<MethodProperties> methodProperties;
+    private final Bucket4JBootProperties bucket4JBootProperties;
 
     private final SyncCacheResolver syncCacheResolver;
 
-    private Map<String, RateLimitService.RateLimitConfigresult<Method, Object>> rateLimitConfigResults = new HashMap<>();
+    private final List<MetricHandler> metricHandlers;
+
+    private final Map<String, RateLimitService.RateLimitConfigresult<Method, Object>> rateLimitConfigResults = new HashMap<>();
 
     @PostConstruct
     public void init() {
-        for(var methodProperty : methodProperties) {
+        for (var methodProperty : bucket4JBootProperties.getMethods()) {
             var proxyManagerWrapper = syncCacheResolver.resolve(methodProperty.getCacheName());
             var rateLimitConfig = RateLimitService.RateLimitConfig.<Method>builder()
                     .rateLimits(List.of(methodProperty.getRateLimit()))
-                    .metricHandlers(List.of())
+                    .metricHandlers(metricHandlers)
                     .executePredicates(Map.of())
                     .cacheName(methodProperty.getCacheName())
                     .configVersion(0)
@@ -55,7 +60,7 @@ public class RateLimitAspect {
                         KeyFilter<Method> keyFilter = rateLimitService.getKeyFilter(sr.getRootObject().getName(), rl);
                         return keyFilter.key(sr);
                     })
-                    .metrics(new Metrics())
+                    .metrics(new Metrics(bucket4JBootProperties.getDefaultMetricTags()))
                     .proxyWrapper(proxyManagerWrapper)
                     .build();
             var rateLimitConfigResult = rateLimitService.configureRateLimit(rateLimitConfig);
@@ -64,14 +69,15 @@ public class RateLimitAspect {
     }
 
     @Pointcut("execution(public * *(..))")
-    public void publicMethod() {}
+    public void publicMethod() {
+    }
 
     @Pointcut("@annotation(com.giffing.bucket4j.spring.boot.starter.context.RateLimiting)")
     private void methodsAnnotatedWithRateLimitAnnotation() {
     }
 
     @Pointcut("@within(com.giffing.bucket4j.spring.boot.starter.context.RateLimiting) && publicMethod()")
-    private void classAnnotatedWithRateLimitAnnotation(){
+    private void classAnnotatedWithRateLimitAnnotation() {
 
     }
 
@@ -82,21 +88,21 @@ public class RateLimitAspect {
 
         var ignoreRateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, IgnoreRateLimiting.class);
         // if the class or method is annotated with IgnoreRateLimiting we will skip rate limiting
-        if(ignoreRateLimitAnnotation != null){
+        if (ignoreRateLimitAnnotation != null) {
             return joinPoint.proceed();
         }
 
         var rateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, RateLimiting.class);
 
         Method fallbackMethod = null;
-        if(rateLimitAnnotation.fallbackMethodName() != null) {
+        if (rateLimitAnnotation.fallbackMethodName() != null) {
             var fallbackMethods = Arrays.stream(method.getDeclaringClass().getMethods())
                     .filter(p -> p.getName().equals(rateLimitAnnotation.fallbackMethodName()))
                     .toList();
-            if(fallbackMethods.size() > 1) {
+            if (fallbackMethods.size() > 1) {
                 throw new IllegalStateException("Found " + fallbackMethods.size() + " fallbackMethods for " + rateLimitAnnotation.fallbackMethodName());
             }
-            if(!fallbackMethods.isEmpty()) {
+            if (!fallbackMethods.isEmpty()) {
                 fallbackMethod = joinPoint.getTarget().getClass().getMethod(rateLimitAnnotation.fallbackMethodName(), ((MethodSignature) joinPoint.getSignature()).getParameterTypes());
             }
         }
@@ -118,7 +124,7 @@ public class RateLimitAspect {
             // no rate limit - execute the surrounding method
             methodResult = joinPoint.proceed();
             performPostRateLimit(rateLimitConfigResult, method, methodResult);
-        } else if (fallbackMethod != null){
+        } else if (fallbackMethod != null) {
             return fallbackMethod.invoke(joinPoint.getTarget(), joinPoint.getArgs());
         } else {
             throw new RateLimitException();
@@ -126,7 +132,6 @@ public class RateLimitAspect {
 
         return methodResult;
     }
-
 
 
     private static void performPostRateLimit(RateLimitService.RateLimitConfigresult<Method, Object> rateLimitConfigResult, Method method, Object methodResult) {
@@ -142,7 +147,8 @@ public class RateLimitAspect {
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (RateLimitCheck<Method> rl : rateLimitConfigResult.getRateLimitChecks()) {
-            var wrapper = rl.rateLimit(new ExpressionParams<>(method).addParams(params), annotationRateLimit);
+
+            var wrapper = rl.rateLimit(new ExpressionParams<>(method).addParams(params).addParam(ExpressionParams.IP, RequestContextHolder.currentRequestAttributes().getAttribute(ExpressionParams.IP, RequestAttributes.SCOPE_REQUEST)), annotationRateLimit);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {
@@ -153,7 +159,7 @@ public class RateLimitAspect {
                 }
             }
         }
-        if(allConsumed) {
+        if (allConsumed) {
             log.debug("rate-limit-remaining;limit:{}", remainingLimit);
         }
         return new RateLimitConsumedResult(allConsumed, remainingLimit);
@@ -175,21 +181,19 @@ public class RateLimitAspect {
     }
 
     private void assertValidCacheName(RateLimiting rateLimitAnnotation) {
-        if(!rateLimitConfigResults.containsKey(rateLimitAnnotation.name())) {
+        if (!rateLimitConfigResults.containsKey(rateLimitAnnotation.name())) {
             throw new IllegalStateException("Could not find cache " + rateLimitAnnotation.name());
         }
     }
 
     private static Map<String, Object> collectExpressionParameter(Object[] args, String[] parameterNames) {
         Map<String, Object> params = new HashMap<>();
-        for (int i = 0; i< args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             log.debug("expresion-params;name:{};arg:{}", parameterNames[i], args[i]);
             params.put(parameterNames[i], args[i]);
         }
         return params;
     }
-
-
 
 
 }

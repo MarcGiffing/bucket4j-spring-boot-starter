@@ -12,17 +12,19 @@ import java.util.Map;
  *
  * @param <R> the type of the root object which us used for the SpEl expression.
  */
+@Getter
 @RequiredArgsConstructor
 public class ExpressionParams<R> {
 
-    @Getter
+    public static final String IP = "ip";
+
     private final R rootObject;
 
-    @Getter
     private final Map<String, Object> params = new HashMap<>();
 
-    public void addParam(String name, Object value) {
+    public ExpressionParams<R> addParam(String name, Object value) {
         params.put(name, value);
+        return this;
     }
 
     public ExpressionParams<R> addParams(Map<String, Object> params) {
