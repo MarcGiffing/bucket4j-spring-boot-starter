@@ -15,7 +15,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -28,7 +27,6 @@ import java.util.Map;
  * if rate limit should be executed.
  */
 @Aspect
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class RateLimitAspect {
@@ -39,7 +37,7 @@ public class RateLimitAspect {
 
     private final SyncCacheResolver syncCacheResolver;
 
-    private Map<String, RateLimitService.RateLimitConfigresult<Method, Object>> rateLimitConfigResults = new HashMap<>();
+    private final Map<String, RateLimitService.RateLimitConfigresult<Method, Object>> rateLimitConfigResults = new HashMap<>();
 
     @PostConstruct
     public void init() {
