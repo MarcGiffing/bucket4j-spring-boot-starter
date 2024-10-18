@@ -1,5 +1,3 @@
-
-
 :url-repo: https://github.com/MarcGiffing/bucket4j-spring-boot-starter
 :url: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master
 :url-examples: {url}/examples
@@ -38,11 +36,11 @@ Project version overview:
 ** <<examples>>
 ** <<property_configuration_examples>>
 
-
 [[introduction]]
 == Spring Boot Starter for Bucket4j
 
-This project is a Spring Boot Starter for Bucket4j, allowing you to set access limits on your API effortlessly. Its key advantage lies in the configuration via properties or yaml files, eliminating the need for manual code authoring.
+This project is a Spring Boot Starter for Bucket4j, allowing you to set access limits on your API effortlessly.
+Its key advantage lies in the configuration via properties or yaml files, eliminating the need for manual code authoring.
 
 Here are some example use cases:
 
@@ -61,11 +59,12 @@ The project offers several features, some utilizing Spring's Expression Language
 
 You have two options for rate limit configuration: adding a filter for incoming web requests or applying fine-grained control at the method level.
 
-
 [[introduction_filter]]
 === Use Filter for rate limiting
 
-Filters are customizable components designed to intercept incoming web requests, capable of rejecting requests to halt further processing. You can incorporate multiple filters for various URLs or opt to bypass rate limits entirely for authenticated users. When the limit is exceeded, the web request is aborted, and the client receives an HTTP Status 429 Too Many Requests error.
+Filters are customizable components designed to intercept incoming web requests, capable of rejecting requests to halt further processing.
+You can incorporate multiple filters for various URLs or opt to bypass rate limits entirely for authenticated users.
+When the limit is exceeded, the web request is aborted, and the client receives an HTTP Status 429 Too Many Requests error.
 
 This projects supports the following filters:
 
@@ -86,8 +85,14 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=intervall
 [[introduction_method]]
 === Use Annotations on methods for rate limiting
 
-Utilizing the '@RateLimiting' annotation, AOP intercepts your method. This grants you comprehensive access to method parameters, empowering you to define the rate limit key or conditionally skip rate limiting with ease.
+Utilizing the '@RateLimiting' annotation, AOP intercepts your method.
+This grants you comprehensive access to method parameters, empowering you to define the rate limit key or conditionally skip rate limiting with ease.
 
+==== Method Configuration
+
+Bucket configuration is done in application.properties or application.yaml.
+
+.application.properties
 [source,properties]
 ----
 bucket4j.methods[0].name=not_an_admin # the name of the configuration for annotation reference
@@ -96,7 +101,45 @@ bucket4j.methods[0].rate-limits[0].bandwidths[0].capacity=5 # refills 5 tokens e
 bucket4j.methods[0].rate-limits[0].bandwidths[0].time=10
 bucket4j.methods[0].rate-limits[0].bandwidths[0].unit=seconds
 bucket4j.methods[0].rate-limits[0].bandwidths[0].refill-speed=intervall
+bucket4j.default-method-metric-tags[0].key=IP
+bucket4j.default-method-metric-tags[0].expression="@testServiceImpl.getRemoteAddr()" # reference to a bean method to fill the metric key
+bucket4j.default-method-metric-tags[0].types[0]=REJECTED_COUNTER
+bucket4j.default-method-metric-tags[0].types[1]=CONSUMED_COUNTER
+bucket4j.default-method-metric-tags[0].types[2]=PARKED_COUNTER
+bucket4j.default-method-metric-tags[0].types[3]=INTERRUPTED_COUNTER
+bucket4j.default-method-metric-tags[0].types[4]=DELAYED_COUNTER
 ----
+
+.application.yaml
+[source,yaml]
+----
+bucket4j:
+  methods:
+    - name: not_an_admin # the name of the configuration for annotation reference
+      cache-name: buckets # the name of the cache
+      rate-limit:
+        bandwidths:
+          - capacity: 5 # refills 5 tokens every 10 seconds (intervall)
+            time: 30
+            unit: seconds
+            refill-speed: interval
+  default-method-metric-tags:
+    - key: IP
+      expression: "@testServiceImpl.getRemoteAddr()" # reference to a bean method to fill the metric key
+      types:
+        - REJECTED_COUNTER
+        - CONSUMED_COUNTER
+        - PARKED_COUNTER
+        - INTERRUPTED_COUNTER
+        - DELAYED_COUNTER
+----
+
+The in this example configuration referenced testServiceImpl is not part of bucket4j-spring-boot-starter.
+If you would like to have the IP as metric tag you need to implement you own mechanism for that.
+
+Working example for method annotation and IPs in metrics: {url-examples}/general-tests/src/main/java/com/giffing/bucket4j/spring/boot/starter/example/jedis-redis[jedis-redis Example project]
+
+==== Method annotation
 
 [source,java]
 ----
@@ -125,8 +168,8 @@ bucket4j.methods[0].rate-limits[0].bandwidths[0].refill-speed=intervall
     }
 ----
 
-The '@RateLimiting' annotation on class level executes the rate limit on all public methods of the class. With '@IgnoreRateLimiting' you can ignore the rate limit at all on class level or for specific method on method level.
-
+The '@RateLimiting' annotation on class level executes the rate limit on all public methods of the class.
+With '@IgnoreRateLimiting' you can ignore the rate limit at all on class level or for specific method on method level.
 
 [source,java]
 ----
@@ -147,6 +190,22 @@ public class TestService {
 }
 ----
 
+==== Method dependencies
+
+As the @RateLimiting mechanism uses AOP you need to ensure your spring-boot provides the necessary dependencies.
+
+Just add
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+----
+
+to your project.
+
 You can find some Configuration examples in the test project: {url-examples}/general-tests/src/main/java/com/giffing/bucket4j/spring/boot/starter/general/tests/method[Examples]
 
 [[project_configuration]]
@@ -155,7 +214,7 @@ You can find some Configuration examples in the test project: {url-examples}/gen
 [[bucket4j_complete_properties]]
 === General Bucket4j properties
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.enabled=true # enable/disable bucket4j support
 bucket4j.cache-to-use= # If you use multiple caching implementation in your project and you want to choose a specific one you can set the cache here (jcache, hazelcast, ignite, redis)
@@ -168,7 +227,7 @@ bucket4j.default-metric-tags[0].types=REJECTED_COUNTER
 
 ==== Filter Bucket4j properties
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filter-config-caching-enabled=true  #Enable/disable caching of filter configurations.
 bucket4j.filter-config-cache-name=filterConfigCache #The name of the cache where the configurations are stored. Defaults to 'filterConfigCache'.
@@ -216,10 +275,10 @@ bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != nu
 ==== Refill Speed
 
 The refill speed defines the period of the regeneration of consumed tokens.
-This starter supports two types of token regeneration. The refill speed can be set with the following
-property:
+This starter supports two types of token regeneration.
+The refill speed can be set with the following property:
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy # [greedy,interval]
 ----
@@ -234,14 +293,17 @@ You can read more about the refill speed in the https://bucket4j.com/8.1.1/toc.h
 
 If multiple rate limits are defined the strategy defines how many of them should be executed.
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filters[0].strategy=first # [first, all]
 ----
 
 ===== first
 
-The *first* is the default strategy. This the default strategy which only executes one rate limit configuration. If a rate limit configuration is skipped due to the provided condition. It does not count as an executed rate limit.
+The *first* is the default strategy.
+This the default strategy which only executes one rate limit configuration.
+If a rate limit configuration is skipped due to the provided condition.
+It does not count as an executed rate limit.
 
 ===== all
 
@@ -250,21 +312,23 @@ The *all* strategy executes all rate limit independently.
 [[skip_execution_predicates]]
 ==== Skip and Execution Predicates (experimental)
 
-Skip and Execution Predicates can be used to conditionally skip or execute the rate limiting. Each predicate has a unique name and a self-contained configuration.
+Skip and Execution Predicates can be used to conditionally skip or execute the rate limiting.
+Each predicate has a unique name and a self-contained configuration.
 The following section describes the build in Execution Predicates and how to use them.
 
 ===== Path Predicates
 
 The Path Predicate takes a list of path parameters where any of the paths must match.
-See https://github.com/spring-projects/spring-framework/blob/main/spring-web/src/main/java/org/springframework/web/util/pattern/PathPattern.java[PathPattern] for the available configuration options. Segments are not evaluated further.
+See https://github.com/spring-projects/spring-framework/blob/main/spring-web/src/main/java/org/springframework/web/util/pattern/PathPattern.java[PathPattern] for the available configuration options.
+Segments are not evaluated further.
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filters[0].rate-limits[0].skip-predicates[0]=PATH=/hello,/world,/admin
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=PATH=/hello,/world,/admin
 ----
-Matches the paths '/hello', '/world' or '/admin'.
 
+Matches the paths '/hello', '/world' or '/admin'.
 
 ===== Method Predicate
 
@@ -274,6 +338,7 @@ The Method Predicate takes a list of method parameters where any of the methods 
 bucket4j.filters[0].rate-limits[0].skip-predicates[0]=METHOD=GET,POST
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=METHOD=GET,POST
 ----
+
 Matches if the HTTP method is 'GET' or 'POST'.
 
 ===== Query Predicate
@@ -284,6 +349,7 @@ The Query Predicate takes a single parameter to check for the existence of the q
 bucket4j.filters[0].rate-limits[0].skip-predicates[0]=QUERY=PARAM_1
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=QUERY=PARAM_1
 ----
+
 Matches if the query parameter 'PARAM_1' exists.
 
 ===== Header Predicate
@@ -296,13 +362,14 @@ The Header Predicate takes to parameters.
 ----
 bucket4j.filters[0].rate-limits[0].execute-predicates[0]=Content-Type,.*PDF.*
 ----
+
 Matches if the query parameter 'PARAM_1' exists.
 
 ===== Custom Predicate
 
 You can also define you own Execution Predicate:
 
-[source, java]
+[source,java]
 ----
 @Component
 @Slf4j
@@ -347,16 +414,19 @@ The configured URL which is used for filtering is added to the cache-key to prov
 You can read more about it https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/19[here].
 
 *Limiting based on IP-Address*:
+
 [source]
 ----
 getRemoteAddress()
 ----
 
 *Limiting based on Username - If not logged in use IP-Address*:
+
 [source]
 ----
 @securityService.username()?: getRemoteAddr()
 ----
+
 [source,java]
 ----
 /**
@@ -379,9 +449,14 @@ public class SecurityService {
 [[post-execute-condition]]
 === Post Execution (Consume) Condition
 
-If you define a post execution condition the available tokens are not consumed on a rate limit configuration execution. It will only estimate the remaining available tokens. Only if there are no tokens left the rate limit is applied by. If the request was proceeded by the application we can check the return value check if the token should be consumed.
+If you define a post execution condition the available tokens are not consumed on a rate limit configuration execution.
+It will only estimate the remaining available tokens.
+Only if there are no tokens left the rate limit is applied by.
+If the request was proceeded by the application we can check the return value check if the token should be consumed.
 
-Example: You want to limit the rate only for unauthorized users. You can't consume the available token for the incoming request because you don't know if the user will be authenticated afterward. With the post execute condition you can check the HTTP response status code and only consume the token if it has the status Code 401 UNAUTHORIZED.
+Example: You want to limit the rate only for unauthorized users.
+You can't consume the available token for the incoming request because you don't know if the user will be authenticated afterward.
+With the post execute condition you can check the HTTP response status code and only consume the token if it has the status Code 401 UNAUTHORIZED.
 
 image::src/main/doc/plantuml/post_execution_condition.png[]
 
@@ -390,6 +465,7 @@ image::src/main/doc/plantuml/post_execution_condition.png[]
 
 [[dynamic_config_updates]]
 === Dynamically updating rate limits (experimental)
+
 Sometimes it might be useful to modify filter configurations during runtime.
 In order to support this behaviour a cache-based configuration update system has been added.
 The following section describes what configurations are required to enable this feature.
@@ -397,17 +473,23 @@ The following section describes what configurations are required to enable this 
 ==== Properties
 
 ===== base properties
+
 In order to dynamically update rate limits, it is required to enable caching for filter configurations.
-[source, properties]
+
+[source,properties]
 ----
 bucket4j.filter-config-caching-enabled=true  #Enable/disable caching of filter configurations.
 bucket4j.filter-config-cache-name=filterConfigCache #The name of the cache where the configurations are stored. Defaults to 'filterConfigCache'.
 ----
 
 ===== Filter properties
+
 - When filter caching is enabled, it is mandatory to configure a unique id for every filter.
-- Configurations are implicitly replaced based on a combination of the major and minor version. If changes are made to the configuration without increasing either of the version numbers, it is most likely that the changes will not be applied. Instead the cached configuration will be used.
-[source, properties]
+- Configurations are implicitly replaced based on a combination of the major and minor version.
+If changes are made to the configuration without increasing either of the version numbers, it is most likely that the changes will not be applied.
+Instead the cached configuration will be used.
+
+[source,properties]
 ----
 bucket4j.filters[0].id=filter1 #The id of the filter. This should always be a unique string.
 bucket4j.filters[0].major-version=1 #[min = 1, max = 92 million] Major version number.
@@ -415,16 +497,20 @@ bucket4j.filters[0].minor-version=1 #[min = 1, max = 99 billion] Minor version n
 ----
 
 ===== RateLimit properties
-For each ratelimit a tokens inheritance strategy can be configured. This strategy will determine how to handle existing rate limits when replacing a configuration. If no strategy is configured it will default to 'RESET'.
+
+For each ratelimit a tokens inheritance strategy can be configured.
+This strategy will determine how to handle existing rate limits when replacing a configuration.
+If no strategy is configured it will default to 'RESET'.
 
 Further explanation of the strategies can be found at https://bucket4j.com/8.1.1/toc.html#tokensinheritancestrategy-explanation[Bucket4J TokensInheritanceStrategy explanation]
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filters[0].rate-limits[0].tokens-inheritance-strategy=RESET #[RESET, AS_IS, ADDITIVE, PROPORTIONALLY]
 ----
 
 ===== Bandwidth properties
+
 This property is only mandatory when *BOTH* of the following statements apply to your configuration.
 
 - The rate-limit uses a different TokensInheritanceStrategy than 'RESET'
@@ -432,33 +518,41 @@ This property is only mandatory when *BOTH* of the following statements apply to
 
 This is required so Bucket4J knows how to map the current bandwidth tokens to the updated bandwidths.
 It is possible to configure id's when 'RESET' strategy is applied, but the id's should still be unique within the rate-limit then.
-[source, properties]
+
+[source,properties]
 ----
 bucket4j.filters[0].rate-limits[0].bandwidths[0].id=bandwidthId #The id of the bandwidth; Optional when the rate-limit only contains 1 bandwidth or when using tokensInheritanceStrategy.RESET.
 ----
 
 ==== Example project
+
 An example on how to dynamically update a filter can be found at:
 {url-examples}/caffeine[Caffeine example project].
 
 Some important considerations:
 
 - This is an experimental feature and might be subject to changes.
-- Configurations will be read from the cache during startup (when using a persistent cache). This means that putting corrupted configurations into the cache during runtime can cause the application to crash during startup.
-- Most configuration errors can be prevented by using the Jakarta validator to validate updated configurations. In the example this is done by adding @Valid to the request body method parameter, but it is also possible to @Autowire the Validator and use it directly to validate the configuration.
-- Some Filter properties are not intended to be modified during runtime. To simplify validating a configuration update the Bucket4JUtils.validateConfigurationUpdate method has been added. This method executes the following validations and will return a ResponseEntity:
+- Configurations will be read from the cache during startup (when using a persistent cache).
+This means that putting corrupted configurations into the cache during runtime can cause the application to crash during startup.
+- Most configuration errors can be prevented by using the Jakarta validator to validate updated configurations.
+In the example this is done by adding @Valid to the request body method parameter, but it is also possible to @Autowire the Validator and use it directly to validate the configuration.
+- Some Filter properties are not intended to be modified during runtime.
+To simplify validating a configuration update the Bucket4JUtils.validateConfigurationUpdate method has been added.
+This method executes the following validations and will return a ResponseEntity:
 ** old configuration != null  -> NOT_FOUND
 ** new configuration has a higher version than the old configuration -> BAD_REQUEST
 ** filterMethod not changed -> BAD_REQUEST
 ** filterOrder not changed -> BAD_REQUEST
 ** cacheName not changed -> BAD_REQUEST
-- The configCacheManager currently does *not* contain validation in the setValue method. The configuration should be validated before calling the this method.
-
+- The configCacheManager currently does *not* contain validation in the setValue method.
+The configuration should be validated before calling the this method.
 
 [[monitoring]]
 === Monitoring - Spring Boot Actuator
 
-Spring Boot ships with a great support for collecting metrics. This project automatically provides metric information about the consumed and rejected buckets. You can extend these information with configurable https://micrometer.io/docs/concepts#_tag_naming[custom tags] like the username or the IP-Address which can then be evaluated in a monitoring system like prometheus/grafana.
+Spring Boot ships with a great support for collecting metrics.
+This project automatically provides metric information about the consumed and rejected buckets.
+You can extend these information with configurable https://micrometer.io/docs/concepts#_tag_naming[custom tags] like the username or the IP-Address which can then be evaluated in a monitoring system like prometheus/grafana.
 
 [source,yml]
 ----
@@ -497,7 +591,8 @@ This section is meant to help you migrate your application to new version of thi
 
 ==== Spring Boot Starter Bucket4j 0.12
 
-* Removed deprecated 'bucket4j.filters[x].rate-limits[x].expression' property. Use 'bucket4j.filters[x].rate-limits[x].cache-key' instead.
+* Removed deprecated 'bucket4j.filters[x].rate-limits[x].expression' property.
+Use 'bucket4j.filters[x].rate-limits[x].cache-key' instead.
 * three new metric counter are added per default (PARKED, INTERRUPTED and DELAYED)
 
 ==== Spring Boot Starter Bucket4j 0.9
@@ -511,25 +606,23 @@ This section is meant to help you migrate your application to new version of thi
 
 ===== Compatibility to Java 8
 
-The version 0.8 tries to be compatible with Java 8 as long as Bucket4j is supporting Java 8. With the release
-of Bucket4j 8.0.0 Bucket4j decided to migrate to Java 11 but provides dedicated artifacts for Java 8.
-The project is switching to the dedicated artifacts which supports Java 8. You can read more about
-it https://github.com/bucket4j/bucket4j#java-compatibility-matrix[here].
+The version 0.8 tries to be compatible with Java 8 as long as Bucket4j is supporting Java 8. With the release of Bucket4j 8.0.0 Bucket4j decided to migrate to Java 11 but provides dedicated artifacts for Java 8.
+The project is switching to the dedicated artifacts which supports Java 8. You can read more about it https://github.com/bucket4j/bucket4j#java-compatibility-matrix[here].
 
 ===== Rename property expression to cache-key
 
 The property *..rate-limits[0].expression* is renamed to *..rate-limits[0].cache-key*.
 An Exception is thrown on startup if the *expression* property is configured.
 
-To ensure that the property is not filled falsely the property is marked with *@Null*. This change requires
-a Bean Validation implementation.
+To ensure that the property is not filled falsely the property is marked with *@Null*.
+This change requires a Bean Validation implementation.
 
 ===== JSR 380 - Bean Validation implementation required
 
 To ensure that the Bucket4j property configuration is correct an Validation API implementation is required.
 You can add the Spring Boot Starter Validation which will automatically configures one.
 
-[source, xml]
+[source,xml]
 ----
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -539,12 +632,12 @@ You can add the Spring Boot Starter Validation which will automatically configur
 
 ===== Explicit Configuration of the Refill Speed - API Break
 
-The refill speed of the Buckets can now configured explicitly with the Enum RefillSpeed. You can choose between
-a greedy or interval refill see the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
+The refill speed of the Buckets can now configured explicitly with the Enum RefillSpeed.
+You can choose between a greedy or interval refill see the https://bucket4j.com/8.1.1/toc.html#refill[official documentation].
 
 Before 0.8 the refill speed was configured implicitly by setting the fixed-refill-interval property explicit.
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval=0
 bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minutes
@@ -552,7 +645,7 @@ bucket4j.filters[0].rate-limits[0].bandwidths[0].fixed-refill-interval-unit=minu
 
 These properties are removed and replaced by the following configuration:
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=interval
 ----
@@ -604,13 +697,11 @@ The following list contains the Caching implementation which will be autoconfigu
 
 |===
 
-Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver
-or the AsynchCacheResolver by yourself.
+Instead of determine the Caching Provider by the Bucket4j Spring Boot Starter project you can implement the SynchCacheResolver or the AsynchCacheResolver by yourself.
 
-You can enable the cache auto configuration explicitly by using the *cache-to-use* property name or setting
-it to an invalid value to disable all auto configurations.
+You can enable the cache auto configuration explicitly by using the *cache-to-use* property name or setting it to an invalid value to disable all auto configurations.
 
-[source, properties]
+[source,properties]
 ----
 bucket4j.cache-to-use=jcache #
 ----
@@ -647,8 +738,10 @@ bucket4j:
           unit: seconds
 ----
 
-Conditional filtering depending of anonymous or logged in user. Because the *bucket4j.filters[0].strategy* is *first*
-you don't have to check in the second rate-limit that the user is logged in. Only the first one is executed.
+Conditional filtering depending of anonymous or logged in user.
+Because the *bucket4j.filters[0].strategy* is *first*
+you don't have to check in the second rate-limit that the user is logged in.
+Only the first one is executed.
 
 [source,yml]
 ----
