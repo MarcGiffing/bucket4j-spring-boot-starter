@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,18 +25,13 @@ public class Metrics implements Serializable {
     private List<MetricTag> tags = new ArrayList<>();
 
     public Metrics(List<MetricTag> metricTags) {
-
-        metricTags.forEach(tag -> {
+        Optional.ofNullable(metricTags).ifPresent(tags -> tags.forEach(tag -> {
             this.tags.add(tag);
-
             tag.getTypes().forEach(type -> {
-                if(!types.contains(type)) {
+                if (!types.contains(type)) {
                     types.add(type);
                 }
             });
-        });
-
+        }));
     }
-
-
 }

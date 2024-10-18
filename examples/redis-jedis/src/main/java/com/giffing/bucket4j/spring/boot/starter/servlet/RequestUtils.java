@@ -1,4 +1,4 @@
-package com.giffing.bucket4j.spring.boot.starter.utils;
+package com.giffing.bucket4j.spring.boot.starter.servlet;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;

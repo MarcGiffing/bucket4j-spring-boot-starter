@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet;
 
-import com.giffing.bucket4j.spring.boot.starter.JedisConfiguraiton;
+import com.giffing.bucket4j.spring.boot.starter.JedisConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
-@Import(JedisConfiguraiton.class)
+@Import(JedisConfiguration.class)
 public class JedisIntervalRefillSpeedTest extends IntervalRefillSpeedTest {
 
     @Container

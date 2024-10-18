@@ -17,8 +17,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -60,7 +58,7 @@ public class RateLimitAspect {
                         KeyFilter<Method> keyFilter = rateLimitService.getKeyFilter(sr.getRootObject().getName(), rl);
                         return keyFilter.key(sr);
                     })
-                    .metrics(new Metrics(bucket4JBootProperties.getDefaultMetricTags()))
+                    .metrics(new Metrics(bucket4JBootProperties.getDefaultMethodMetricTags()))
                     .proxyWrapper(proxyManagerWrapper)
                     .build();
             var rateLimitConfigResult = rateLimitService.configureRateLimit(rateLimitConfig);
@@ -147,8 +145,7 @@ public class RateLimitAspect {
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (RateLimitCheck<Method> rl : rateLimitConfigResult.getRateLimitChecks()) {
-
-            var wrapper = rl.rateLimit(new ExpressionParams<>(method).addParams(params).addParam(ExpressionParams.IP, RequestContextHolder.currentRequestAttributes().getAttribute(ExpressionParams.IP, RequestAttributes.SCOPE_REQUEST)), annotationRateLimit);
+            var wrapper = rl.rateLimit(new ExpressionParams<>(method).addParams(params), annotationRateLimit);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {

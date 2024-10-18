@@ -1,7 +1,5 @@
-package com.giffing.bucket4j.spring.boot.starter.filter.servlet;
+package com.giffing.bucket4j.spring.boot.starter.servlet;
 
-import com.giffing.bucket4j.spring.boot.starter.context.ExpressionParams;
-import com.giffing.bucket4j.spring.boot.starter.utils.RequestUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.context.request.RequestAttributes;
@@ -10,6 +8,8 @@ import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 public class IpHandlerInterceptor implements HandlerInterceptor {
+
+    public static final String IP = "ip";
 
     /**
      * Interception point before the execution of a handler. Called after
@@ -35,7 +35,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        RequestContextHolder.currentRequestAttributes().setAttribute(ExpressionParams.IP, RequestUtils.getIpFromRequest(request), RequestAttributes.SCOPE_REQUEST);
+        RequestContextHolder.currentRequestAttributes().setAttribute(IP, RequestUtils.getIpFromRequest(request), RequestAttributes.SCOPE_REQUEST);
 
         return true;
     }

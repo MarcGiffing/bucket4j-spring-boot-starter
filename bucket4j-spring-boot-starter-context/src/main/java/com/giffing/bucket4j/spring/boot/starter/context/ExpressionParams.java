@@ -16,8 +16,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExpressionParams<R> {
 
-    public static final String IP = "ip";
-
     private final R rootObject;
 
     private final Map<String, Object> params = new HashMap<>();
