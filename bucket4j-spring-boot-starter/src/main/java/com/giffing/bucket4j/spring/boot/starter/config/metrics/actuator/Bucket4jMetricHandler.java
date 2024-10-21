@@ -1,19 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricTagResult;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricType;
-
 import io.micrometer.core.instrument.Metrics;
 
-@Component
-@Primary
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bucket4jMetricHandler implements MetricHandler {
 
 	public static final String METRIC_COUNTER_PREFIX = "bucket4j_summary_";

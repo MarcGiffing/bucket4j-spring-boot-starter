@@ -37,7 +37,33 @@ bucket4j:
               time: 10
               unit: seconds
               refill-speed: interval
-
+  methods:
+    - name: method_test
+      cache-name: greetings
+      rate-limit:
+        bandwidths:
+          - capacity: 5
+            time: 30
+            unit: seconds
+            refill-speed: interval
+  default-metric-tags:
+    - key: IP
+      expression: "getRemoteAddr()"
+      types:
+        - REJECTED_COUNTER
+        - CONSUMED_COUNTER
+        - PARKED_COUNTER
+        - INTERRUPTED_COUNTER
+        - DELAYED_COUNTER
+  default-method-metric-tags:
+    - key: IP
+      expression: "@testServiceImpl.getRemoteAddr()"
+      types:
+        - REJECTED_COUNTER
+        - CONSUMED_COUNTER
+        - PARKED_COUNTER
+        - INTERRUPTED_COUNTER
+        - DELAYED_COUNTER
 spring:
   main:
     allow-bean-definition-overriding: true

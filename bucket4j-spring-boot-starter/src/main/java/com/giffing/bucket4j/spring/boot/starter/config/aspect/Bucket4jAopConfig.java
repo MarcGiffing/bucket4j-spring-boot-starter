@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBu
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
+import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,6 +19,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
+
 /**
  * Enables the support for the {@link RateLimiting} annotation to rate limit on method level.
  */
@@ -25,14 +28,13 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnBucket4jEnabled
 @ConditionalOnClass(Aspect.class)
 @EnableConfigurationProperties({Bucket4JBootProperties.class})
-@AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
+@AutoConfigureAfter(value = {CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class})
 @ConditionalOnBean(value = SyncCacheResolver.class)
 @Import(value = {ServiceConfiguration.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class})
 public class Bucket4jAopConfig {
 
     @Bean
-    public RateLimitAspect rateLimitAspect(RateLimitService rateLimitService, Bucket4JBootProperties bucket4JBootProperties, SyncCacheResolver syncCacheResolver) {
-        return new RateLimitAspect(rateLimitService, bucket4JBootProperties.getMethods(), syncCacheResolver);
+    public RateLimitAspect rateLimitAspect(RateLimitService rateLimitService, Bucket4JBootProperties bucket4JBootProperties, SyncCacheResolver syncCacheResolver, List<MetricHandler> metricHandlers) {
+        return new RateLimitAspect(rateLimitService, bucket4JBootProperties, syncCacheResolver, metricHandlers);
     }
-
 }
