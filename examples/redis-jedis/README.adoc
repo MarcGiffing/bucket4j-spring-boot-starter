@@ -38,7 +38,7 @@ Just start RedisJedisApplication in your application.
 |RateLimit done by ServletFilter for filter2
 
 |GET
-|http://localhost:8080/greeting/{name}
+|http://localhost:8080/greeting
 |RateLimit done by Annotation having fallback method
 
 |GET

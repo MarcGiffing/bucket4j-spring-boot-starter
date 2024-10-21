@@ -36,9 +36,9 @@ public class TestController {
         return ResponseEntity.ok("Hello World");
     }
 
-    @GetMapping("greeting/{name}")
-    public String greeting(@PathVariable final String name) {
-        return testService.greetings(name);
+    @GetMapping("greeting/")
+    public String greeting() {
+        return testService.greetings();
     }
 
 
@@ -48,7 +48,6 @@ public class TestController {
      * @param filterId      id of the filter to update
      * @param newConfig     the new filter configuration
      * @param bindingResult the result of the Jakarta validation
-     * @return
      */
     @PostMapping("filters/{filterId}")
     public ResponseEntity<?> updateConfig(

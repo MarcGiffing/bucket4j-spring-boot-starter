@@ -39,7 +39,7 @@ bucket4j:
               refill-speed: interval
   methods:
     - name: method_test
-      cache-name: buckets_test
+      cache-name: greetings
       rate-limit:
         bandwidths:
           - capacity: 5

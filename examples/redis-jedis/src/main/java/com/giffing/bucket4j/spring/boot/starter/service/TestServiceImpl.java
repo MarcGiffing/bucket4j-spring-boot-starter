@@ -9,6 +9,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 @Component
 public class TestServiceImpl implements TestService {
 
+    private static final String name = "Horst";
+
     @RateLimiting(
             name = "method_test",
             cacheKey = "@testServiceImpl.getRemoteAddr()",
@@ -16,13 +18,13 @@ public class TestServiceImpl implements TestService {
             fallbackMethodName = "greetingsFallback"
     )
     @Override
-    public String greetings(String name) {
-        return "Hello " + name;
+    public String greetings() {
+        return String.format("Hello %s!", name);
     }
 
     @SuppressWarnings("unused")
-    public String greetingsFallback(String name) {
-        return "You are not welcome " + name;
+    public String greetingsFallback() {
+        return String.format("You are not welcome %s!", name);
     }
 
     @SuppressWarnings("unused")
