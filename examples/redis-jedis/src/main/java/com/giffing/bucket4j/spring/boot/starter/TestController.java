@@ -36,7 +36,7 @@ public class TestController {
         return ResponseEntity.ok("Hello World");
     }
 
-    @GetMapping("greeting/")
+    @GetMapping("greeting")
     public String greeting() {
         return testService.greetings();
     }
