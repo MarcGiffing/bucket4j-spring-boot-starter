@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -87,7 +88,7 @@ public class RateLimitAspect {
         var rateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, RateLimiting.class);
 
         Method fallbackMethod = null;
-        if(rateLimitAnnotation.fallbackMethodName() != null) {
+        if(StringUtils.hasText(rateLimitAnnotation.fallbackMethodName())) {
             var fallbackMethods = Arrays.stream(method.getDeclaringClass().getMethods())
                     .filter(p -> p.getName().equals(rateLimitAnnotation.fallbackMethodName()))
                     .toList();
