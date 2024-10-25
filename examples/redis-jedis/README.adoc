@@ -1,0 +1,55 @@
+= Bucket4j redis-jedis example
+
+== Introduction
+
+This example can be locally executed to examine the jedis-redis implementation.
+
+This example contains rate limit settings as ServletFilter and as Annotation.
+
+To run the example locally you need:
+
+- JDK 17
+- docker
+
+== Start Redis / KeyDB
+
+Start a local KeyDB (compatible with Redis) in a terminal / shell with available docker.
+
+[source,bash]
+----
+docker run -d -p 6379:6379 eqalpha/keydb
+----
+
+== Start RedisJedisApplication
+
+Just start RedisJedisApplication in your application.
+
+== URLs
+
+|===
+|Method|URL|Testcase
+
+|GET
+|http://localhost:8080/hello
+|RateLimit done by ServletFilter for filter1
+
+|GET
+|http://localhost:8080/world
+|RateLimit done by ServletFilter for filter2
+
+|GET
+|http://localhost:8080/greeting
+|RateLimit done by Annotation having fallback method
+
+|GET
+|http://localhost:8080/actuator/metrics/bucket4j_summary_consumed
+|metric for consumed and not blocked requests
+
+|GET
+|http://localhost:8080/actuator/metrics/bucket4j_summary_rejected
+|metric for rejected (blocked or fallback) requests
+
+
+|===
+
+
