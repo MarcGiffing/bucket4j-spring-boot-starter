@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <testcontainers-redis-junit.version>1.6.4</testcontainers-redis-junit.version>
         <!-- Using version 5.0.0 or later the onMessage() in the subscriber is never called. This does work with 4.4.x -->
-        <jedis.version>5.1.5</jedis.version>
+        <jedis.version>5.2.0</jedis.version>
     </properties>
 
     <dependencies>
@@ -47,6 +47,12 @@
             <artifactId>jedis</artifactId>
             <version>${jedis.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

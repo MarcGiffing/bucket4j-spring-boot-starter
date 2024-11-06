@@ -46,80 +46,82 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @ConditionalOnBucket4jEnabled
-@ConditionalOnClass({ Filter.class })
-@EnableConfigurationProperties({ Bucket4JBootProperties.class })
+@ConditionalOnClass({Filter.class})
+@EnableConfigurationProperties({Bucket4JBootProperties.class})
 @AutoConfigureBefore(ServletWebServerFactoryAutoConfiguration.class)
-@AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
+@AutoConfigureAfter(value = {CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class})
 @ConditionalOnBean(value = SyncCacheResolver.class)
-@Import(value = { ServiceConfiguration.class, ServletRequestExecutePredicateConfiguration.class, Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class })
+@Import(value = {ServiceConfiguration.class, ServletRequestExecutePredicateConfiguration.class, Bucket4JAutoConfigurationServletFilterBeans.class, Bucket4jCacheConfiguration.class, SpringBootActuatorConfig.class})
 @Slf4j
 public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfiguration<HttpServletRequest, HttpServletResponse>
-		implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
 
-	private final Bucket4JBootProperties properties;
+    private final Bucket4JBootProperties properties;
 
-	private final GenericApplicationContext context;
+    private final GenericApplicationContext context;
 
-	private final SyncCacheResolver cacheResolver;
+    private final SyncCacheResolver cacheResolver;
 
-	private final RateLimitService rateLimitService;
+    private final RateLimitService rateLimitService;
 
-	private final Bucket4jConfigurationHolder servletConfigurationHolder;
+    private final Bucket4jConfigurationHolder servletConfigurationHolder;
 
-	public Bucket4JAutoConfigurationServletFilter(
-			Bucket4JBootProperties properties,
-			GenericApplicationContext context,
-			SyncCacheResolver cacheResolver,
-			List<MetricHandler> metricHandlers,
-			List<ExecutePredicate<HttpServletRequest>> executePredicates,
-			Bucket4jConfigurationHolder servletConfigurationHolder,
-			RateLimitService rateLimitService,
-			@Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
-		super(rateLimitService, configCacheManager, metricHandlers, executePredicates
-				.stream()
-				.collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
-		this.properties = properties;
-		this.context = context;
-		this.cacheResolver = cacheResolver;
-		this.rateLimitService = rateLimitService;
-		this.servletConfigurationHolder =  servletConfigurationHolder;
-	}
-	
-	@Override
-	public void customize(ConfigurableServletWebServerFactory factory) {
-		var filterCount = new AtomicInteger(0);
-		properties
-			.getFilters()
-			.stream()
-			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
-			.map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) :	filter)
-			.forEach(filter -> {
-				rateLimitService.addDefaultMetricTags(properties, filter);
-				filterCount.incrementAndGet();
-				var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
+    public Bucket4JAutoConfigurationServletFilter(
+            Bucket4JBootProperties properties,
+            GenericApplicationContext context,
+            SyncCacheResolver cacheResolver,
+            List<MetricHandler> metricHandlers,
+            List<ExecutePredicate<HttpServletRequest>> executePredicates,
+            Bucket4jConfigurationHolder servletConfigurationHolder,
+            RateLimitService rateLimitService,
+            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+        super(rateLimitService, configCacheManager, metricHandlers, executePredicates
+                .stream()
+                .collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
+        this.properties = properties;
+        this.context = context;
+        this.cacheResolver = cacheResolver;
+        this.rateLimitService = rateLimitService;
+        this.servletConfigurationHolder = servletConfigurationHolder;
+    }
 
-				servletConfigurationHolder.addFilterConfiguration(filter);
+    @Override
+    public void customize(ConfigurableServletWebServerFactory factory) {
+        var filterCount = new AtomicInteger(0);
+        properties
+                .getFilters()
+                .stream()
+                .filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+                .map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
+                .forEach(filter -> {
+                    rateLimitService.addDefaultMetricTags(properties, filter);
+                    filterCount.incrementAndGet();
+                    var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
 
-				//Use either the filter id as bean name or the prefix + counter if no id is configured
-				var beanName = filter.getId() != null ? filter.getId() : ("bucket4JServletRequestFilter" + filterCount);
-				context.registerBean(beanName, Filter.class, () -> new ServletRequestFilter(filterConfig));
+                    servletConfigurationHolder.addFilterConfiguration(filter);
 
-				log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
-			});
-	}
+                    //Use either the filter id as bean name or the prefix + counter if no id is configured
+                    var beanName = filter.getId() != null ? filter.getId() : ("bucket4JServletRequestFilter" + filterCount);
+                    context.registerBean(beanName, Filter.class, () -> new ServletRequestFilter(filterConfig));
 
-	@Override
-	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
-		//only handle servlet filter updates
-		Bucket4JConfiguration newConfig = event.getNewValue();
-		if(newConfig.getFilterMethod().equals(FilterMethod.SERVLET)) {
-			try {
-				var filter = context.getBean(event.getKey(), ServletRequestFilter.class);
-				var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
-				filter.setFilterConfig(newFilterConfig);
-			} catch (Exception exception) {
-				log.warn("Failed to update Servlet Filter configuration. {}", exception.getMessage());
-			}
-		}
-	}
+                    log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
+                });
+    }
+
+    @Override
+    public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
+        //only handle servlet filter updates
+        Bucket4JConfiguration newConfig = event.getNewValue();
+        if (newConfig.getFilterMethod().equals(FilterMethod.SERVLET)) {
+            try {
+                var filter = context.getBean(event.getKey(), ServletRequestFilter.class);
+                var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
+                filter.setFilterConfig(newFilterConfig);
+            } catch (Exception exception) {
+                log.warn("Failed to update Servlet Filter configuration. {}", exception.getMessage());
+            }
+        }
+    }
+
+
 }
