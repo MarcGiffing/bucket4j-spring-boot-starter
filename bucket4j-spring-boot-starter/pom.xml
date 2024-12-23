@@ -17,7 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<redisson.version>3.38.1</redisson.version>
+		<redisson.version>3.41.0</redisson.version>
 		<ignite-core.version>2.16.0</ignite-core.version>
 	</properties>
 	<dependencies>
