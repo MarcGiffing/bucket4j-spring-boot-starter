@@ -808,3 +808,19 @@ bucket4j:
           time: 1
           unit: minutes
 ----
+
+[[installation]]
+== Installation
+
+Adding `bucket4j-spring-boot-starter` to your project.
+
+https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter[Maven Central]
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j</groupId>
+    <artifactId>bucket4j-spring-boot-starter</artifactId>
+    <version>${version}</version>
+</dependency>
+----
