@@ -14,7 +14,8 @@ Project version overview:
 * 0.11.x - Bucket4j 8.8.0 - Spring Boot 3.2.x
 * 0.10.x - Bucket4j 8.7.0 - Spring Boot 3.1.x
 
-== Contents
+[[table_of_contents]]
+== Table of Contents
 
 * <<introduction>>
 ** <<introduction_filter>>
@@ -36,6 +37,8 @@ Project version overview:
 ** <<overview_cache_autoconfiguration>>
 ** <<examples>>
 ** <<property_configuration_examples>>
+
+* <<Installation>>
 
 [[introduction]]
 == Spring Boot Starter for Bucket4j
@@ -808,3 +811,22 @@ bucket4j:
           time: 1
           unit: minutes
 ----
+
+[[installation]]
+== Installation
+
+Adding `bucket4j-spring-boot-starter` to your project.
+
+https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter[Maven Central]
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j</groupId>
+    <artifactId>bucket4j-spring-boot-starter</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+
+* Back to <<table_of_contents>>
