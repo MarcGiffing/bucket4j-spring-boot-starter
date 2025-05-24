@@ -9,6 +9,7 @@ image:{url-repo}/actions/workflows/pmd.yml/badge.svg[Build Status,link={url-repo
 
 Project version overview:
 
+* > 0.12.9 - Bucket4j 8.10.x - Spring Boot 3.4.x
 * > 0.12.8 - Bucket4j 8.10.x - Spring Boot 3.3.x
 * <= 0.12.7 - Bucket4j 8.9.0 - Spring Boot 3.2.x
 * 0.11.x - Bucket4j 8.8.0 - Spring Boot 3.2.x
