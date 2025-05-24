@@ -224,6 +224,11 @@ You can find some Configuration examples in the test project: {url-examples}/gen
 bucket4j.enabled=true # enable/disable bucket4j support
 bucket4j.cache-to-use= # If you use multiple caching implementation in your project and you want to choose a specific one you can set the cache here (jcache, hazelcast, ignite, redis)
 
+# Default Properties which can be overiden for the filters
+bucket4j.default-http-content-type=application/json
+bucket4j.default-http-status-code=TOO_MANY_REQUESTS # Enum value of org.springframework.http.HttpStatus
+bucket4j.default-http-response-body={ "message": "Too many requests!" }  # the json response which should be added to the body
+
 # Optional default metric tags for all filters
 bucket4j.default-metric-tags[0].key=IP
 bucket4j.default-metric-tags[0].expression=getRemoteAddr()

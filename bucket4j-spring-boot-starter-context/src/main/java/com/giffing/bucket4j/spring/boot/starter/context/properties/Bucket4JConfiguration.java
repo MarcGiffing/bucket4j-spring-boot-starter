@@ -76,19 +76,17 @@ public class Bucket4JConfiguration implements Serializable {
     /**
      * The HTTP Content-Type which should be returned
      */
-    @NotBlank
-    private String httpContentType = "application/json";
+    private String httpContentType;
 
     /**
      * The HTTP status code which should be returned when limiting the rate.
      */
-    @NotNull
-    private HttpStatus httpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
+    private HttpStatus httpStatusCode;
 
     /**
      * The HTTP content which should be used in case of rate limiting
      */
-    private String httpResponseBody = "{ \"message\": \"Too many requests!\" }";
+    private String httpResponseBody;
 
     /**
      * Hides the HTTP response headers

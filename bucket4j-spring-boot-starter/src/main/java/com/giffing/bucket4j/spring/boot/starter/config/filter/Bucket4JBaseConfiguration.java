@@ -12,6 +12,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,25 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
             this.configCacheManager.setValue(filter.getId(), filter);
         }
         return filter;
+    }
+
+    /**
+     * Sets the default Values form the {@link Bucket4JBootProperties} for the {@link Bucket4JConfiguration}
+     *
+     * @param properties which contains the defaults
+     * @param filter     where  the defaults should be set
+     */
+    protected void setDefaults(Bucket4JBootProperties properties, Bucket4JConfiguration filter) {
+        rateLimitService.addDefaultMetricTags(properties, filter);
+        if (!StringUtils.hasLength(filter.getHttpResponseBody())) {
+            filter.setHttpResponseBody(properties.getDefaultHttpResponseBody());
+        }
+        if (!StringUtils.hasLength(filter.getHttpContentType())) {
+            filter.setHttpContentType(properties.getDefaultHttpContentType());
+        }
+        if (filter.getHttpStatusCode() == null) {
+            filter.setHttpStatusCode(properties.getDefaultHttpStatusCode());
+        }
     }
 
 }

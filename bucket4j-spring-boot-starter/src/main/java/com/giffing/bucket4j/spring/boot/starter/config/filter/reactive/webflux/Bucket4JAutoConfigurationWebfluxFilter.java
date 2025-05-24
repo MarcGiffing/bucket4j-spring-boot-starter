@@ -60,8 +60,6 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private final AsyncCacheResolver cacheResolver;
 
-	private final RateLimitService rateLimitService;
-
 	private final Bucket4jConfigurationHolder servletConfigurationHolder;
 
 	public Bucket4JAutoConfigurationWebfluxFilter(
@@ -79,7 +77,6 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		this.properties = properties;
 		this.context = context;
 		this.cacheResolver = cacheResolver;
-		this.rateLimitService = rateLimitService;
 		this.servletConfigurationHolder = servletConfigurationHolder;
 	}
 
@@ -92,7 +89,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.WEBFLUX))
 			.map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
 			.forEach(filter -> {
-				rateLimitService.addDefaultMetricTags(properties, filter);
+				setDefaults(properties, filter);
 				filterCount.incrementAndGet();
 				var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
 

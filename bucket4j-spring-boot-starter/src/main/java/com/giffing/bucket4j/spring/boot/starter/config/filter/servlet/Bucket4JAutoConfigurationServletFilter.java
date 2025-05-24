@@ -62,8 +62,6 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 
     private final SyncCacheResolver cacheResolver;
 
-    private final RateLimitService rateLimitService;
-
     private final Bucket4jConfigurationHolder servletConfigurationHolder;
 
     public Bucket4JAutoConfigurationServletFilter(
@@ -81,7 +79,6 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
         this.properties = properties;
         this.context = context;
         this.cacheResolver = cacheResolver;
-        this.rateLimitService = rateLimitService;
         this.servletConfigurationHolder = servletConfigurationHolder;
     }
 
@@ -94,7 +91,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
                 .filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
                 .map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
                 .forEach(filter -> {
-                    rateLimitService.addDefaultMetricTags(properties, filter);
+                    setDefaults(properties, filter);
                     filterCount.incrementAndGet();
                     var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
 

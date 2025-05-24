@@ -44,83 +44,78 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @ConditionalOnBucket4jEnabled
-@ConditionalOnClass({ GlobalFilter.class })
-@EnableConfigurationProperties({ Bucket4JBootProperties.class })
+@ConditionalOnClass({GlobalFilter.class})
+@EnableConfigurationProperties({Bucket4JBootProperties.class})
 @AutoConfigureBefore(GatewayAutoConfiguration.class)
-@AutoConfigureAfter(value = { CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class })
+@AutoConfigureAfter(value = {CacheAutoConfiguration.class, Bucket4jCacheConfiguration.class})
 @ConditionalOnBean(value = AsyncCacheResolver.class)
-@Import(value = { ServiceConfiguration.class, WebfluxExecutePredicateConfiguration.class, SpringBootActuatorConfig.class, Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans.class })
+@Import(value = {ServiceConfiguration.class, WebfluxExecutePredicateConfiguration.class, SpringBootActuatorConfig.class, Bucket4JAutoConfigurationSpringCloudGatewayFilterBeans.class})
 @Slf4j
 public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JBaseConfiguration<ServerHttpRequest, ServerHttpResponse> {
 
-	private final Bucket4JBootProperties properties;
+    private final Bucket4JBootProperties properties;
 
-	private final GenericApplicationContext context;
+    private final GenericApplicationContext context;
 
-	private final AsyncCacheResolver cacheResolver;
+    private final AsyncCacheResolver cacheResolver;
 
-	private final RateLimitService rateLimitService;
+    private final Bucket4jConfigurationHolder gatewayConfigurationHolder;
 
-	private final Bucket4jConfigurationHolder gatewayConfigurationHolder;
+    public Bucket4JAutoConfigurationSpringCloudGatewayFilter(
+            Bucket4JBootProperties properties,
+            GenericApplicationContext context,
+            AsyncCacheResolver cacheResolver,
+            List<MetricHandler> metricHandlers,
+            List<ExecutePredicate<ServerHttpRequest>> executePredicates,
+            Bucket4jConfigurationHolder gatewayConfigurationHolder,
+            RateLimitService rateLimitService,
+            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
 
-
-	public Bucket4JAutoConfigurationSpringCloudGatewayFilter(
-			Bucket4JBootProperties properties,
-			GenericApplicationContext context,
-			AsyncCacheResolver cacheResolver,
-			List<MetricHandler> metricHandlers,
-			List<ExecutePredicate<ServerHttpRequest>> executePredicates,
-			Bucket4jConfigurationHolder gatewayConfigurationHolder,
-			RateLimitService rateLimitService,
-			@Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
-
-		super(rateLimitService, configCacheManager, metricHandlers, executePredicates
-				.stream()
-				.collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
-		this.properties = properties;
-		this.context = context;
-		this.cacheResolver = cacheResolver;
-		this.rateLimitService = rateLimitService;
-		this.gatewayConfigurationHolder = gatewayConfigurationHolder;
-		initFilters();
-	}
+        super(rateLimitService, configCacheManager, metricHandlers, executePredicates
+                .stream()
+                .collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
+        this.properties = properties;
+        this.context = context;
+        this.cacheResolver = cacheResolver;
+        this.gatewayConfigurationHolder = gatewayConfigurationHolder;
+        initFilters();
+    }
 
 
-	public void initFilters() {
-		AtomicInteger filterCount = new AtomicInteger(0);
-		properties
-			.getFilters()
-			.stream()
-			.filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.GATEWAY))
-			.map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
-			.forEach(filter -> {
-				rateLimitService.addDefaultMetricTags(properties, filter);
-				filterCount.incrementAndGet();
-				var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
+    public void initFilters() {
+        AtomicInteger filterCount = new AtomicInteger(0);
+        properties
+                .getFilters()
+                .stream()
+                .filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.GATEWAY))
+                .map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
+                .forEach(filter -> {
+                    setDefaults(properties, filter);
+                    filterCount.incrementAndGet();
+                    var filterConfig = buildFilterConfig(filter, cacheResolver.resolve(filter.getCacheName()));
 
-				gatewayConfigurationHolder.addFilterConfiguration(filter);
+                    gatewayConfigurationHolder.addFilterConfiguration(filter);
 
-				//Use either the filter id as bean name or the prefix + counter if no id is configured
-				String beanName = filter.getId() != null ? filter.getId() : ("bucket4JGatewayFilter" + filterCount);
-				context.registerBean(beanName, GlobalFilter.class, () -> new SpringCloudGatewayRateLimitFilter(filterConfig));
+                    //Use either the filter id as bean name or the prefix + counter if no id is configured
+                    String beanName = filter.getId() != null ? filter.getId() : ("bucket4JGatewayFilter" + filterCount);
+                    context.registerBean(beanName, GlobalFilter.class, () -> new SpringCloudGatewayRateLimitFilter(filterConfig));
 
-				log.info("create-gateway-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
-			});
-	}
+                    log.info("create-gateway-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
+                });
+    }
 
-
-	@Override
-	public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
-		//only handle gateway filter updates
-		Bucket4JConfiguration newConfig = event.getNewValue();
-		if (newConfig.getFilterMethod().equals(FilterMethod.GATEWAY)) {
-			try {
-				SpringCloudGatewayRateLimitFilter filter = context.getBean(event.getKey(), SpringCloudGatewayRateLimitFilter.class);
-				var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
-				filter.setFilterConfig(newFilterConfig);
-			} catch (Exception exception) {
-				log.warn("Failed to update Gateway Filter configuration. {}", exception.getMessage());
-			}
-		}
-	}
+    @Override
+    public void onCacheUpdateEvent(CacheUpdateEvent<String, Bucket4JConfiguration> event) {
+        //only handle gateway filter updates
+        Bucket4JConfiguration newConfig = event.getNewValue();
+        if (newConfig.getFilterMethod().equals(FilterMethod.GATEWAY)) {
+            try {
+                SpringCloudGatewayRateLimitFilter filter = context.getBean(event.getKey(), SpringCloudGatewayRateLimitFilter.class);
+                var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
+                filter.setFilterConfig(newFilterConfig);
+            } catch (Exception exception) {
+                log.warn("Failed to update Gateway Filter configuration. {}", exception.getMessage());
+            }
+        }
+    }
 }

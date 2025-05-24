@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
@@ -78,6 +79,17 @@ public class Bucket4JBootProperties {
      */
     @Valid
     private List<MetricTag> defaultMethodMetricTags = new ArrayList<>();
+
+    @NotBlank
+    private String defaultHttpContentType = "application/json";
+
+    @NotNull
+    private HttpStatus defaultHttpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
+
+    /**
+     * The HTTP content which should be used in case of rate limiting
+     */
+    private String defaultHttpResponseBody = "{ \"message\": \"Too many requests!\" }";
 
 
     public static String getPropertyPrefix() {
