@@ -12,13 +12,14 @@
 
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
+		<micrometer-registry-prometheus.version>1.15.0</micrometer-registry-prometheus.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
-			<version>1.14.5</version>
+			<version>${micrometer-registry-prometheus.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

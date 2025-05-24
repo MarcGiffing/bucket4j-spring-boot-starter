@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.5</version>
 		<relativePath />
 	</parent>
 	<modules>
@@ -48,7 +48,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
 		<bucket4j.version>8.10.1</bucket4j.version>
-		<spring-cloud-starter-gateway.version>4.2.0</spring-cloud-starter-gateway.version>
+		<spring-cloud-starter-gateway.version>4.2.2</spring-cloud-starter-gateway.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -104,7 +104,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
-				<version>1.6.0</version>
+				<version>1.7.0</version>
 				<configuration>
 					<updatePomFile>true</updatePomFile>
 					<flattenMode>resolveCiFriendliesOnly</flattenMode>
