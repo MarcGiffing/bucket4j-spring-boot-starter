@@ -80,10 +80,10 @@ This projects supports the following filters:
 ----
 bucket4j.filters[0].cache-name=buckets # the name of the cache
 bucket4j.filters[0].url=^(/hello).* # regular expression for the url
-bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5 # refills 5 tokens every 10 seconds (intervall)
+bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5 # refills 5 tokens every 10 seconds (interval)
 bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10
 bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds
-bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=intervall
+bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=interval
 ----
 
 [[introduction_method]]
