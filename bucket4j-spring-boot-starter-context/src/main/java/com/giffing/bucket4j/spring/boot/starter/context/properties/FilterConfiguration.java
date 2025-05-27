@@ -21,7 +21,9 @@ import java.util.Map;
 public class FilterConfiguration<R, P> {
 
 	private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
-	
+
+
+
 	/**
 	 * The url on which the filter should listen.
 	 */
