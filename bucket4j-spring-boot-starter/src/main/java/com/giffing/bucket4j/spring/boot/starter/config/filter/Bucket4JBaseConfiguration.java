@@ -10,12 +10,14 @@ import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Holds helper Methods which are reused by the
@@ -25,7 +27,6 @@ import java.util.Map;
  * configuration classes
  */
 @Slf4j
-@RequiredArgsConstructor
 public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateListener<String, Bucket4JConfiguration> {
 
     private final RateLimitService rateLimitService;
@@ -35,6 +36,21 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
     private final List<MetricHandler> metricHandlers;
 
     private final Map<String, ExecutePredicate<R>> executePredicates;
+
+    private final UrlTemplateMapper urlTemplateMapper;
+
+    protected Bucket4JBaseConfiguration(
+            RateLimitService rateLimitService,
+            CacheManager<String, Bucket4JConfiguration> configCacheManager,
+            List<MetricHandler> metricHandlers,
+            Map<String, ExecutePredicate<R>> executePredicates,
+            @Autowired(required = false) UrlTemplateMapper urlTemplateMapper) {
+        this.rateLimitService = rateLimitService;
+        this.configCacheManager = configCacheManager;
+        this.metricHandlers = metricHandlers;
+        this.executePredicates = executePredicates;
+        this.urlTemplateMapper = urlTemplateMapper;
+    }
 
     public FilterConfiguration<R, P> buildFilterConfig(
             Bucket4JConfiguration config,
@@ -67,7 +83,14 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
 
     private FilterConfiguration<R, P> mapFilterConfiguration(Bucket4JConfiguration config) {
         FilterConfiguration<R, P> filterConfig = new FilterConfiguration<>();
-        filterConfig.setUrl(config.getUrl().strip());
+        if (UrlTemplate.CUSTOM.equals(config.getUrlTemplate()) &&
+                nonNull(urlTemplateMapper)) {
+            filterConfig.setUrl(
+                    urlTemplateMapper.map(
+                            config.getUrl().strip()));
+        } else {
+            filterConfig.setUrl(config.getUrl().strip());
+        }
         filterConfig.setOrder(config.getFilterOrder());
         filterConfig.setStrategy(config.getStrategy());
         filterConfig.setHttpContentType(config.getHttpContentType());

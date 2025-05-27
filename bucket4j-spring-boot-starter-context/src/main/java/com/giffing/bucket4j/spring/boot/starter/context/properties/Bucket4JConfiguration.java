@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.giffing.bucket4j.spring.boot.starter.context.UrlTemplate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -47,17 +48,30 @@ public class Bucket4JConfiguration implements Serializable {
     private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 
     /**
-     * The URL to which the filter should be registered
+     * The URL or URL pattern to be used for filtering.
+     * If {@link #urlTemplate} is {@link UrlTemplate#REGEX}, this must be a valid regex pattern.
+     * If {@link #urlTemplate} is {@link UrlTemplate#CUSTOM}, this is interpreted as a custom URL template pattern.
      */
     @NotBlank
     private String url = ".*";
+
+    /**
+     * Defines the type of URL pattern matching.
+     * REGEX means the {@link #url} is interpreted as a regular expression.
+     * CUSTOM means the {@link #url} is interpreted as a custom template (e.g. Ant-style pattern).
+     */
+    private UrlTemplate urlTemplate = UrlTemplate.REGEX;
 
     @AssertTrue(message = "Invalid filter URL regex pattern.")
     @JsonIgnore
     public boolean isUrlValid() {
         try {
-            Pattern.compile(url);
-            return !url.equals("/*");
+            if (UrlTemplate.REGEX.equals(urlTemplate)) {
+                Pattern.compile(url);
+                return !url.equals("/*");
+            } else {
+                return url != null && !url.isBlank();
+            }
         } catch (PatternSyntaxException e) {
             return false;
         }
