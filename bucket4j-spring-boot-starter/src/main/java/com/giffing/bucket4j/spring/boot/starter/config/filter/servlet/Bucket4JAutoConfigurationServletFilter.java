@@ -15,7 +15,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRateLimiterFilterFactory;
+import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRateLimitFilter;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,6 +65,8 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 
     private final Bucket4jConfigurationHolder servletConfigurationHolder;
 
+    private final ServletRateLimiterFilterFactory servletRateLimiterFilterFactory;
+
     public Bucket4JAutoConfigurationServletFilter(
             Bucket4JBootProperties properties,
             GenericApplicationContext context,
@@ -72,7 +75,8 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
             List<ExecutePredicate<HttpServletRequest>> executePredicates,
             Bucket4jConfigurationHolder servletConfigurationHolder,
             RateLimitService rateLimitService,
-            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager,
+            ServletRateLimiterFilterFactory servletRateLimiterFilterFactory) {
         super(rateLimitService, configCacheManager, metricHandlers, executePredicates
                 .stream()
                 .collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
@@ -80,6 +84,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
         this.context = context;
         this.cacheResolver = cacheResolver;
         this.servletConfigurationHolder = servletConfigurationHolder;
+        this.servletRateLimiterFilterFactory = servletRateLimiterFilterFactory;
     }
 
     @Override
@@ -99,7 +104,10 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
 
                     //Use either the filter id as bean name or the prefix + counter if no id is configured
                     var beanName = filter.getId() != null ? filter.getId() : ("bucket4JServletRequestFilter" + filterCount);
-                    context.registerBean(beanName, Filter.class, () -> new ServletRequestFilter(filterConfig));
+                    context.registerBean(
+                            beanName,
+                            ServletRateLimitFilter.class,
+                            () -> servletRateLimiterFilterFactory.create(filterConfig));
 
                     log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
                 });
@@ -111,7 +119,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
         Bucket4JConfiguration newConfig = event.getNewValue();
         if (newConfig.getFilterMethod().equals(FilterMethod.SERVLET)) {
             try {
-                var filter = context.getBean(event.getKey(), ServletRequestFilter.class);
+                var filter = context.getBean(event.getKey(), ServletRateLimitFilter.class);
                 var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
                 filter.setFilterConfig(newFilterConfig);
             } catch (Exception exception) {

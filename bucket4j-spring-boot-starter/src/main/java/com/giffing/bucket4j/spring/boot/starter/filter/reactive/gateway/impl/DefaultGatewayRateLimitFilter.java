@@ -1,5 +1,6 @@
-package com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway;
+package com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.impl;
 
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.GatewayRateLimitFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -15,9 +16,11 @@ import reactor.core.publisher.Mono;
 /**
  * {@link GlobalFilter} to configure Bucket4j on each request.
  */
-public class SpringCloudGatewayRateLimitFilter extends AbstractReactiveFilter implements GlobalFilter, Ordered {
+public class DefaultGatewayRateLimitFilter
+		extends AbstractReactiveFilter
+		implements GatewayRateLimitFilter {
 
-	public SpringCloudGatewayRateLimitFilter(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig) {
+	public DefaultGatewayRateLimitFilter(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig) {
 		super(filterConfig);
 	}
 

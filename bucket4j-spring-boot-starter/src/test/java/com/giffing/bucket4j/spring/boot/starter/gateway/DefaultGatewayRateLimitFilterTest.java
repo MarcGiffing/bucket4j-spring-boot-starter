@@ -6,7 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.SpringCloudGatewayRateLimitFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.gateway.impl.DefaultGatewayRateLimitFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class SpringCloudGatewayRateLimitFilterTest {
+class DefaultGatewayRateLimitFilterTest {
 
 	private GlobalFilter filter;
 	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> configuration;
@@ -67,7 +67,7 @@ class SpringCloudGatewayRateLimitFilterTest {
 		configuration = new FilterConfiguration<>();
 		configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
 		configuration.setUrl(".*");
-		filter = new SpringCloudGatewayRateLimitFilter(configuration);
+		filter = new DefaultGatewayRateLimitFilter(configuration);
 	}
 
 	@Test
