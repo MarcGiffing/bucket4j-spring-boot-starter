@@ -65,7 +65,7 @@ class WebfluxRateLimitFilterTest {
 		when(exchange.getResponse()).thenReturn(serverHttpResponse);
 
 		chain = Mockito.mock(WebFilterChain.class);
-		//when(chain.filter(exchange)).thenReturn(Mono.empty());
+		when(chain.filter(exchange)).thenReturn(Mono.empty());
 
 		configuration = new FilterConfiguration<>();
 		configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
