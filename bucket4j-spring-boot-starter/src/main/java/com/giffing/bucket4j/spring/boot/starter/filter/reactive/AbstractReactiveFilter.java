@@ -101,14 +101,17 @@ public class AbstractReactiveFilter {
 			response.getHeaders().set("X-Rate-Limit-Remaining", String.valueOf(rateLimitResult.getRemainingTokens()));
 		}
 
-		Mono<Void> postRateLimitMonos = Mono.empty();
-		filterConfig.getPostRateLimitChecks().forEach(rlc -> {
-			var wrapper = rlc.rateLimit(exchange.getRequest(), response);
-			if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
-				postRateLimitMonos.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
-			}
-		});
-
-		return chain.apply(exchange).then(postRateLimitMonos);
+		return chain.apply(exchange)
+				.then(Mono.defer(() -> {
+					var postRateLimitMonos = Mono.<Void>empty();
+					filterConfig.getPostRateLimitChecks().forEach(rlc -> {
+						var wrapper = rlc.rateLimit(exchange.getRequest(), response);
+						if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
+							postRateLimitMonos
+									.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
+						}
+					});
+					return postRateLimitMonos;
+				}));
 	}
 }
