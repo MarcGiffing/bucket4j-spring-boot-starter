@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.filter.reactive;
 import com.giffing.bucket4j.spring.boot.starter.context.ExpressionParams;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -101,14 +103,16 @@ public class AbstractReactiveFilter {
 			response.getHeaders().set("X-Rate-Limit-Remaining", String.valueOf(rateLimitResult.getRemainingTokens()));
 		}
 
-		Mono<Void> postRateLimitMonos = Mono.empty();
-		filterConfig.getPostRateLimitChecks().forEach(rlc -> {
-			var wrapper = rlc.rateLimit(exchange.getRequest(), response);
-			if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
-				postRateLimitMonos.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
-			}
-		});
-
-		return chain.apply(exchange).then(postRateLimitMonos);
+		return chain.apply(exchange)
+				.then(Mono.defer(() ->
+						Mono.when(
+								filterConfig.getPostRateLimitChecks().stream()
+										.map(rlc -> rlc.rateLimit(exchange.getRequest(), response))
+										.filter(Objects::nonNull)
+										.map(RateLimitResultWrapper::getRateLimitResultCompletableFuture)
+										.filter(Objects::nonNull)
+										.map(Mono::fromFuture)
+									.toList()
+                )));
 	}
 }
