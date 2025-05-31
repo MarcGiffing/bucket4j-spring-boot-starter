@@ -48,7 +48,7 @@ class ServletRateLimitFilterTest {
         
         configuration = new FilterConfiguration<>();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
-        configuration.setUrl(".*");
+        configuration.setUrlMatcher((String url) -> url.matches(".*"));
         configuration.setHttpResponseHeaders(Map.of());
         filter = new ServletRequestFilter(configuration);
     }

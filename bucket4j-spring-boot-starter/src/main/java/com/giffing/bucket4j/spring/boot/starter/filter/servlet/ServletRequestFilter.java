@@ -33,7 +33,7 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return !request.getRequestURI().matches(filterConfig.getUrl());
+        return !filterConfig.getUrlMatcher().match(request.getRequestURI());
     }
 
     @Override
@@ -42,7 +42,11 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (var rl : filterConfig.getRateLimitChecks()) {
-            var wrapper = rl.rateLimit(new ExpressionParams<>(request), null);
+            var wrapper =
+                    rl.rateLimit(
+                            new ExpressionParams<>(request)
+                                    .addParam("urlPattern", filterConfig.getUrlPattern()),
+                            null);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {

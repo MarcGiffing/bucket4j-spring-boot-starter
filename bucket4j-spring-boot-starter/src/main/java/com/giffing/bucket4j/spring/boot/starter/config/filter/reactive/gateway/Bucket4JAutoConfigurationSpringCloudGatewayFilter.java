@@ -12,7 +12,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfigurat
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.UrlTemplateMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.UrlMapper;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
@@ -71,7 +71,7 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
             Bucket4jConfigurationHolder gatewayConfigurationHolder,
             RateLimitService rateLimitService,
             @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager,
-            @Autowired(required = false) UrlTemplateMapper urlTemplateMapper) {
+            @Autowired(required = false) UrlMapper urlMapper) {
 
         super(
                 rateLimitService,
@@ -80,7 +80,7 @@ public class Bucket4JAutoConfigurationSpringCloudGatewayFilter extends Bucket4JB
                 executePredicates
                         .stream()
                         .collect(Collectors.toMap(ExecutePredicate::name, Function.identity())),
-                urlTemplateMapper);
+                urlMapper);
         this.properties = properties;
         this.context = context;
         this.cacheResolver = cacheResolver;

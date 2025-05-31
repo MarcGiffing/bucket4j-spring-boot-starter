@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.UrlMapper;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
@@ -16,8 +17,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Objects.nonNull;
 
 /**
  * Holds helper Methods which are reused by the
@@ -37,19 +36,19 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
 
     private final Map<String, ExecutePredicate<R>> executePredicates;
 
-    private final UrlTemplateMapper urlTemplateMapper;
+    private final UrlMapper urlMapper;
 
     protected Bucket4JBaseConfiguration(
             RateLimitService rateLimitService,
             CacheManager<String, Bucket4JConfiguration> configCacheManager,
             List<MetricHandler> metricHandlers,
             Map<String, ExecutePredicate<R>> executePredicates,
-            @Autowired(required = false) UrlTemplateMapper urlTemplateMapper) {
+            @Autowired(required = false) UrlMapper urlMapper) {
         this.rateLimitService = rateLimitService;
         this.configCacheManager = configCacheManager;
         this.metricHandlers = metricHandlers;
         this.executePredicates = executePredicates;
-        this.urlTemplateMapper = urlTemplateMapper;
+        this.urlMapper = urlMapper;
     }
 
     public FilterConfiguration<R, P> buildFilterConfig(
@@ -83,14 +82,10 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
 
     private FilterConfiguration<R, P> mapFilterConfiguration(Bucket4JConfiguration config) {
         FilterConfiguration<R, P> filterConfig = new FilterConfiguration<>();
-        if (UrlTemplate.CUSTOM.equals(config.getUrlTemplate()) &&
-                nonNull(urlTemplateMapper)) {
-            filterConfig.setUrl(
-                    urlTemplateMapper.map(
-                            config.getUrl().strip()));
-        } else {
-            filterConfig.setUrl(config.getUrl().strip());
-        }
+        filterConfig.setUrlPattern(config.getUrl());
+        filterConfig.setUrlMatcher(
+                    urlMapper.getMatcher(
+                            config.getUrl()));
         filterConfig.setOrder(config.getFilterOrder());
         filterConfig.setStrategy(config.getStrategy());
         filterConfig.setHttpContentType(config.getHttpContentType());

@@ -33,7 +33,7 @@ public class AbstractReactiveFilter {
 	}
 
 	protected boolean urlMatches(ServerHttpRequest request) {
-		return request.getURI().getPath().matches(filterConfig.getUrl());
+		return filterConfig.getUrlMatcher().match(request.getURI().getPath());
 	}
 
 	protected Mono<Void> chainWithRateLimitCheck(ServerWebExchange exchange, ReactiveFilterChain chain) {
@@ -42,7 +42,11 @@ public class AbstractReactiveFilter {
 		var response = exchange.getResponse();
 		List<Mono<RateLimitResult>> asyncConsumptionProbes = new ArrayList<>();
 		for (var rlc : filterConfig.getRateLimitChecks()) {
-			var wrapper = rlc.rateLimit(new ExpressionParams<>(request), null);
+			var wrapper =
+					rlc.rateLimit(
+							new ExpressionParams<>(request)
+									.addParam("urlPattern", filterConfig.getUrlPattern()),
+							null);
 			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
 				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 				if(filterConfig.getStrategy() == RateLimitConditionMatchingStrategy.FIRST){
