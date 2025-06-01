@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-redis</artifactId>
+            <artifactId>bucket4j_jdk17-redisson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>

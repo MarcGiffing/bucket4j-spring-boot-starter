@@ -57,7 +57,8 @@ public class ReactiveIntervalRefillSpeedTest {
                 .uri(url)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.TOO_MANY_REQUESTS)
-                .expectBody().jsonPath("error", "Too many requests!");
+                .expectBody()
+                .jsonPath("message").isEqualTo( "Too many requests!");
     }
 
     private void successfulWebRequest(String url, Integer remainingTries) {

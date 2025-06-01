@@ -11,7 +11,7 @@
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-example-gateway</artifactId>
 	<properties>
-		<spring-cloud.version>2024.0.1</spring-cloud.version>
+		<spring-cloud.version>2025.0.0</spring-cloud.version>
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 	<dependencies>
@@ -49,7 +49,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-hazelcast</artifactId>
+			<artifactId>bucket4j_jdk17-hazelcast</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
