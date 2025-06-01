@@ -6,14 +6,14 @@ import org.springframework.web.util.pattern.PathPatternParser;
 
 import static org.springframework.http.server.PathContainer.parsePath;
 
+@SuppressWarnings("unused")
 public class PatternUrlMapper
         implements UrlMapper {
 
-    private final PathPatternParser pathPatternParser =
-            new PathPatternParser();
-
     @Override
     public UrlMatcher getMatcher(String pattern) {
+        var pathPatternParser =
+                new PathPatternParser();
         var pathPattern =
                 pathPatternParser.parse(pattern);
         return (String url) ->
@@ -24,7 +24,7 @@ public class PatternUrlMapper
     @Override
     public boolean isValid(String pattern) {
         try {
-            pathPatternParser.parse(pattern);
+            new PathPatternParser().parse(pattern);
             return true;
         } catch (Exception e) {
             return false;
