@@ -264,7 +264,8 @@ public class ReactiveRateLimitTest {
                 .uri(url)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.TOO_MANY_REQUESTS)
-                .expectBody().jsonPath("error", "Too many requests!");
+                .expectBody()
+                .jsonPath("message").isEqualTo( "Too many requests!");
     }
 
 }

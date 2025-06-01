@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-redis</artifactId>
+            <artifactId>bucket4j_jdk17-jedis</artifactId>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.5.0</version>
 		<relativePath />
 	</parent>
 	<modules>
@@ -47,7 +47,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<bucket4j.version>8.10.1</bucket4j.version>
+		<bucket4j.version>8.14.0</bucket4j.version>
 		<spring-cloud-starter-gateway.version>4.2.2</spring-cloud-starter-gateway.version>
 	</properties>
 	<dependencyManagement>
@@ -69,32 +69,52 @@
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j-core</artifactId>
+				<artifactId>bucket4j_jdk17-core</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j-jcache</artifactId>
+				<artifactId>bucket4j_jdk17-jcache</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j-hazelcast</artifactId>
+				<artifactId>bucket4j_jdk17-hazelcast</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j-redis</artifactId>
+				<artifactId>bucket4j_jdk17-redis-common</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j-ignite</artifactId>
+				<artifactId>bucket4j_jdk17-jedis</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.bucket4j</groupId>
-				<artifactId>bucket4j-infinispan</artifactId>
+				<artifactId>bucket4j_jdk17-redis</artifactId>
+				<version>${bucket4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.bucket4j</groupId>
+				<artifactId>bucket4j_jdk17-redisson</artifactId>
+				<version>${bucket4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.bucket4j</groupId>
+				<artifactId>bucket4j_jdk17-lettuce</artifactId>
+				<version>${bucket4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.bucket4j</groupId>
+				<artifactId>bucket4j_jdk17-ignite</artifactId>
+				<version>${bucket4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.bucket4j</groupId>
+				<artifactId>bucket4j_jdk17-infinispan</artifactId>
 				<version>${bucket4j.version}</version>
 			</dependency>
 		</dependencies>
