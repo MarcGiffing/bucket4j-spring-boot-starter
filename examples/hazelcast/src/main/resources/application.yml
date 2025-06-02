@@ -12,7 +12,7 @@ bucket4j:
   filters:
   - id: filter1
     cache-name: buckets
-    url: .*
+    url-pattern: .*
     major-version: 1
     rate-limits:
     - tokens-inheritance-strategy: reset

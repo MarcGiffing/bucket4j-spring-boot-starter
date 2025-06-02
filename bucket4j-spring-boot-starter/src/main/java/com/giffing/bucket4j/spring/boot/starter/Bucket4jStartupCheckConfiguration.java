@@ -43,7 +43,7 @@ import static com.giffing.bucket4j.spring.boot.starter.utils.RateLimitAopUtils.g
 @AutoConfigureAfter(value = {
         CacheAutoConfiguration.class,
         Bucket4jCacheConfiguration.class,
-        Bucket4jUrlConfiguration.class
+        Bucket4jUrlPatternConfiguration.class
 })
 @RequiredArgsConstructor
 @EnableConfigurationProperties(Bucket4JBootProperties.class)

@@ -36,7 +36,7 @@ bucket4j:
   filters:
   - id: filter1
     cache-name: buckets
-    url: .*
+    url-pattern: .*
     rate-limits:
     - cache-key: getRemoteAddr()
       post-execute-condition: getStatus() eq 200

@@ -19,7 +19,7 @@ bucket4j:
     - cache-name: buckets_test
       id: filter1
       filter-method: webflux
-      url: ^(/hello).*
+      url-pattern: ^(/hello).*
       rate-limits:
         - bandwidths:
             - capacity: 5
@@ -29,7 +29,7 @@ bucket4j:
     - cache-name: buckets_test
       id: filter2
       filter-method: webflux
-      url: ^(/world).*
+      url-pattern: ^(/world).*
       rate-limits:
         - bandwidths:
             - capacity: 10

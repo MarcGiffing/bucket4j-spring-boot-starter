@@ -80,7 +80,7 @@ This projects supports the following filters:
 [source,properties]
 ----
 bucket4j.filters[0].cache-name=buckets # the name of the cache
-bucket4j.filters[0].url=^(/hello).* # regular expression for the url
+bucket4j.filters[0].url-pattern=^(/hello).* # regular expression for the url
 bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5 # refills 5 tokens every 10 seconds (interval)
 bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10
 bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds
@@ -241,6 +241,7 @@ bucket4j.default-metric-tags[0].types=REJECTED_COUNTER
 ----
 bucket4j.filter-config-caching-enabled=true  #Enable/disable caching of filter configurations.
 bucket4j.filter-config-cache-name=filterConfigCache #The name of the cache where the configurations are stored. Defaults to 'filterConfigCache'.
+bucket4j.url-pattern-parser=regex # Defines how URL patterns are matched. Options: 'regex' (default) or 'path-pattern'. You can provide a custom implementation by implementing the UrlPatternParser interface.
 bucket4j.filters[0].id=filter1 # The id of the filter. This field is mandatory when configuration caching is enabled and should always be a unique string.
 bucket4j.filters[0].major-version=1 # [min = 1, max = 92 million] Major version number of the configuration.
 bucket4j.filters[0].minor-version=1 # [min = 1, max = 99 billion] Minor version number of the configuration. (intended for internal updates, for example based on CPU-usage, but can also be used for regular updates)
@@ -252,7 +253,7 @@ bucket4j.filters[0].http-status-code=TOO_MANY_REQUESTS # Enum value of org.sprin
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].http-response-headers.<MY_CUSTOM_HEADER>=MY_CUSTOM_HEADER_VALUE # You can add any numbers of custom headers
 bucket4j.filters[0].hide-http-response-headers=true # Hides response headers like x-rate-limit-remaining or x-rate-limit-retry-after-seconds on rate limiting
-bucket4j.filters[0].url=.* # a regular expression
+bucket4j.filters[0].url-pattern=.* # a regular expression
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching
 bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
@@ -574,7 +575,7 @@ bucket4j:
   - cache-name: buckets
     filter-method: servlet
     filter-order: 1
-    url: .*
+    url-pattern: .*
     metrics:
       tags:
         - key: IP
@@ -742,7 +743,7 @@ bucket4j:
   enabled: true
   filters:
   - cache-name: buckets
-    url: .*
+    url-pattern: .*
     rate-limits:
       - bandwidths:
         - capacity: 5
@@ -762,7 +763,7 @@ bucket4j:
   filters:
   - cache-name: buckets
     filter-method: servlet
-    url: .*
+    url-pattern: .*
     rate-limits:
       - execute-condition:  @securityService.notSignedIn() # only for not logged in users
         cache-key: "getRemoteAddr()"
@@ -792,14 +793,14 @@ bucket4j:
   enabled: true
   filters: # each config entry creates one servlet filter or other filter
   - cache-name: buckets # create new servlet filter with bucket4j configuration
-    url: /admin*
+    url-pattern: /admin*
     rate-limits:
       bandwidths: # maximum of 5 requests within 10 seconds
       - capacity: 5
         time: 10
         unit: seconds
   - cache-name: buckets
-    url: /public*
+    url-pattern: /public*
     rate-limits:
       - cache-key: getRemoteAddress() # IP based filter
         bandwidths: # maximum of 5 requests within 10 seconds
@@ -807,7 +808,7 @@ bucket4j:
           time: 10
           unit: seconds
   - cache-name: buckets
-    url: /users*
+    url-pattern: /users*
     rate-limits:
       - skip-condition: "@securityService.username() == 'admin'" # we don't check the rate limit if user is the admin user
         cache-key: "@securityService.username()?: getRemoteAddr()" # use the username as key. if authenticated use the ip address

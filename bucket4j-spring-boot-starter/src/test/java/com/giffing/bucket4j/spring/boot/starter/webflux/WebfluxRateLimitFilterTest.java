@@ -1,9 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.webflux;
 
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
@@ -64,7 +61,8 @@ class WebfluxRateLimitFilterTest {
 
 		configuration = new FilterConfiguration<>();
 		configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
-		configuration.setUrlMatcher((String url) -> url.matches(".*"));
+		configuration.setUrlPatternMatcher(
+				UrlPatternMatcher.ALLOW_MATCHER);
 		filter = new WebfluxWebFilter(configuration);
 	}
 

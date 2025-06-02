@@ -24,7 +24,7 @@ bucket4j:
         expression: "2"
     cache-name: buckets
     filter-method: gateway
-    url: .*
+    url-pattern: .*
     filter-order: -100000
     rate-limits:
       - tokens-inheritance-strategy: reset

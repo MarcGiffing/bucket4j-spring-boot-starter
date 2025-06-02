@@ -9,10 +9,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-@Constraint(validatedBy = UrlValidator.class)
+@Constraint(validatedBy = UrlPatternValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface ValidUrl {
+@Target({ElementType.FIELD, ElementType.METHOD})
+public @interface ValidUrlPattern {
 	String message() default "Invalid url";
 
 	Class<?>[] groups() default {};

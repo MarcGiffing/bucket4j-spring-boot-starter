@@ -12,6 +12,8 @@ import com.giffing.bucket4j.spring.boot.starter.filter.reactive.AbstractReactive
 
 import reactor.core.publisher.Mono;
 
+import static java.util.Objects.nonNull;
+
 /**
  * {@link GlobalFilter} to configure Bucket4j on each request.
  */
@@ -23,8 +25,10 @@ public class SpringCloudGatewayRateLimitFilter extends AbstractReactiveFilter im
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-		ServerHttpRequest request = exchange.getRequest();
-		if (urlMatches(request)) {
+		var variables =
+				urlMatchAndExtract(exchange.getRequest());
+		if (nonNull(variables)) {
+			exchange.getAttributes().put(ATTRIBUTE_URL_VARIABLES, variables);
 			return chainWithRateLimitCheck(exchange, chain::filter);
 		}
 		return chain.filter(exchange);

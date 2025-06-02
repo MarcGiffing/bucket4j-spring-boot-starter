@@ -20,7 +20,7 @@ bucket4j:
     filter-method: servlet
     filter-order: -200
     http-content-type: application/json;charset=UTF-8
-    url: .*
+    url-pattern: .*
     metrics:
       tags:
       - key: USERNAME
@@ -38,7 +38,7 @@ bucket4j:
     filter-method: servlet
     filter-order: 1
     http-content-type: application/json;charset=UTF-8
-    url: .*
+    url-pattern: .*
     metrics:
       tags:
         - key: USERNAME

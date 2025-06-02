@@ -10,8 +10,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 import java.util.Arrays;
 import java.util.Map;
 
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResult;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitResultWrapper;
+import com.giffing.bucket4j.spring.boot.starter.context.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRequestFilter;
 
@@ -48,7 +45,7 @@ class ServletRateLimitFilterTest {
         
         configuration = new FilterConfiguration<>();
         configuration.setRateLimitChecks(Arrays.asList(rateLimitCheck1, rateLimitCheck2, rateLimitCheck3));
-        configuration.setUrlMatcher((String url) -> url.matches(".*"));
+        configuration.setUrlPatternMatcher(UrlPatternMatcher.ALLOW_MATCHER);
         configuration.setHttpResponseHeaders(Map.of());
         filter = new ServletRequestFilter(configuration);
     }

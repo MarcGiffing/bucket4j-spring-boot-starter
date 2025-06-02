@@ -13,9 +13,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ServletRequestFilter extends OncePerRequestFilter implements Ordered {
 
+    protected String ATTRIBUTE_URL_VARIABLES = "urlVariables";
+
     private FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig;
 
     public ServletRequestFilter(FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig) {
@@ -33,7 +37,14 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return !filterConfig.getUrlMatcher().match(request.getRequestURI());
+        var variables =
+                filterConfig.getUrlPatternMatcher().matchAndExtract(
+                        request.getRequestURI(),
+                        request.getQueryString());
+        if (variables == null) return true;
+
+        request.setAttribute(ATTRIBUTE_URL_VARIABLES, variables);
+        return false;
     }
 
     @Override
@@ -45,7 +56,8 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
             var wrapper =
                     rl.rateLimit(
                             new ExpressionParams<>(request)
-                                    .addParam("urlPattern", filterConfig.getUrlPattern()),
+                                    .addParam("urlPattern", filterConfig.getUrlPattern())
+                                    .addParam("urlVariables", request.getAttribute(ATTRIBUTE_URL_VARIABLES)),
                             null);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();

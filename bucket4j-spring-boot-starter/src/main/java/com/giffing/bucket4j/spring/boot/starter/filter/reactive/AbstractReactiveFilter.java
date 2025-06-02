@@ -15,12 +15,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Data
 @Slf4j
 public class AbstractReactiveFilter {
+
+	protected String ATTRIBUTE_URL_VARIABLES = "urlVariables";
 
 	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig;
 
@@ -32,8 +35,10 @@ public class AbstractReactiveFilter {
 		this.filterConfig = filterConfig;
 	}
 
-	protected boolean urlMatches(ServerHttpRequest request) {
-		return filterConfig.getUrlMatcher().match(request.getURI().getPath());
+	protected Map<String, String> urlMatchAndExtract(ServerHttpRequest request) {
+		return filterConfig.getUrlPatternMatcher().matchAndExtract(
+				request.getURI().getPath(),
+				request.getURI().getQuery());
 	}
 
 	protected Mono<Void> chainWithRateLimitCheck(ServerWebExchange exchange, ReactiveFilterChain chain) {
@@ -45,7 +50,8 @@ public class AbstractReactiveFilter {
 			var wrapper =
 					rlc.rateLimit(
 							new ExpressionParams<>(request)
-									.addParam("urlPattern", filterConfig.getUrlPattern()),
+									.addParam("urlPattern", filterConfig.getUrlPattern())
+									.addParam(ATTRIBUTE_URL_VARIABLES, exchange.getAttribute(ATTRIBUTE_URL_VARIABLES)),
 							null);
 			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
 				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));

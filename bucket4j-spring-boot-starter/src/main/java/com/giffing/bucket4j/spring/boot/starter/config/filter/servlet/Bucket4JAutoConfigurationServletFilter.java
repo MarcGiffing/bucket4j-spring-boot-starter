@@ -12,7 +12,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfigurat
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
 import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.UrlMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.UrlPatternParser;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
@@ -73,8 +73,8 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
             List<ExecutePredicate<HttpServletRequest>> executePredicates,
             Bucket4jConfigurationHolder servletConfigurationHolder,
             RateLimitService rateLimitService,
-            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager,
-            @Autowired(required = false) UrlMapper urlMapper) {
+            UrlPatternParser urlPatternParser,
+            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
         super(
                 rateLimitService,
                 configCacheManager,
@@ -82,7 +82,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
                 executePredicates
                         .stream()
                         .collect(Collectors.toMap(ExecutePredicate::name, Function.identity())),
-                urlMapper);
+                urlPatternParser);
         this.properties = properties;
         this.context = context;
         this.cacheResolver = cacheResolver;
@@ -95,7 +95,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
         properties
                 .getFilters()
                 .stream()
-                .filter(filter -> StringUtils.hasText(filter.getUrl()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
+                .filter(filter -> StringUtils.hasText(filter.getUrlPattern()) && filter.getFilterMethod().equals(FilterMethod.SERVLET))
                 .map(filter -> properties.isFilterConfigCachingEnabled() ? getOrUpdateConfigurationFromCache(filter) : filter)
                 .forEach(filter -> {
                     setDefaults(properties, filter);
@@ -108,7 +108,7 @@ public class Bucket4JAutoConfigurationServletFilter extends Bucket4JBaseConfigur
                     var beanName = filter.getId() != null ? filter.getId() : ("bucket4JServletRequestFilter" + filterCount);
                     context.registerBean(beanName, Filter.class, () -> new ServletRequestFilter(filterConfig));
 
-                    log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
+                    log.info("create-servlet-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrlPattern());
                 });
     }
 

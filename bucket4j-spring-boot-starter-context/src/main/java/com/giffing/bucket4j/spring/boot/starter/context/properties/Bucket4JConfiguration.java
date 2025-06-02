@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidUrl;
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidUrlPattern;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -46,11 +46,13 @@ public class Bucket4JConfiguration implements Serializable {
     private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 
     /**
-     * The URL or URL pattern to be used for filtering.
+     * @deprecated Use {@link #urlPattern} instead.
      */
-    @NotBlank
-    @ValidUrl
-    private String url = ".*";
+    @Deprecated(forRemoval = true)
+    private String url;
+
+
+    private String urlPattern = ".*";
 
     /**
      * The filter order has a default of the highest precedence reduced by 10
@@ -128,5 +130,11 @@ public class Bucket4JConfiguration implements Serializable {
     @JsonIgnore
     public long getBucket4JVersionNumber() {
         return (majorVersion * 100000000000L) + minorVersion;
+    }
+
+    @NotBlank
+    @ValidUrlPattern
+    public String getUrlPattern() {
+        return urlPattern != null ? urlPattern : url;
     }
 }

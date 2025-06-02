@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import com.giffing.bucket4j.spring.boot.starter.context.PostRateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.UrlMatcher;
+import com.giffing.bucket4j.spring.boot.starter.context.UrlPatternMatcher;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,7 @@ public class FilterConfiguration<R, P> {
 	/**
 	 * The UrlMatcher which is used to match the request url against the configured url pattern.
 	 */
-	private UrlMatcher urlMatcher;
+	private UrlPatternMatcher urlPatternMatcher;
 	
 	/**
 	 * The order of the filter depending on other filters independently from the Bucket4j filters.
