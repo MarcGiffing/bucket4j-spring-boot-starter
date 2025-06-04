@@ -120,7 +120,7 @@ public class AbstractReactiveFilter {
 							response,
 							new ExpressionParams<>(exchange.getRequest())
 									.addParams(
-											(Map<String, Object>) exchange.getRequest().getAttributes().get(ATTRIBUTE_URL_VARIABLES)));
+											(Map<String, Object>) exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)));
 			if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
 				postRateLimitMonos.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 			}
