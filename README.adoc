@@ -253,7 +253,7 @@ bucket4j.filters[0].http-status-code=TOO_MANY_REQUESTS # Enum value of org.sprin
 bucket4j.filters[0].http-response-body={ "message": "Too many requests" } # the json response which should be added to the body
 bucket4j.filters[0].http-response-headers.<MY_CUSTOM_HEADER>=MY_CUSTOM_HEADER_VALUE # You can add any numbers of custom headers
 bucket4j.filters[0].hide-http-response-headers=true # Hides response headers like x-rate-limit-remaining or x-rate-limit-retry-after-seconds on rate limiting
-bucket4j.filters[0].url-pattern=.* # a regular expression
+bucket4j.filters[0].url-pattern=/api/(?<version>v\d+)/.* # a regular expression
 bucket4j.filters[0].strategy=first # [first, all] if multiple rate limits configured the 'first' strategy stops the processing after the first matching
 bucket4j.filters[0].rate-limits[0].cache-key=getRemoteAddr() # defines the cache key. It will be evaluated with the Spring Expression Language
 bucket4j.filters[0].rate-limits[0].num-tokens=1 # The number of tokens to consume
@@ -282,6 +282,8 @@ bucket4j.filters[0].metrics.tags[2].key=USERNAME
 bucket4j.filters[0].metrics.tags[2].expression=@securityService.username() != null ? @securityService.username() : 'anonym'
 bucket4j.filters[0].metrics.tags[3].key=URLPATTERN
 bucket4j.filters[0].metrics.tags[3].expression=#urlPattern
+bucket4j.filters[0].metrics.tags[4].key=VERSION
+bucket4j.filters[0].metrics.tags[4].expression=#urlVariables?.get('version') ?: 'unknown'
 ----
 
 [[refill_speed]]
