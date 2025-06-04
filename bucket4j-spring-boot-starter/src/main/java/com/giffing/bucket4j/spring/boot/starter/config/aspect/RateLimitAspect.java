@@ -19,10 +19,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Creates an Aspect around methods annotated with @{@link RateLimiting}. It prevents the execution of the method
@@ -134,7 +131,7 @@ public class RateLimitAspect {
 
     private static void performPostRateLimit(RateLimitService.RateLimitConfigresult<Method, Object> rateLimitConfigResult, Method method, Object methodResult) {
         for (var rlc : rateLimitConfigResult.getPostRateLimitChecks()) {
-            var result = rlc.rateLimit(method, methodResult);
+            var result = rlc.rateLimit(method, methodResult, new ExpressionParams<>(method));
             if (result != null) {
                 log.debug("post-rate-limit;remaining-tokens:{}", result.getRateLimitResult().getRemainingTokens());
             }

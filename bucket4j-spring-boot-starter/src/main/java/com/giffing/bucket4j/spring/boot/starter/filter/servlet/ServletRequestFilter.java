@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -82,7 +81,13 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
             filterChain.doFilter(request, response);
             filterConfig.getPostRateLimitChecks()
                     .forEach(rlc -> {
-                        var result = rlc.rateLimit(request, response);
+                        @SuppressWarnings("unchecked")
+                        var result =
+                                rlc.rateLimit(
+                                        request,
+                                        response,
+                                        new ExpressionParams<>(request)
+                                                .addParams((Map<String, Object>) request.getAttribute(ATTRIBUTE_URL_VARIABLES)));
                         if (result != null) {
                             log.debug("post-rate-limit;remaining-tokens:{}", result.getRateLimitResult().getRemainingTokens());
                         }
