@@ -19,7 +19,7 @@ bucket4j:
       major-version: 1
       cache-name: buckets_test
       filter-method: webflux
-      url: ^(/hello).*
+      url-pattern: ^(/hello).*
       rate-limits:
         - tokens-inheritance-strategy: reset
           bandwidths:
@@ -32,7 +32,7 @@ bucket4j:
       major-version: 1
       cache-name: buckets_test
       filter-method: webflux
-      url: ^(/world).*
+      url-pattern: ^(/world).*
       rate-limits:
         - tokens-inheritance-strategy: reset
           bandwidths:

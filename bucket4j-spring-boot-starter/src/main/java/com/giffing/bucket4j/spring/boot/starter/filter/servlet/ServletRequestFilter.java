@@ -16,6 +16,7 @@ import org.springframework.core.Ordered;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ServletRequestFilter extends OncePerRequestFilter implements Ordered {
 
+    protected String ATTRIBUTE_URL_VARIABLES = "urlVariables";
+
     private FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig;
 
     public ServletRequestFilter(FilterConfiguration<HttpServletRequest, HttpServletResponse> filterConfig) {
@@ -33,7 +36,14 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return !request.getRequestURI().matches(filterConfig.getUrl());
+        var variables =
+                filterConfig.getUrlPatternMatcher().matchAndExtract(
+                        request.getRequestURI(),
+                        request.getQueryString());
+        if (variables == null) return true;
+
+        request.setAttribute(ATTRIBUTE_URL_VARIABLES, variables);
+        return false;
     }
 
     @Override
@@ -42,7 +52,12 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
         boolean allConsumed = true;
         Long remainingLimit = null;
         for (var rl : filterConfig.getRateLimitChecks()) {
-            var wrapper = rl.rateLimit(new ExpressionParams<>(request), null);
+            var wrapper =
+                    rl.rateLimit(
+                            new ExpressionParams<>(request)
+                                    .addParam("urlPattern", filterConfig.getUrlPattern())
+                                    .addParam("urlVariables", request.getAttribute(ATTRIBUTE_URL_VARIABLES)),
+                            null);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
                 if (rateLimitResult.isConsumed()) {
@@ -66,7 +81,14 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
             filterChain.doFilter(request, response);
             filterConfig.getPostRateLimitChecks()
                     .forEach(rlc -> {
-                        var result = rlc.rateLimit(request, response);
+                        @SuppressWarnings("unchecked")
+                        var result =
+                                rlc.rateLimit(
+                                        request,
+                                        response,
+                                        new ExpressionParams<>(request)
+                                                .addParam("urlPattern", filterConfig.getUrlPattern())
+                                                .addParam("urlVariables", request.getAttribute(ATTRIBUTE_URL_VARIABLES)));
                         if (result != null) {
                             log.debug("post-rate-limit;remaining-tokens:{}", result.getRateLimitResult().getRemainingTokens());
                         }

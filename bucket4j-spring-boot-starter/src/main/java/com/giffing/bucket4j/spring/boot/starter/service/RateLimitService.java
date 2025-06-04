@@ -92,20 +92,22 @@ public class RateLimitService {
 
             if (rl.getPostExecuteCondition() != null) {
                 log.debug("PRL: {}", rl);
-                PostRateLimitCheck<R, P> postRlc = (request, response) -> {
-                    ExpressionParams<R> expressionParams = new ExpressionParams<>(request);
-                    var skipRateLimit = performPostSkipRateLimitCheck(rl,
-                            executionPredicate,
-                            skipPredicate,
-                            expressionParams,
-                            response);
-                    boolean isEstimation = false;
-                    RateLimitResultWrapper rateLimitResultWrapper = null;
-                    if (!skipRateLimit) {
-                        rateLimitResultWrapper = tryConsume(rateLimitConfig, expressionParams, rl, isEstimation, bucketConfiguration);
-                    }
-                    return rateLimitResultWrapper;
-                };
+                PostRateLimitCheck<R, P> postRlc =
+                        (request, response, parameters) -> {
+                            var skipRateLimit =
+                                    performPostSkipRateLimitCheck(rl,
+                                            executionPredicate,
+                                            skipPredicate,
+                                            parameters,
+                                            response);
+                            boolean isEstimation = false;
+                            RateLimitResultWrapper rateLimitResultWrapper = null;
+                            if (!skipRateLimit) {
+                                rateLimitResultWrapper =
+                                        tryConsume(rateLimitConfig, parameters, rl, isEstimation, bucketConfiguration);
+                            }
+                            return rateLimitResultWrapper;
+                        };
                 postRateLimitChecks.add(postRlc);
 
             }

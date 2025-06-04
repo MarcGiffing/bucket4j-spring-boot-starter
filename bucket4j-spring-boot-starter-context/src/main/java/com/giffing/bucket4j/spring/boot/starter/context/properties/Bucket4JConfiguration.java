@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidUrlPattern;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -47,21 +46,13 @@ public class Bucket4JConfiguration implements Serializable {
     private RateLimitConditionMatchingStrategy strategy = RateLimitConditionMatchingStrategy.FIRST;
 
     /**
-     * The URL to which the filter should be registered
+     * @deprecated Use {@link #urlPattern} instead.
      */
-    @NotBlank
-    private String url = ".*";
+    @Deprecated(forRemoval = true)
+    private String url;
 
-    @AssertTrue(message = "Invalid filter URL regex pattern.")
-    @JsonIgnore
-    public boolean isUrlValid() {
-        try {
-            Pattern.compile(url);
-            return !url.equals("/*");
-        } catch (PatternSyntaxException e) {
-            return false;
-        }
-    }
+
+    private String urlPattern = ".*";
 
     /**
      * The filter order has a default of the highest precedence reduced by 10
@@ -139,5 +130,11 @@ public class Bucket4JConfiguration implements Serializable {
     @JsonIgnore
     public long getBucket4JVersionNumber() {
         return (majorVersion * 100000000000L) + minorVersion;
+    }
+
+    @NotBlank
+    @ValidUrlPattern
+    public String getUrlPattern() {
+        return urlPattern != null ? urlPattern : url;
     }
 }

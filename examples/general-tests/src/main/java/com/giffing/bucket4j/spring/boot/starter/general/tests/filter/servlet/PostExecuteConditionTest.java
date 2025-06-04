@@ -25,14 +25,14 @@ import static org.hamcrest.Matchers.containsString;
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=interval",
-		"bucket4j.filters[0].url=^(/hello).*",
+		"bucket4j.filters[0].url-pattern=^(/hello).*",
 
 		"bucket4j.filters[1].rate-limits[0].post-execute-condition= getStatus() eq 401",
 		"bucket4j.filters[1].rate-limits[0].bandwidths[0].capacity=5",
 		"bucket4j.filters[1].rate-limits[0].bandwidths[0].time=10",
 		"bucket4j.filters[1].rate-limits[0].bandwidths[0].unit=seconds",
 		"bucket4j.filters[1].rate-limits[0].bandwidths[0].refill-speed=interval",
-		"bucket4j.filters[1].url=^(/secure).*",
+		"bucket4j.filters[1].url-pattern=^(/secure).*",
 })
 @AutoConfigureMockMvc
 @DirtiesContext

@@ -15,12 +15,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Data
 @Slf4j
 public class AbstractReactiveFilter {
+
+	protected String ATTRIBUTE_URL_VARIABLES = "urlVariables";
 
 	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig;
 
@@ -32,8 +35,10 @@ public class AbstractReactiveFilter {
 		this.filterConfig = filterConfig;
 	}
 
-	protected boolean urlMatches(ServerHttpRequest request) {
-		return request.getURI().getPath().matches(filterConfig.getUrl());
+	protected Map<String, String> urlMatchAndExtract(ServerHttpRequest request) {
+		return filterConfig.getUrlPatternMatcher().matchAndExtract(
+				request.getURI().getPath(),
+				request.getURI().getQuery());
 	}
 
 	protected Mono<Void> chainWithRateLimitCheck(ServerWebExchange exchange, ReactiveFilterChain chain) {
@@ -42,7 +47,12 @@ public class AbstractReactiveFilter {
 		var response = exchange.getResponse();
 		List<Mono<RateLimitResult>> asyncConsumptionProbes = new ArrayList<>();
 		for (var rlc : filterConfig.getRateLimitChecks()) {
-			var wrapper = rlc.rateLimit(new ExpressionParams<>(request), null);
+			var wrapper =
+					rlc.rateLimit(
+							new ExpressionParams<>(request)
+									.addParam("urlPattern", filterConfig.getUrlPattern())
+									.addParam("urlVariables", exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)),
+							null);
 			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
 				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 				if(filterConfig.getStrategy() == RateLimitConditionMatchingStrategy.FIRST){
@@ -103,7 +113,16 @@ public class AbstractReactiveFilter {
 
 		Mono<Void> postRateLimitMonos = Mono.empty();
 		filterConfig.getPostRateLimitChecks().forEach(rlc -> {
-			var wrapper = rlc.rateLimit(exchange.getRequest(), response);
+			@SuppressWarnings("unchecked")
+			var wrapper =
+					rlc.rateLimit(
+							exchange.getRequest(),
+							response,
+							new ExpressionParams<>(exchange.getRequest())
+									.addParam("urlPattern", filterConfig.getUrlPattern())
+									.addParam(
+											"urlVariables",
+                                            exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)));
 			if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
 				postRateLimitMonos.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 			}

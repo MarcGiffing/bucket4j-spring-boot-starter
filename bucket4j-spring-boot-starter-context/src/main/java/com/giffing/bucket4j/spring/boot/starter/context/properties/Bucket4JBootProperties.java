@@ -44,6 +44,20 @@ public class Bucket4JBootProperties {
     private String cacheToUse;
 
     /**
+     * Defines which type of URL pattern parser will be used to match incoming request paths and queries.
+     *
+     * <p>Available options:</p>
+     * <ul>
+     *     <li><b>regex</b> — uses regular Java regular expressions (e.g., <code>^/api/.*</code>)</li>
+     *     <li><b>path-pattern</b> — uses Spring-style path patterns (e.g., <code>/api/**</code>)</li>
+     * </ul>
+     *
+     * <p>Default is <b>regex</b>.</p>
+     * <p>This setting controls how URL patterns in Bucket4j filters will be interpreted.</p>
+     */
+    private String urlPatternParser = "regex";
+
+    /**
      * Configuration for the {@link RateLimiting} annotation on method level.
      */
     @Valid

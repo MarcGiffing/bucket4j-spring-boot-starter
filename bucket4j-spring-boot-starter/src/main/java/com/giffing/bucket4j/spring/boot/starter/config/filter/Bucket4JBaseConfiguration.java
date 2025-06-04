@@ -6,11 +6,11 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
+import com.giffing.bucket4j.spring.boot.starter.context.UrlPatternParser;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -25,7 +25,6 @@ import java.util.Map;
  * configuration classes
  */
 @Slf4j
-@RequiredArgsConstructor
 public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateListener<String, Bucket4JConfiguration> {
 
     private final RateLimitService rateLimitService;
@@ -35,6 +34,21 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
     private final List<MetricHandler> metricHandlers;
 
     private final Map<String, ExecutePredicate<R>> executePredicates;
+
+    private final UrlPatternParser urlPatternParser;
+
+    protected Bucket4JBaseConfiguration(
+            RateLimitService rateLimitService,
+            CacheManager<String, Bucket4JConfiguration> configCacheManager,
+            List<MetricHandler> metricHandlers,
+            Map<String, ExecutePredicate<R>> executePredicates,
+            UrlPatternParser urlPatternParser) {
+        this.rateLimitService = rateLimitService;
+        this.configCacheManager = configCacheManager;
+        this.metricHandlers = metricHandlers;
+        this.executePredicates = executePredicates;
+        this.urlPatternParser = urlPatternParser;
+    }
 
     public FilterConfiguration<R, P> buildFilterConfig(
             Bucket4JConfiguration config,
@@ -47,7 +61,7 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
                 .cacheName(config.getCacheName())
                 .configVersion(config.getBucket4JVersionNumber())
                 .keyFunction((rl, sr) -> {
-                    KeyFilter<R> keyFilter = rateLimitService.getKeyFilter(config.getUrl(), rl);
+                    KeyFilter<R> keyFilter = rateLimitService.getKeyFilter(config.getUrlPattern(), rl);
                     return keyFilter.key(sr);
                 })
                 .metrics(config.getMetrics())
@@ -66,8 +80,11 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
 
 
     private FilterConfiguration<R, P> mapFilterConfiguration(Bucket4JConfiguration config) {
-        FilterConfiguration<R, P> filterConfig = new FilterConfiguration<>();
-        filterConfig.setUrl(config.getUrl().strip());
+        FilterConfiguration<R, P> filterConfig =
+                new FilterConfiguration<>();
+        filterConfig.setUrlPattern(config.getUrlPattern());
+        filterConfig.setUrlPatternMatcher(
+                parseUrlPattern(config.getUrlPattern()));
         filterConfig.setOrder(config.getFilterOrder());
         filterConfig.setStrategy(config.getStrategy());
         filterConfig.setHttpContentType(config.getHttpContentType());
@@ -123,4 +140,12 @@ public abstract class Bucket4JBaseConfiguration<R, P> implements CacheUpdateList
         }
     }
 
+    protected UrlPatternMatcher parseUrlPattern(
+            String urlPattern) {
+        try {
+            return urlPatternParser.parse(urlPattern);
+        } catch (UrlPatternParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

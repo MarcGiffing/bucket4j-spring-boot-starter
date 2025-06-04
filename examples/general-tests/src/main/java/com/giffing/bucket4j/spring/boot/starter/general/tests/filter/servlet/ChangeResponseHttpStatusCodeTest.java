@@ -17,7 +17,7 @@ import static com.giffing.bucket4j.spring.boot.starter.general.tests.filter.serv
 
 @SpringBootTest(properties = {
 		"bucket4j.filters[0].cache-name=buckets",
-		"bucket4j.filters[0].url=.*",
+		"bucket4j.filters[0].url-pattern=.*",
 		"bucket4j.filters[0].http-status-code=NOT_FOUND",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10",

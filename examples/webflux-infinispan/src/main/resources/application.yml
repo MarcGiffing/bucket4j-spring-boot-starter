@@ -21,7 +21,7 @@ bucket4j:
   - id: filter1
     cache-name: buckets
     filter-method: webflux
-    url: .*
+    url-pattern: .*
     http-content-type: application/json;charset=UTF-8
     http-response-body: '{ "name": "hello"}'
     http-response-headers:

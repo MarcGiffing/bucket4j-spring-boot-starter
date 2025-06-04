@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = {
 		"bucket4j.filters[0].cache-name=buckets",
-		"bucket4j.filters[0].url=.*",
+		"bucket4j.filters[0].url-pattern=.*",
 		"bucket4j.filters[0].http-response-headers.hello=world",
 		"bucket4j.filters[0].http-response-headers.abc=cba",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5",

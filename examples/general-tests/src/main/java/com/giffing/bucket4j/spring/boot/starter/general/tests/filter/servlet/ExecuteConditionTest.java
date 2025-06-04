@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
         "logging.level.com.giffing.bucket4j=debug",
         "bucket4j.filters[0].cache-name=buckets",
-        "bucket4j.filters[0].url=.*",
+        "bucket4j.filters[0].url-pattern=.*",
         "bucket4j.filters[0].rate-limits[0].execute-condition=getHeader('user') ne 'admin'",
         "bucket4j.filters[0].rate-limits[0].bandwidths[0].capacity=5",
         "bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10",

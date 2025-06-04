@@ -18,7 +18,7 @@ bucket4j:
   filters:
     - cache-name: buckets_test
       major-version: 2
-      url: ^(/hello).*
+      url-pattern: ^(/hello).*
       id: filter1
       rate-limits:
         - tokens-inheritance-strategy: reset
@@ -28,7 +28,7 @@ bucket4j:
               unit: seconds
               refill-speed: interval
     - cache-name: buckets_test
-      url: ^(/world).*
+      url-pattern: ^(/world).*
       id: filter2
       rate-limits:
         - tokens-inheritance-strategy: reset

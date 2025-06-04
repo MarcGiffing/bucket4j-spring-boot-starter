@@ -21,7 +21,7 @@ import static com.giffing.bucket4j.spring.boot.starter.general.tests.filter.serv
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].time=10",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].unit=seconds",
 		"bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=greedy",
-		"bucket4j.filters[0].url=^(/hello).*",
+		"bucket4j.filters[0].url-pattern=^(/hello).*",
 })
 @AutoConfigureMockMvc
 @DirtiesContext
