@@ -87,7 +87,8 @@ public class ServletRequestFilter extends OncePerRequestFilter implements Ordere
                                         request,
                                         response,
                                         new ExpressionParams<>(request)
-                                                .addParams((Map<String, Object>) request.getAttribute(ATTRIBUTE_URL_VARIABLES)));
+                                                .addParam("urlPattern", filterConfig.getUrlPattern())
+                                                .addParam("urlVariables", request.getAttribute(ATTRIBUTE_URL_VARIABLES)));
                         if (result != null) {
                             log.debug("post-rate-limit;remaining-tokens:{}", result.getRateLimitResult().getRemainingTokens());
                         }

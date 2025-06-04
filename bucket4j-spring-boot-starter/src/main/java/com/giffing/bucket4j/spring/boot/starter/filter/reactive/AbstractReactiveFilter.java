@@ -51,7 +51,7 @@ public class AbstractReactiveFilter {
 					rlc.rateLimit(
 							new ExpressionParams<>(request)
 									.addParam("urlPattern", filterConfig.getUrlPattern())
-									.addParam(ATTRIBUTE_URL_VARIABLES, exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)),
+									.addParam("urlVariables", exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)),
 							null);
 			if(wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null){
 				asyncConsumptionProbes.add(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
@@ -119,8 +119,10 @@ public class AbstractReactiveFilter {
 							exchange.getRequest(),
 							response,
 							new ExpressionParams<>(exchange.getRequest())
-									.addParams(
-											(Map<String, Object>) exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)));
+									.addParam("urlPattern", filterConfig.getUrlPattern())
+									.addParam(
+											"urlVariables",
+                                            exchange.getAttributes().get(ATTRIBUTE_URL_VARIABLES)));
 			if (wrapper != null && wrapper.getRateLimitResultCompletableFuture() != null) {
 				postRateLimitMonos.and(Mono.fromFuture(wrapper.getRateLimitResultCompletableFuture()));
 			}
