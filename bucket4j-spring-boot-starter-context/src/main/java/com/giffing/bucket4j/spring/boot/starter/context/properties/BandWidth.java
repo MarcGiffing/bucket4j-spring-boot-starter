@@ -5,6 +5,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.Va
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -38,8 +39,8 @@ public class BandWidth implements Serializable {
 	@NotNull
 	@ValidDurationChronoUnit
 	private ChronoUnit unit;
-	
-	@Min(1)
+
+	@PositiveOrZero
 	private Long initialCapacity;
 	
 	@NotNull
