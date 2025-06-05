@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.webflux;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.filter.reactive.ReactiveRateLimitException;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.impl.DefaultWebfluxRateLimitFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 class WebfluxRateLimitFilterTest {
 
-	private WebfluxWebFilter filter;
+	private DefaultWebfluxRateLimitFilter filter;
 	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> configuration;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck1;
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck2;
@@ -73,7 +73,7 @@ class WebfluxRateLimitFilterTest {
 				Collections.singletonList(
 						postRateLimitCheck));
 		configuration.setUrl(".*");
-		filter = new WebfluxWebFilter(configuration);
+		filter = new DefaultWebfluxRateLimitFilter(configuration);
 	}
 
 	@Test void should_throw_rate_limit_exception_with_no_remaining_tokens() {
