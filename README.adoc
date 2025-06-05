@@ -828,7 +828,7 @@ https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/buck
 [source,xml]
 ----
 <dependency>
-    <groupId>com.giffing.bucket4j</groupId>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
     <artifactId>bucket4j-spring-boot-starter</artifactId>
     <version>${version}</version>
 </dependency>
