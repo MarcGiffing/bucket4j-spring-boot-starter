@@ -1,0 +1,54 @@
+= bucket4j-spring-boot-starter-test
+
+:toc:
+
+== Introduction
+
+Rate limiting should be tested by unit-tests. To ease the test setup bucket4j-spring-boot-starter-test was introduced.
+
+Just add the dependency to your project.
+
+.Maven dependency
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>bucket4j-spring-boot-starter-test</artifactId>
+    <version>${project.version}</version>
+</dependency>
+----
+
+== @Bucket4JAnnotationTest
+
+Use this annotation to test if the rate limiting is working as expected for your @RateLimited annotated methods.
+
+.@Bucket4JAnnotationTest example
+[source,java]
+----
+@Bucket4JAnnotationTest (1)
+@TestPropertySource("classpath:application-ratelimit.properties") (2)
+@ContextConfiguration(classes = TestService.class) (3)
+class TestServiceTest {
+
+    @Autowired
+    private TestService testService;
+
+    @Test
+    void shouldUseFallbackMethod() {
+
+        assertEquals("Hello Horst!", testService.greetings());
+        assertEquals("You are not welcome Horst!", testService.greetings());
+
+    }
+
+}
+----
+(1) Add the annotation to your unit test. By adding it a slim spring context (not a spring-boot context!!) is started.
+A Caffeine in memory cache is started, bucket4j and the RateLimitAspect is initialized.
+
+(2) Define the location of the application.properties file which contains the bucket4j configuration.
+
+(3) Include your class with the @RateLimited annotated method.
+
+After doing these three steps you are ready to run you unit-test. You can find a working example in the redis-jedis example project.
+
