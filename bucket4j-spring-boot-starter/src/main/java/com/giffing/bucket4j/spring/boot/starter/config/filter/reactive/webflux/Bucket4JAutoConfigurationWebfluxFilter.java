@@ -15,7 +15,8 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxWebFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxRateLimitFilter;
+import com.giffing.bucket4j.spring.boot.starter.filter.reactive.webflux.WebfluxRateLimiterFilterFactory;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -62,15 +63,18 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 	private final Bucket4jConfigurationHolder servletConfigurationHolder;
 
+	private final WebfluxRateLimiterFilterFactory webfluxRateLimiterFilterFactory;
+
 	public Bucket4JAutoConfigurationWebfluxFilter(
-			Bucket4JBootProperties properties,
-			GenericApplicationContext context,
-			AsyncCacheResolver cacheResolver,
-			List<MetricHandler> metricHandlers,
-			List<ExecutePredicate<ServerHttpRequest>> executePredicates,
-			Bucket4jConfigurationHolder servletConfigurationHolder,
-			RateLimitService rateLimitService,
-			@Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+            Bucket4JBootProperties properties,
+            GenericApplicationContext context,
+            AsyncCacheResolver cacheResolver,
+            List<MetricHandler> metricHandlers,
+            List<ExecutePredicate<ServerHttpRequest>> executePredicates,
+            Bucket4jConfigurationHolder servletConfigurationHolder,
+            RateLimitService rateLimitService,
+            @Autowired(required = false) CacheManager<String, Bucket4JConfiguration> configCacheManager,
+			WebfluxRateLimiterFilterFactory webfluxRateLimiterFilterFactory) {
 		super(rateLimitService, configCacheManager, metricHandlers, executePredicates
 				.stream()
 				.collect(Collectors.toMap(ExecutePredicate::name, Function.identity())));
@@ -78,7 +82,8 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		this.context = context;
 		this.cacheResolver = cacheResolver;
 		this.servletConfigurationHolder = servletConfigurationHolder;
-	}
+        this.webfluxRateLimiterFilterFactory = webfluxRateLimiterFilterFactory;
+    }
 
 	@PostConstruct
 	public void initFilters() {
@@ -97,7 +102,10 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 
 				//Use either the filter id as bean name or the prefix + counter if no id is configured
 				String beanName = filter.getId() != null ? filter.getId() : ("bucket4JWebfluxFilter" + filterCount);
-				context.registerBean(beanName, WebFilter.class, () -> new WebfluxWebFilter(filterConfig));
+				context.registerBean(
+						beanName,
+						WebfluxRateLimitFilter.class,
+						() -> webfluxRateLimiterFilterFactory.create(filterConfig));
 
 				log.info("create-webflux-filter;{};{};{}", filterCount, filter.getCacheName(), filter.getUrl());
 			});
@@ -110,7 +118,7 @@ public class Bucket4JAutoConfigurationWebfluxFilter extends Bucket4JBaseConfigur
 		Bucket4JConfiguration newConfig = event.getNewValue();
 		if (newConfig.getFilterMethod().equals(FilterMethod.WEBFLUX)) {
 			try {
-				WebfluxWebFilter filter = context.getBean(event.getKey(), WebfluxWebFilter.class);
+				var filter = context.getBean(event.getKey(), WebfluxRateLimitFilter.class);
 				var newFilterConfig = buildFilterConfig(newConfig, cacheResolver.resolve(newConfig.getCacheName()));
 				filter.setFilterConfig(newFilterConfig);
 			} catch (Exception exception) {

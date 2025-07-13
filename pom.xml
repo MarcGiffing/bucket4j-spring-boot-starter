@@ -43,12 +43,12 @@
 		<tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
 	</scm>
 	<properties>
-		<revision>0.12.9</revision>
+		<revision>0.13.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
 		<bucket4j.version>8.14.0</bucket4j.version>
-		<spring-cloud-starter-gateway.version>4.2.2</spring-cloud-starter-gateway.version>
+		<spring-cloud-starter-gateway.version>4.3.0</spring-cloud-starter-gateway.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
