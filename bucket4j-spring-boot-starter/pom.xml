@@ -67,20 +67,30 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-core</artifactId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-jcache</artifactId>
+			<artifactId>bucket4j_jdk17-jcache</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-hazelcast</artifactId>
+			<artifactId>bucket4j_jdk17-hazelcast</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-redis</artifactId>
+			<artifactId>bucket4j_jdk17-jedis</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-lettuce</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-redisson</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -121,7 +131,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-ignite</artifactId>
+			<artifactId>bucket4j_jdk17-ignite</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -132,7 +142,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
-			<artifactId>bucket4j-infinispan</artifactId>
+			<artifactId>bucket4j_jdk17-infinispan</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
