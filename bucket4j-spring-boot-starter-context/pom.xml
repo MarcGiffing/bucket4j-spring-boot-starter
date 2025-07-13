@@ -5,6 +5,7 @@
 		<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
 		<version>${revision}</version>
 	</parent>
+	<name>bucket4j-spring-boot-starter-context</name>
 	<artifactId>bucket4j-spring-boot-starter-context</artifactId>
 	<dependencies>
 		<dependency>
