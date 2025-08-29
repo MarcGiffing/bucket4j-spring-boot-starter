@@ -1,7 +1,7 @@
 :url-repo: https://github.com/MarcGiffing/bucket4j-spring-boot-starter
 :url: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master
 :url-examples: {url}/examples
-:url-config-cache: {url}/com/giffing/bucket4j/spring/boot/starter/config/cache
+:url-config-cache: {url}/bucket4j-spring-boot-starter/src/main/java/com/giffing/bucket4j/spring/boot/starter/config/cache
 
 image:{url-repo}/actions/workflows/maven.yml/badge.svg[Build Status,link={url-repo}/actions/workflows/maven.yml]
 image:{url-repo}/actions/workflows/codeql.yml/badge.svg[Build Status,link={url-repo}/actions/workflows/codeql.yml]
@@ -701,7 +701,7 @@ The following list contains the Caching implementation which will be autoconfigu
 |redis-lettuce
 
 |Yes
-|{url-config-cache}/redis/redission/RedissonBucket4jConfiguration.java[Redis-Redisson]
+|{url-config-cache}/redis/redisson/RedissonBucket4jConfiguration.java[Redis-Redisson]
 |redis-redisson
 
 |===
