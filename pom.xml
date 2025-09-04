@@ -18,6 +18,7 @@
 	<modules>
 		<module>bucket4j-spring-boot-starter-context</module>
 		<module>bucket4j-spring-boot-starter</module>
+		<module>bucket4j-spring-boot-starter-test</module>
 		<module>examples/general-tests</module>
 		<module>examples/caffeine</module>
 		<module>examples/ehcache</module>
@@ -175,6 +176,7 @@
 			<modules>
 				<module>bucket4j-spring-boot-starter-context</module>
 				<module>bucket4j-spring-boot-starter</module>
+				<module>bucket4j-spring-boot-starter-test</module>
 			</modules>
 			<build>
 				<plugins>
