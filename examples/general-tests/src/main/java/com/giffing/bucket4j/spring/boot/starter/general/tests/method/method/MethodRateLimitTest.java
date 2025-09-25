@@ -80,14 +80,19 @@ public class MethodRateLimitTest {
 
     @Test
     public void assert_rate_limit_with_cache_key() {
-        for(int i = 0; i < 5; i++) {
-            // rate limit by parameter value
+        for (int i = 0; i < 5; i++) {
             testService.withCacheKey("key1");
             testService.withCacheKey("key2");
-            // all tokens consumed
         }
-        assertThrows(RateLimitException.class, () -> testService.withCacheKey("key1"));
-        assertThrows(RateLimitException.class, () -> testService.withCacheKey("key2"));
+        RateLimitException ex1 = assertThrows(RateLimitException.class, () -> testService.withCacheKey("key1"));
+        assertTrue(ex1.getRetryAfterNanoSeconds() >= 0);
+        assertTrue(ex1.getRemainingTokens() >= 0);
+        assertNotNull(ex1.getConfigurationName());
+
+        RateLimitException ex2 = assertThrows(RateLimitException.class, () -> testService.withCacheKey("key2"));
+        assertTrue(ex2.getRetryAfterNanoSeconds() >= 0);
+        assertTrue(ex2.getRemainingTokens() >= 0);
+        assertNotNull(ex2.getConfigurationName());
     }
 
     @Test
