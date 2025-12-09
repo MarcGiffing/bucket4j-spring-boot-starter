@@ -1,13 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.sync.RedisCommands;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
 
 @Slf4j
 public class LettuceCacheManager<K, V> implements CacheManager<K, V> {
@@ -35,7 +35,7 @@ public class LettuceCacheManager<K, V> implements CacheManager<K, V> {
 		try {
 			String serializedValue = syncCommands.hget(cacheName, objectMapper.writeValueAsString(key));
 			return serializedValue != null ? objectMapper.readValue(serializedValue, this.valueType) : null;
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			log.warn("Exception occurred while retrieving key '{}' from cache '{}'. Message: {}", key, cacheName, e.getMessage());
 			return null;
 		}
@@ -55,7 +55,7 @@ public class LettuceCacheManager<K, V> implements CacheManager<K, V> {
 				CacheUpdateEvent<K, V> updateEvent = new CacheUpdateEvent<>(key, oldValue, value);
 				syncCommands.publish(cacheUpdateChannel, objectMapper.writeValueAsString(updateEvent));
 			}
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			log.warn("Exception occurred while setting key '{}' in cache '{}'. Message: {}", key, cacheName, e.getMessage());
 			throw new RuntimeException(e);
 		}

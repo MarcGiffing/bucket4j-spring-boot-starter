@@ -11,7 +11,7 @@ import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce.Lettu
 import com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson.RedissonBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBucket4jEnabled;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
+import org.springframework.boot.cache.autoconfigure.CacheAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 

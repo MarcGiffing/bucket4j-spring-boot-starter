@@ -19,12 +19,12 @@ public class TestServiceImpl implements TestService {
     )
     @Override
     public String greetings() {
-        return String.format("Hello %s!", name);
+        return "Hello %s!".formatted(name);
     }
 
     @SuppressWarnings("unused")
     public String greetingsFallback() {
-        return String.format("You are not welcome %s!", name);
+        return "You are not welcome %s!".formatted(name);
     }
 
     @SuppressWarnings("unused")

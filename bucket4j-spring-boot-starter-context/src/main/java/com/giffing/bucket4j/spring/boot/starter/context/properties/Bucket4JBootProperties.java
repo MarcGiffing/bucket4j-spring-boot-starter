@@ -84,6 +84,7 @@ public class Bucket4JBootProperties {
     private String defaultHttpContentType = "application/json";
 
     @NotNull
+    @Valid
     private HttpStatus defaultHttpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
 
     /**

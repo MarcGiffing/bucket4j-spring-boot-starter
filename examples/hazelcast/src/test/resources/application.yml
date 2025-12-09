@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    use-jackson2-defaults: true
   cache:
     type: jcache
     jcache:

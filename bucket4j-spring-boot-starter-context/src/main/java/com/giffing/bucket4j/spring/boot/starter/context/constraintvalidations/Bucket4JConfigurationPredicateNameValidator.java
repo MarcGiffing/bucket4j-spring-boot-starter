@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
@@ -22,7 +21,6 @@ public class Bucket4JConfigurationPredicateNameValidator implements ConstraintVa
 
 	private final EnumMap<FilterMethod, Map<String, ExecutePredicate<?>>> filterPredicates = new EnumMap<>(FilterMethod.class);
 
-	@Autowired
 	public Bucket4JConfigurationPredicateNameValidator(List<ExecutePredicate<?>> executePredicates) {
 		List<ExecutePredicate<?>> servletPredicates = new ArrayList<>();
 		List<ExecutePredicate<?>> webfluxPredicates = new ArrayList<>();

@@ -6,9 +6,6 @@ management:
     web:
       exposure:
         include: "*"
-  security:
-    enabled: false
-
 bucket4j:
   enabled: true
   cache-to-use: redis-redisson
@@ -45,6 +42,8 @@ bucket4j:
 spring:
   main:
     allow-bean-definition-overriding: true
+  jackson:
+    use-jackson2-defaults: true
   data:
     redis:
       host: localhost

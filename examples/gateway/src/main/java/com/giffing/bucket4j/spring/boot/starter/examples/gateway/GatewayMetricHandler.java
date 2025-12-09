@@ -17,7 +17,7 @@ public class GatewayMetricHandler implements MetricHandler {
 
 	@Override
 	public void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags) {
-		log.info(String.format("name: %s;type: %s; tokens: %s", type, name, tokens));
+		log.info("name: {};type: {}; tokens: {}", type, name, tokens);
 		log.info("\t" + tags.stream().map(mt -> mt.getKey() + ":" + mt.getValue()).collect(Collectors.joining(",")));
 		log.info("################");
 		
