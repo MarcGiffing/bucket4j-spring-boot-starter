@@ -14,8 +14,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -23,8 +21,6 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static tools.jackson.databind.cfg.EnumFeature.READ_ENUMS_USING_TO_STRING;
-import static tools.jackson.databind.cfg.EnumFeature.WRITE_ENUMS_USING_TO_STRING;
 
 @SpringBootTest(properties = {
         "bucket4j.filter-config-cache-name=filterConfigCache",
@@ -68,15 +64,11 @@ public class ReactiveRateLimitTest {
 
     WebTestClient rest;
 
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setup() {
-        objectMapper = JsonMapper.builder()
-                .enable(SerializationFeature.INDENT_OUTPUT) // Feature aktivieren
-                .disable(WRITE_ENUMS_USING_TO_STRING)
-                .disable(READ_ENUMS_USING_TO_STRING)
-                .build();
         this.rest = WebTestClient
                 .bindToApplicationContext(this.context)
                 .configureClient()

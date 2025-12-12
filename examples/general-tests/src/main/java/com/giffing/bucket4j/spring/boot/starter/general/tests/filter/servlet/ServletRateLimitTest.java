@@ -16,8 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -30,8 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static tools.jackson.databind.cfg.EnumFeature.READ_ENUMS_USING_TO_STRING;
-import static tools.jackson.databind.cfg.EnumFeature.WRITE_ENUMS_USING_TO_STRING;
 
 
 @SpringBootTest(properties = {
@@ -67,22 +63,21 @@ import static tools.jackson.databind.cfg.EnumFeature.WRITE_ENUMS_USING_TO_STRING
 public class ServletRateLimitTest {
 
 	public static final String NONEXISTENT_FILTER_ID = "nonexistent";
-	@Autowired
+
+    @Autowired
 	private MockMvc mockMvc;
 
 	@Autowired
 	private Bucket4JBootProperties properties;
 
+    @Autowired
 	private ObjectMapper objectMapper;
-	private final String FILTER_ID = "filter1";
+
+    private final String FILTER_ID = "filter1";
 
     @BeforeEach
     public void setup() {
-        objectMapper = JsonMapper.builder()
-                .enable(SerializationFeature.INDENT_OUTPUT) // Feature aktivieren
-                .disable(WRITE_ENUMS_USING_TO_STRING)
-                .disable(READ_ENUMS_USING_TO_STRING)
-                .build();
+
     }
 
 	@Test

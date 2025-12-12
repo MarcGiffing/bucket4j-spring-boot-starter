@@ -1,6 +1,4 @@
 spring:
-  jackson:
-    use-jackson2-defaults: true
   cache:
     cache-names:
     - buckets

@@ -1,6 +1,4 @@
 spring:
-  jackson:
-    use-jackson2-defaults: true
   cache:
     jcache:
       config: classpath:ehcache.xml

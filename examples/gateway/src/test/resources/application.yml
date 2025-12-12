@@ -1,6 +1,4 @@
 spring:
-  jackson:
-    use-jackson2-defaults: true
   main:
     web-application-type: reactive
   cache:

@@ -1,8 +1,6 @@
 spring:
   main:
     allow-bean-definition-overriding: true
-  jackson:
-    use-jackson2-defaults: true
   data:
     redis:
       host: localhost
