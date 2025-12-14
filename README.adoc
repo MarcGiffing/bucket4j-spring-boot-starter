@@ -9,6 +9,7 @@ image:{url-repo}/actions/workflows/pmd.yml/badge.svg[Build Status,link={url-repo
 
 Project version overview:
 
+* > 0.14.0 - Bucket4j 8.15.x - Spring Boot 4.0.0 - Problems with Spring Gateway and Infinispan
 * > 0.13.0 - Bucket4j 8.14.x - Spring Boot 3.5.x - Bucket4j Deps have _jdk17 in the artifactId
 * > 0.12.9 - Bucket4j 8.10.x - Spring Boot 3.4.x
 * > 0.12.8 - Bucket4j 8.10.x - Spring Boot 3.3.x
