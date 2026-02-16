@@ -13,6 +13,7 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <micrometer-registry-prometheus.version>1.15.0</micrometer-registry-prometheus.version>
+        <infinispan-spring-boot4-starter-embedded.version>16.0.5</infinispan-spring-boot4-starter-embedded.version>
     </properties>
 
     <dependencies>
@@ -27,6 +28,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,6 +59,7 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-spring-boot4-starter-embedded</artifactId>
+            <version>${infinispan-spring-boot4-starter-embedded.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
