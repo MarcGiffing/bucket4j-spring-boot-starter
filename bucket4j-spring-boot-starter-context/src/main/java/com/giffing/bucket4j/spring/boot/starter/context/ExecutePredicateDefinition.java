@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 
@@ -32,6 +33,7 @@ public class ExecutePredicateDefinition implements Serializable {
 	 */
 	private ExecutePredicateDefinition(){}
 
+    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 	public ExecutePredicateDefinition(String name) {
 		int eqIdx = name.indexOf('=');
 		if (eqIdx <= 0) {

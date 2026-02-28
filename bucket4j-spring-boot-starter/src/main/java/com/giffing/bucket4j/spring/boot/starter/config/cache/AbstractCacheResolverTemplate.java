@@ -45,7 +45,7 @@ public abstract class AbstractCacheResolverTemplate<T> {
     public abstract AbstractProxyManager<T> getProxyManager(String cacheName);
 
     private RateLimitResultWrapper getSyncRateLimit(Integer numTokens, Bucket bucket) {
-        log.debug("consume-token");
+        log.debug("consume-token {}; available {}", numTokens, bucket.getAvailableTokens());
         var consumptionProbe = bucket.tryConsumeAndReturnRemaining(numTokens);
         var result = mapToRateLimitResult(consumptionProbe);
         return new RateLimitResultWrapper(result);

@@ -3,6 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.context.properties;
 import com.giffing.bucket4j.spring.boot.starter.context.PostRateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitCheck;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.converter.EnumValue;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,7 @@ public class FilterConfiguration<R, P> {
 	/**
 	 * The HTTP status code which should be returned when limiting the rate.
 	 */
+    @EnumValue
 	private HttpStatus httpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
 	
 	private Map<String, String> httpResponseHeaders = new HashMap<>();

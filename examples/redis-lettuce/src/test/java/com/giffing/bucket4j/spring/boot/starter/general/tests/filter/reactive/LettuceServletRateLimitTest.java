@@ -2,7 +2,6 @@ package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.reactive;
 
 import com.giffing.bucket4j.spring.boot.starter.LettuceConfiguraiton;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -23,8 +22,8 @@ public class LettuceServletRateLimitTest extends ReactiveRateLimitTest {
 
     @DynamicPropertySource
     static void redisProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.redis.host", () -> redis.getHost());
-        registry.add("spring.data.redis.port", () -> redis.getFirstMappedPort());
+        registry.add("spring.data.redis.host", redis::getHost);
+        registry.add("spring.data.redis.port", redis::getFirstMappedPort);
     }
 
 }

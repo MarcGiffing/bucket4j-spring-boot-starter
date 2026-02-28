@@ -12,10 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Data
+@NoArgsConstructor
 public class Metrics implements Serializable {
 
     private boolean enabled = true;

@@ -1,25 +1,21 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -32,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 
 @SpringBootTest(properties = {
@@ -68,14 +63,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ServletRateLimitTest {
 
 	public static final String NONEXISTENT_FILTER_ID = "nonexistent";
-	@Autowired
+
+    @Autowired
 	private MockMvc mockMvc;
 
 	@Autowired
 	private Bucket4JBootProperties properties;
 
-	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final String FILTER_ID = "filter1";
+    @Autowired
+	private ObjectMapper objectMapper;
+
+    private final String FILTER_ID = "filter1";
+
+    @BeforeEach
+    public void setup() {
+
+    }
 
 	@Test
 	@Order(1)
@@ -202,12 +205,9 @@ public class ServletRateLimitTest {
 	@Order(1)
 	void invalidPredicateReplaceConfigTest() throws Exception {
 		Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
-		filter.setMinorVersion(filter.getMinorVersion() + 1);
-		DocumentContext documentContext = JsonPath.parse(objectMapper.writeValueAsString(filter));
-		String json = documentContext
-			.add("$.rateLimits[0].executePredicates", "INVALID-EXEC=TEST")
-			.jsonString();
-		updateFilterCache(filter.getId(), json)
+        filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-EXEC=TEST"));
+        filter.setMinorVersion(filter.getMinorVersion() + 1);
+		updateFilterCache(filter.getId(), objectMapper.writeValueAsString(filter))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("Configuration validation failed"))
 			.andExpect(jsonPath("$.errors.length()").value(1))
@@ -218,13 +218,10 @@ public class ServletRateLimitTest {
 	@Order(1)
 	void invalidPredicatesReplaceConfigTest() throws Exception {
 		Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
+        filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-EXEC=TEST"));
+        filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-SKIP=TEST"));
 		filter.setMinorVersion(filter.getMinorVersion() + 1);
-		DocumentContext documentContext = JsonPath.parse(objectMapper.writeValueAsString(filter));
-		String json = documentContext
-			.add("$.rateLimits[0].executePredicates", "INVALID-EXEC=TEST")
-			.add("$.rateLimits[0].skipPredicates", "INVALID-SKIP=TEST")
-			.jsonString();
-		updateFilterCache(filter.getId(), json)
+		updateFilterCache(filter.getId(), objectMapper.writeValueAsString(filter))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("Configuration validation failed"))
 			.andExpect(jsonPath("$.errors.length()").value(1))
@@ -249,7 +246,7 @@ public class ServletRateLimitTest {
 				.untilAsserted(() -> successfulWebRequest(url, newFilterCapacity - 1, HttpStatus.OK));
 	}
 
-	private Bucket4JConfiguration getFilterConfigClone(String id) throws JsonProcessingException {
+	private Bucket4JConfiguration getFilterConfigClone(String id) throws JacksonException {
 		Bucket4JConfiguration config = properties.getFilters()
 			.stream()
 			.filter(x -> id.matches(x.getId())).findFirst().orElse(null);

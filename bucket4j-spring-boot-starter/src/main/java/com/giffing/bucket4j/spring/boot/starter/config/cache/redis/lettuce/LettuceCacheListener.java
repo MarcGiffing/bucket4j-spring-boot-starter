@@ -1,14 +1,14 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.lettuce;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.core.JacksonException;
 
 /**
  * This class is intended to be used as bean.
@@ -57,7 +57,7 @@ public class LettuceCacheListener<K, V> extends RedisPubSubAdapter<String, Strin
 		try {
 			CacheUpdateEvent<K, V> updateEvent = objectMapper.readValue(message, deserializeType);
 			this.eventPublisher.publishEvent(updateEvent);
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			throw new RuntimeException(e);
 		}
 	}

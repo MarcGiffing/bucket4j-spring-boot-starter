@@ -1,41 +1,50 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.gateway;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giffing.bucket4j.spring.boot.starter.context.ExecutePredicateDefinition;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.stream.IntStream;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
-                "httpbin=http://localhost:${wiremock.server.port}",
+                "debug=true",
+                "logging.level.com.giffing=TRACE",
+                "httpbin=http://localhost:8181",
+                "spring.jackson.use-jackson2-defaults=true"
         })
-@AutoConfigureWireMock(port = 0)
+@WireMockTest(httpPort = 8181)
 @TestPropertySource(properties = {
         "bucket4j.filter-config-caching-enabled=true",
         "bucket4j.filter-config-cache-name=filterConfigCache"
 })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@AutoConfigureWebTestClient
 class GatewaySampleApplicationTest {
 
     @Autowired
@@ -44,20 +53,30 @@ class GatewaySampleApplicationTest {
     @Autowired
     Bucket4JBootProperties properties;
 
+    @Autowired
     WebTestClient rest;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
+
     private final String FILTER_ID = "filter1";
 
     @BeforeEach
     public void setup() {
-        this.rest = WebTestClient
-                .bindToApplicationContext(this.context)
-                .configureClient()
+        JsonMapper.Builder jsonMapper = JsonMapper.builder()
+                .enable(SerializationFeature.INDENT_OUTPUT); // Feature aktivieren
+        objectMapper = jsonMapper
                 .build();
 
-        WireMock.stubFor(WireMock.get(WireMock.urlEqualTo("/hello"))
-                .willReturn(WireMock.aResponse()
+        JacksonJsonEncoder encoder = new JacksonJsonEncoder(jsonMapper);
+        JacksonJsonDecoder decoder = new JacksonJsonDecoder(jsonMapper);
+
+        rest = rest.mutate()
+                        .codecs(ccc -> {
+                                    ccc.defaultCodecs().jacksonJsonDecoder(decoder);
+                                    ccc.defaultCodecs().jacksonJsonEncoder(encoder);
+                                }).build();
+        stubFor(get(urlEqualTo("/hello"))
+                .willReturn(aResponse()
                         .withBody("{\"headers\":{\"Hello\":\"World\"}}")
                         .withHeader("Content-Type", "application/json")));
     }
@@ -116,7 +135,8 @@ class GatewaySampleApplicationTest {
         filter.setFilterMethod(FilterMethod.WEBFLUX);
         updateFilterCache(filter)
                 .expectStatus().isBadRequest()
-                .expectBody().jsonPath("$").value(
+                .expectBody()
+                .jsonPath("$").value(
                         containsString("It is not possible to modify the filterMethod of an existing filter.")
                 );
     }
@@ -151,12 +171,9 @@ class GatewaySampleApplicationTest {
     @Order(1)
     void invalidPredicateReplaceConfigTest() throws Exception {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
+        filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-EXEC=TEST"));
         filter.setMinorVersion(filter.getMinorVersion() + 1);
-        DocumentContext documentContext = JsonPath.parse(objectMapper.writeValueAsString(filter));
-        String json = documentContext
-                .add("$.rateLimits[0].executePredicates", "INVALID-EXEC=TEST")
-                .jsonString();
-        updateFilterCache(filter.getId(), json)
+        updateFilterCache(filter.getId(), objectMapper.writeValueAsString(filter))
                 .expectStatus().isBadRequest()
                 .expectBody()
                 .jsonPath("$.message").isEqualTo("Configuration validation failed")
@@ -182,7 +199,7 @@ class GatewaySampleApplicationTest {
                 .untilAsserted(() -> successfulWebRequest(url, newFilterCapacity - 1));
     }
 
-    private Bucket4JConfiguration getFilterConfigClone(String id) throws JsonProcessingException {
+    private Bucket4JConfiguration getFilterConfigClone(String id) throws JacksonException {
         Bucket4JConfiguration config = properties.getFilters()
                 .stream()
                 .filter(x -> id.matches(x.getId())).findFirst().orElse(null);
@@ -220,7 +237,7 @@ class GatewaySampleApplicationTest {
                 .expectStatus().isEqualTo(HttpStatus.TOO_MANY_REQUESTS)
 
                 .expectBody()
-                .jsonPath("message").isEqualTo( "Too many requests!");
+                .jsonPath("message").isEqualTo("Too many requests!");
     }
 
 

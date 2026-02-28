@@ -2,10 +2,12 @@ package com.giffing.bucket4j.spring.boot.starter.exception;
 
 import lombok.Getter;
 
+import java.io.Serial;
+
 @Getter
 public class ExecutePredicateInstantiationException extends Bucket4jGeneralException {
 
-	private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
 	private final String executePredicateName;
 	

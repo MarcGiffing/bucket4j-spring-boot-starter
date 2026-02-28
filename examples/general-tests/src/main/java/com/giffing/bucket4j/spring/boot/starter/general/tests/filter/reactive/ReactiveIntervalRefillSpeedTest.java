@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,6 @@ import java.util.stream.IntStream;
         "bucket4j.filters[0].rate-limits[0].bandwidths[0].refill-speed=interval",
         "bucket4j.filters[0].url=^(/hello).*",
 })
-@AutoConfigureMockMvc
 @DirtiesContext
 public class ReactiveIntervalRefillSpeedTest {
     @Autowired
@@ -41,7 +39,7 @@ public class ReactiveIntervalRefillSpeedTest {
 
     @Test
     @Order(1)
-    void helloTest() throws Exception {
+    void helloTest() {
         String url = "/hello";
         IntStream.rangeClosed(1, 5)
                 .boxed()

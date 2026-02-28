@@ -1,8 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 import io.micrometer.core.instrument.util.NamedThreadFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +9,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import tools.jackson.core.JacksonException;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -102,7 +102,7 @@ public class JedisCacheListener<K, V> extends JedisPubSub {
 		try {
 			CacheUpdateEvent<K, V> event = objectMapper.readValue(message, deserializeType);
 			this.eventPublisher.publishEvent(event);
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			throw new RuntimeException(e);
 		}
 	}

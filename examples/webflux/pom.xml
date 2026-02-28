@@ -6,7 +6,7 @@
 		<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 		<artifactId>bucket4j-spring-boot-starter-parent</artifactId>
 		<version>${revision}</version>
-		<relativePath>../..</relativePath>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>bucket4j-spring-boot-starter-example-webflux</artifactId>
 
@@ -15,15 +15,37 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
+        <dependency>
+            <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+            <artifactId>bucket4j-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
-		<dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hazelcast-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
@@ -32,24 +54,12 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-			<artifactId>bucket4j-spring-boot-starter</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j_jdk17-hazelcast</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-spring</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
