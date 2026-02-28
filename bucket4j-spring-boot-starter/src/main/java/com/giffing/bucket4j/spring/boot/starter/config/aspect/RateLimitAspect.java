@@ -8,6 +8,7 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.Metrics;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
 import com.giffing.bucket4j.spring.boot.starter.utils.RateLimitAopUtils;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +93,7 @@ public class RateLimitAspect {
         var rateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, RateLimiting.class);
 
         Method fallbackMethod = null;
-        if(StringUtils.hasText(rateLimitAnnotation.fallbackMethodName())) {
+        if (StringUtils.hasText(rateLimitAnnotation.fallbackMethodName())) {
 
             var fallbackMethods = Arrays.stream(method.getDeclaringClass().getMethods())
                     .filter(p -> p.getName().equals(rateLimitAnnotation.fallbackMethodName()))
@@ -125,7 +126,12 @@ public class RateLimitAspect {
         } else if (fallbackMethod != null) {
             return fallbackMethod.invoke(joinPoint.getTarget(), joinPoint.getArgs());
         } else {
-            throw new RateLimitException();
+            throw new RateLimitException(
+                    consumedResult.retryAfterNanoSeconds,
+                    consumedResult.remainingLimit,
+                    rateLimitAnnotation.name(),
+                    rateLimitAnnotation.cacheKey()
+            );
         }
 
         return methodResult;
@@ -144,13 +150,14 @@ public class RateLimitAspect {
     private static RateLimitConsumedResult performRateLimit(RateLimitService.RateLimitConfigresult<Method, Object> rateLimitConfigResult, Method method, Map<String, Object> params, RateLimit annotationRateLimit) {
         boolean allConsumed = true;
         Long remainingLimit = null;
+        Long retryAfterNanoSeconds = null;
         for (RateLimitCheck<Method> rl : rateLimitConfigResult.getRateLimitChecks()) {
             var wrapper = rl.rateLimit(new ExpressionParams<>(method).addParams(params), annotationRateLimit);
             if (wrapper != null && wrapper.getRateLimitResult() != null) {
                 var rateLimitResult = wrapper.getRateLimitResult();
-                if (rateLimitResult.isConsumed()) {
-                    remainingLimit = RateLimitService.getRemainingLimit(remainingLimit, rateLimitResult);
-                } else {
+                remainingLimit = RateLimitService.getRemainingLimit(remainingLimit, rateLimitResult);
+                retryAfterNanoSeconds = rateLimitResult.getNanosToWaitForRefill();
+                if (!rateLimitResult.isConsumed()) {
                     allConsumed = false;
                     break;
                 }
@@ -158,11 +165,13 @@ public class RateLimitAspect {
         }
         if (allConsumed) {
             log.debug("rate-limit-remaining;limit:{}", remainingLimit);
+        } else {
+            log.debug("rate-limit-consumed;limit:{};rate-limit-retry-after;limit:{}", remainingLimit, retryAfterNanoSeconds);
         }
-        return new RateLimitConsumedResult(allConsumed, remainingLimit);
+        return new RateLimitConsumedResult(allConsumed, remainingLimit, retryAfterNanoSeconds);
     }
 
-    private record RateLimitConsumedResult(boolean allConsumed, Long remainingLimit) {
+    private record RateLimitConsumedResult(boolean allConsumed, Long remainingLimit, Long retryAfterNanoSeconds) {
     }
 
     /*
