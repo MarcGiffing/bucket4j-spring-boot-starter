@@ -3,11 +3,11 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import tools.jackson.core.JacksonException;
 
 @Slf4j
 public class JedisCacheManager<K, V> implements CacheManager<K, V> {
@@ -38,7 +38,7 @@ public class JedisCacheManager<K, V> implements CacheManager<K, V> {
 		try (Jedis jedis = pool.getResource()) {
 			String serializedValue = jedis.hget(cacheName, objectMapper.writeValueAsString(key));
 			return serializedValue != null ? objectMapper.readValue(serializedValue, this.valueType) : null;
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			log.warn("Exception occurred while retrieving key '{}' from cache '{}'. Message: {}", key, cacheName, e.getMessage());
 			return null;
 		}
@@ -58,7 +58,7 @@ public class JedisCacheManager<K, V> implements CacheManager<K, V> {
 				CacheUpdateEvent<K,V> updateEvent = new CacheUpdateEvent<>(key, oldValue, value);
 				jedis.publish(this.updateChannel, objectMapper.writeValueAsString(updateEvent));
 			}
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			log.warn("Exception occurred while setting key '{}' in cache '{}'. Message: {}", key, cacheName, e.getMessage());
 			throw new RuntimeException(e);
 		}

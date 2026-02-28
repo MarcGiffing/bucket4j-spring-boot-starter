@@ -7,9 +7,6 @@ management:
     web:
       exposure:
         include: "*"
-  security:
-    enabled: false
-
 bucket4j:
   enabled: true
   cache-to-use: redis-jedis

@@ -87,7 +87,11 @@ public class AbstractReactiveFilter {
 
 		if (!rateLimitResult.isConsumed()) {
 			if (Boolean.FALSE.equals(filterConfig.getHideHttpResponseHeaders())) {
-				filterConfig.getHttpResponseHeaders().forEach(response.getHeaders()::addIfAbsent);
+				filterConfig.getHttpResponseHeaders().forEach( (headername,value) -> {
+                    if(!response.getHeaders().containsHeader(headername)) {
+                        response.getHeaders().add(headername, value);
+                    }
+                });
 			}
 			if (filterConfig.getHttpResponseBody() != null) {
 				response.setStatusCode(filterConfig.getHttpStatusCode());

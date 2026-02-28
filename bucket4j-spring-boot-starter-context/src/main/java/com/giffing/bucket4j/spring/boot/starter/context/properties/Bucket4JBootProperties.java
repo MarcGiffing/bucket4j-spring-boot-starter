@@ -1,6 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
+import com.giffing.bucket4j.spring.boot.starter.context.converter.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -84,6 +85,8 @@ public class Bucket4JBootProperties {
     private String defaultHttpContentType = "application/json";
 
     @NotNull
+    @Valid
+    @EnumValue
     private HttpStatus defaultHttpStatusCode = HttpStatus.TOO_MANY_REQUESTS;
 
     /**

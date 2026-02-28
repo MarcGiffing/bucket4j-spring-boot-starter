@@ -14,17 +14,17 @@ import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricType;
 @Slf4j
 public class DebugMetricHandler implements MetricHandler {
 
-	@Override
-	public void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags) {
-	log.info(String.format("type: %s; name: %s; tags: %s; tokens: %s",
-				type,
-				name,
-				tags
-					.stream()
-					.map(mtr -> mtr.getKey() + ":" + mtr.getValue())
-					.collect(Collectors.joining(",")),
-				tokens));
-		
-	}
+    @Override
+    public void handle(MetricType type, String name, long tokens, List<MetricTagResult> tags) {
+        log.info("type: {}; name: {}; tags: {}; tokens: {}",
+                type,
+                name,
+                tags
+                        .stream()
+                        .map(mtr -> mtr.getKey() + ":" + mtr.getValue())
+                        .collect(Collectors.joining(",")),
+                tokens);
+
+    }
 
 }

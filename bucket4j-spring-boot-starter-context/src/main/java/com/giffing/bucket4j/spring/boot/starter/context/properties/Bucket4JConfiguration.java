@@ -1,5 +1,18 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
+import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
+import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidPredicateNames;
+import com.giffing.bucket4j.spring.boot.starter.context.converter.EnumValue;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.ToString;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,21 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-
-import org.springframework.core.Ordered;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
-
-import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
-import com.giffing.bucket4j.spring.boot.starter.context.RateLimitConditionMatchingStrategy;
-import com.giffing.bucket4j.spring.boot.starter.context.constraintvalidations.ValidPredicateNames;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.ToString;
 
 @Data
 @ToString
@@ -81,6 +79,7 @@ public class Bucket4JConfiguration implements Serializable {
     /**
      * The HTTP status code which should be returned when limiting the rate.
      */
+    @EnumValue
     private HttpStatus httpStatusCode;
 
     /**

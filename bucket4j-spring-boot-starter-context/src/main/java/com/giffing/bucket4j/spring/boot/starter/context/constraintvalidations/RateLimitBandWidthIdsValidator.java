@@ -25,7 +25,7 @@ public class RateLimitBandWidthIdsValidator implements ConstraintValidator<Valid
 			if (!idSet.add(id)) {
 				String errorMessage = (id == null)
 						? "Multiple bandwidths without id detected. This is only allowed when TokenInheritanceStrategy 'RESET' is applied."
-						: String.format("Duplicate bandwidth id: %s", id);
+						: "Duplicate bandwidth id: %s".formatted(id);
 
 				context.disableDefaultConstraintViolation();
 				context.buildConstraintViolationWithTemplate(errorMessage).addConstraintViolation();
