@@ -12,7 +12,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <micrometer-registry-prometheus.version>1.15.0</micrometer-registry-prometheus.version>
+        <micrometer-registry-prometheus.version>1.16.3</micrometer-registry-prometheus.version>
         <infinispan-spring-boot4-starter-embedded.version>16.1.0</infinispan-spring-boot4-starter-embedded.version>
     </properties>
 
