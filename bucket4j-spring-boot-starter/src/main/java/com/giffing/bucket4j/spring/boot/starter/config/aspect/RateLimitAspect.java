@@ -93,7 +93,7 @@ public class RateLimitAspect {
         var rateLimitAnnotation = RateLimitAopUtils.getAnnotationFromMethodOrClass(method, RateLimiting.class);
 
         Method fallbackMethod = null;
-        if(StringUtils.hasText(rateLimitAnnotation.fallbackMethodName())) {
+        if (StringUtils.hasText(rateLimitAnnotation.fallbackMethodName())) {
 
             var fallbackMethods = Arrays.stream(method.getDeclaringClass().getMethods())
                     .filter(p -> p.getName().equals(rateLimitAnnotation.fallbackMethodName()))
@@ -127,9 +127,10 @@ public class RateLimitAspect {
             return fallbackMethod.invoke(joinPoint.getTarget(), joinPoint.getArgs());
         } else {
             throw new RateLimitException(
-                consumedResult.retryAfterNanoSeconds,
-                consumedResult.remainingLimit,
-                rateLimitAnnotation.name()
+                    consumedResult.retryAfterNanoSeconds,
+                    consumedResult.remainingLimit,
+                    rateLimitAnnotation.name(),
+                    rateLimitAnnotation.cacheKey()
             );
         }
 
