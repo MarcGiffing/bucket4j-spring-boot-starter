@@ -13,7 +13,7 @@
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<jaxb-core.version>4.0.5</jaxb-core.version>
-		<wiremock-standalone.version>3.13.0</wiremock-standalone.version>
+		<wiremock-standalone.version>3.13.2</wiremock-standalone.version>
 	</properties>
 
 	<dependencies>
