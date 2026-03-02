@@ -1,10 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.exception;
 
+import lombok.Getter;
+
 import java.io.Serial;
 
 /**
  * This exception should be thrown if no cache was found
  */
+@Getter
 public class JCacheNotFoundException extends com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException {
 
     @Serial private static final long serialVersionUID = 1L;
@@ -18,10 +21,6 @@ public class JCacheNotFoundException extends com.giffing.bucket4j.spring.boot.st
 		super("The cache name '" + cacheName + "' defined in the property is not configured in the caching provider");
 		this.cacheName = cacheName;
 
-	}
-
-	public String getCacheName() {
-		return cacheName;
 	}
 
 }

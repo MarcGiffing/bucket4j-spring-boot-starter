@@ -194,7 +194,7 @@ class ConfigPredicateNameValidatorTest {
     }
 
 
-    private class CustomTestPredicate extends ExecutePredicate<HttpServletRequest> {
+    private static class CustomTestPredicate extends ExecutePredicate<HttpServletRequest> {
 
         @Override
         public String name() {

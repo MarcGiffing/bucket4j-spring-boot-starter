@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class TestController {
 
-	public ResponseEntity secure() {
+	public ResponseEntity<?> secure() {
 		return ResponseEntity.ok().build();
 	}
 

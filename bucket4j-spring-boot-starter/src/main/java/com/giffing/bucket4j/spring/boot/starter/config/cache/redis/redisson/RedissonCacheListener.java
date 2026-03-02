@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class RedissonCacheListener<K, V> {
 
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public RedissonCacheListener(RedissonClient redisson, String cacheName, ApplicationEventPublisher eventPublisher) {
         RTopic pubSubTopic = redisson.getTopic(cacheName);

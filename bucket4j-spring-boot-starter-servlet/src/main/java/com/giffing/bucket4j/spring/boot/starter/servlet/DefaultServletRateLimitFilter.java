@@ -31,7 +31,7 @@ public class DefaultServletRateLimitFilter extends OncePerRequestFilter implemen
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI().matches(filterConfig.getUrl());
     }
 

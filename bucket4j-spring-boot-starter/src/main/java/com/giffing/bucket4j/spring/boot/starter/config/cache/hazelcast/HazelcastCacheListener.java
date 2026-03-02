@@ -17,7 +17,7 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class HazelcastCacheListener<K, V> implements EntryUpdatedListener<K, V> {
 
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public HazelcastCacheListener(IMap<K, V> map, ApplicationEventPublisher eventPublisher) {
         map.addEntryListener(this, true);

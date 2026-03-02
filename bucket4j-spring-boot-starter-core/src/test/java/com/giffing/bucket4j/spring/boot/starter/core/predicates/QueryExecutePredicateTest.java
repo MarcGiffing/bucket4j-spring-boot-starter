@@ -19,12 +19,12 @@ class QueryExecutePredicateTest {
 
 	@BeforeEach
 	public void setup() {
-		predicate = new QueryExecutePredicate<Set<String>>() {
-			@Override
-			public boolean test(Set<String> queryList) {
-				return testQueryParameter(queryList);
-			}
-		};
+		predicate = new QueryExecutePredicate<>() {
+            @Override
+            public boolean test(Set<String> queryList) {
+                return testQueryParameter(queryList);
+            }
+        };
 
 	}
 	

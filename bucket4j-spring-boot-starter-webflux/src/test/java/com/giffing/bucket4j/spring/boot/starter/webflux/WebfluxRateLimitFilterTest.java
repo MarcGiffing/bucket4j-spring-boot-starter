@@ -5,8 +5,10 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.FilterConfigu
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -28,41 +30,42 @@ import java.util.function.Supplier;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class WebfluxRateLimitFilterTest {
 
 	private DefaultWebfluxRateLimitFilter filter;
 	private FilterConfiguration<ServerHttpRequest, ServerHttpResponse> configuration;
+
+	@Mock
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck1;
+
+	@Mock
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck2;
+
+	@Mock
 	private RateLimitCheck<ServerHttpRequest> rateLimitCheck3;
 
+	@Mock
 	private PostRateLimitCheck<ServerHttpRequest, ServerHttpResponse> postRateLimitCheck;
 
+	@Mock
 	private ServerWebExchange exchange;
+
+	@Mock
 	private WebFilterChain chain;
 
-
+	@Mock
 	private ServerHttpResponse serverHttpResponse;
 
 	@BeforeEach
 	public void setup() throws URISyntaxException {
-		rateLimitCheck1 = mock(RateLimitCheck.class);
-		rateLimitCheck2 = mock(RateLimitCheck.class);
-		rateLimitCheck3 = mock(RateLimitCheck.class);
-
-		postRateLimitCheck = mock(PostRateLimitCheck.class);
-
-		exchange = mock(ServerWebExchange.class);
-
 		var serverHttpRequest = mock(ServerHttpRequest.class);
 		URI uri = new URI("url");
 		when(serverHttpRequest.getURI()).thenReturn(uri);
-		when(exchange.getRequest()).thenReturn(serverHttpRequest);
 
-		serverHttpResponse = mock(ServerHttpResponse.class);
+		when(exchange.getRequest()).thenReturn(serverHttpRequest);
 		when(exchange.getResponse()).thenReturn(serverHttpResponse);
 
-		chain = mock(WebFilterChain.class);
 		when(chain.filter(exchange)).thenReturn(Mono.empty());
 
 		configuration = new FilterConfiguration<>();

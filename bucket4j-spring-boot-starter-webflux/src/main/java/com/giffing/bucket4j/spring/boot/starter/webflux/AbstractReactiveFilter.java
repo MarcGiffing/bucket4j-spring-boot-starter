@@ -30,10 +30,6 @@ public class AbstractReactiveFilter {
 		this.filterConfig = filterConfig;
 	}
 
-	public void setFilterConfig(FilterConfiguration<ServerHttpRequest, ServerHttpResponse> filterConfig){
-		this.filterConfig = filterConfig;
-	}
-
 	protected boolean urlMatches(ServerHttpRequest request) {
 		return request.getURI().getPath().matches(filterConfig.getUrl());
 	}

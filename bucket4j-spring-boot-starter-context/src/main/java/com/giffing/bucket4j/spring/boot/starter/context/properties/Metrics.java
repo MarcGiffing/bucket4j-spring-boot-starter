@@ -1,8 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.context.properties;
 
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationEventPublisher;
 @Listener
 public class InfinispanCacheListener<K, V> {
 
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public InfinispanCacheListener(Cache<K, V> cache, ApplicationEventPublisher eventPublisher) {
         cache.addListener(this);

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class PathExecutePredicate<T> extends ExecutePredicate<T> {
 
-	private PathPatternParser pathPatternParser = new PathPatternParser();
+	private final PathPatternParser pathPatternParser = new PathPatternParser();
 
 	private List<PathPattern> pathPatterns = new ArrayList<>();
 	

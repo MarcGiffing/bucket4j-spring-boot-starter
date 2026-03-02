@@ -22,7 +22,7 @@ import java.io.Serializable;
  */
 public class JCacheCacheListener<K, V> implements CacheEntryUpdatedListener<K, V>, Serializable {
 
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public JCacheCacheListener(Cache<K, V> cache, ApplicationEventPublisher eventPublisher) {
         cache.registerCacheEntryListener(

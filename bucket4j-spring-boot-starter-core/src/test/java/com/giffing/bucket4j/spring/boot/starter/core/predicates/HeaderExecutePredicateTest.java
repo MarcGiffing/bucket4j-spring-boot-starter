@@ -19,12 +19,12 @@ class HeaderExecutePredicateTest {
 
 	@BeforeEach
 	public void setup() {
-		predicate = new HeaderExecutePredicate<List<String>>() {
-			@Override
-			public boolean test(List<String> t) {
-				return testHeaderValues(t);
-			}
-		};
+		predicate = new HeaderExecutePredicate<>() {
+            @Override
+            public boolean test(List<String> t) {
+                return testHeaderValues(t);
+            }
+        };
 
 	}
 
