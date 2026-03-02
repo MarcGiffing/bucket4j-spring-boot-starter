@@ -1,12 +1,11 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateListener;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.ProxyManagerWrapper;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.gateway.Bucket4JAutoConfigurationSpringCloudGatewayFilter;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.reactive.webflux.Bucket4JAutoConfigurationWebfluxFilter;
+import com.giffing.bucket4j.spring.boot.starter.config.filter.webflux.Bucket4JAutoConfigurationWebfluxFilter;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.Bucket4JAutoConfigurationServletFilter;
-import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateListener;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.ProxyManagerWrapper;
+import com.giffing.bucket4j.spring.boot.starter.core.service.RateLimitService;
 import com.giffing.bucket4j.spring.boot.starter.context.*;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.*;
@@ -20,7 +19,6 @@ import java.util.Map;
 /**
  * Holds helper Methods which are reused by the
  * {@link Bucket4JAutoConfigurationServletFilter}
- * {@link Bucket4JAutoConfigurationSpringCloudGatewayFilter}
  * {@link Bucket4JAutoConfigurationWebfluxFilter}
  * configuration classes
  */

@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheBucket4jConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnAsynchronousPropertyCondition;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;

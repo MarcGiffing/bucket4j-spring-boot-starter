@@ -5,7 +5,7 @@ import java.io.Serial;
 /**
  * This exception should be thrown if no cache was found
  */
-public class JCacheNotFoundException extends Bucket4jGeneralException {
+public class JCacheNotFoundException extends com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException {
 
     @Serial private static final long serialVersionUID = 1L;
 

@@ -1,12 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.jedis;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnSynchronousPropertyCondition;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager.JedisBasedProxyManagerBuilder;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.context.ApplicationEventPublisher;

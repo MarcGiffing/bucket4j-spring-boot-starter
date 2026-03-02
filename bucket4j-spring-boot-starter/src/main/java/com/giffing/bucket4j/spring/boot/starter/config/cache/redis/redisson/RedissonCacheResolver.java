@@ -1,8 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheResolver;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
 import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;

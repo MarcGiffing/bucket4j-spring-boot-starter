@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnCache;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnFilterConfigCacheEnabled;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnSynchronousPropertyCondition;
@@ -37,9 +37,9 @@ public class JCacheBucket4jConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager.class)
+    @ConditionalOnMissingBean(com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager.class)
     @ConditionalOnFilterConfigCacheEnabled
-    public com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager<String, Bucket4JConfiguration> configCacheManager(
+    public com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager<String, Bucket4JConfiguration> configCacheManager(
     ) {
         return new com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheCacheManager<>(cacheManager.getCache(configCacheName));
     }

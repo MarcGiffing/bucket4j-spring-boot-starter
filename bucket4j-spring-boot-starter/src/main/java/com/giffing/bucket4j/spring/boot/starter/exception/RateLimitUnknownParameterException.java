@@ -10,7 +10,7 @@ import java.util.Set;
  */
 @RequiredArgsConstructor
 @Getter
-public class RateLimitUnknownParameterException extends Bucket4jGeneralException {
+public class RateLimitUnknownParameterException extends com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException {
 
     private final String expression;
 

@@ -6,14 +6,14 @@ import org.springframework.boot.diagnostics.FailureAnalysis;
 
 /**
  * The failure analyzer is responsible to provide readable information of exception which
- * occur on startup. All exception based on the {@link Bucket4jGeneralException} are handled here.
+ * occur on startup. All exception based on the {@link com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException} are handled here.
  */
-public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<Bucket4jGeneralException> {
+public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException> {
 
     public static final String NEW_LINE = System.lineSeparator();
 
     @Override
-    protected FailureAnalysis analyze(Throwable rootFailure, Bucket4jGeneralException cause) {
+    protected FailureAnalysis analyze(Throwable rootFailure, com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException cause) {
         String descriptionMessage = cause.getMessage();
         String actionMessage = cause.getMessage();
 
@@ -23,7 +23,7 @@ public class Bucket4JAutoConfigFailureAnalyzer extends AbstractFailureAnalyzer<B
                     + "Please configure your caching provider (ehcache, hazelcast, ...)";
         }
 
-        if (cause instanceof ExecutePredicateInstantiationException e) {
+        if (cause instanceof com.giffing.bucket4j.spring.boot.starter.core.exception.ExecutePredicateInstantiationException e) {
             descriptionMessage = e.getMessage();
             actionMessage = "Please provide a default constructor.";
         }

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class RateLimitingFallbackMethodParameterMismatchException extends Bucket4jGeneralException {
+public class RateLimitingFallbackMethodParameterMismatchException extends com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException {
 
     private final String fallbackMethodName;
 

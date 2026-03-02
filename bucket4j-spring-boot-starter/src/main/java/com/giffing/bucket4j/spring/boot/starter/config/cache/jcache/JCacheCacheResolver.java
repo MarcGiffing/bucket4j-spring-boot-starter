@@ -1,8 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.exception.JCacheNotFoundException;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
 import io.github.bucket4j.distributed.proxy.ProxyManager;

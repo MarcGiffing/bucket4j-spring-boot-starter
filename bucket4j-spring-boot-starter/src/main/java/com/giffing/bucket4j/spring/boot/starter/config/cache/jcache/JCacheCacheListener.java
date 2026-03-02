@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.cache.Cache;

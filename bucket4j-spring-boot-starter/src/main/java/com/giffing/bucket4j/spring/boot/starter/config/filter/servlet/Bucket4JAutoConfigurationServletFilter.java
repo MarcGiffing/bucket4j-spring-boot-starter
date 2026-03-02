@@ -1,12 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.config.filter.servlet;
 
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBucket4jEnabled;
 import com.giffing.bucket4j.spring.boot.starter.config.filter.Bucket4JBaseConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.filter.servlet.predicate.ServletRequestExecutePredicateConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.Bucket4jConfigurationHolder;
@@ -15,9 +11,12 @@ import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRateLimitFilter;
-import com.giffing.bucket4j.spring.boot.starter.filter.servlet.ServletRateLimiterFilterFactory;
-import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRateLimitFilter;
+import com.giffing.bucket4j.spring.boot.starter.servlet.ServletRateLimiterFilterFactory;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

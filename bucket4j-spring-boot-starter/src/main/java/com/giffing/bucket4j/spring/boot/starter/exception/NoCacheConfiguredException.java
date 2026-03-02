@@ -6,7 +6,7 @@ import lombok.Getter;
  * This exception should be thrown if no cache configuration was found.
  */
 @Getter
-public class NoCacheConfiguredException extends Bucket4jGeneralException {
+public class NoCacheConfiguredException extends com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException {
 
     private final String cacheToUse;
 

@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.ignite;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
 import org.apache.ignite.IgniteCache;
 import org.springframework.context.ApplicationEventPublisher;
 

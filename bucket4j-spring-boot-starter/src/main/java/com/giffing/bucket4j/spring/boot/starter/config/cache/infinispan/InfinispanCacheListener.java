@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
 import org.infinispan.Cache;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;

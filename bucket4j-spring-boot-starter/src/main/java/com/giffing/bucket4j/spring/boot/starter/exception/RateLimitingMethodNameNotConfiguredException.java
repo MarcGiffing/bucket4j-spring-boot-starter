@@ -7,7 +7,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Getter
-public class RateLimitingMethodNameNotConfiguredException extends Bucket4jGeneralException {
+public class RateLimitingMethodNameNotConfiguredException extends com.giffing.bucket4j.spring.boot.starter.core.exception.Bucket4jGeneralException {
 
     private final String name;
 

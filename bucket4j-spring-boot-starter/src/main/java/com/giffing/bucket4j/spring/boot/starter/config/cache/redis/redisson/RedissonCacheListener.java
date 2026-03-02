@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.redis.redisson;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;

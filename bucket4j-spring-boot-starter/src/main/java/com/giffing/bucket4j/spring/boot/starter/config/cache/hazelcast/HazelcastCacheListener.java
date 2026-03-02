@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheUpdateEvent;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.EntryUpdatedListener;

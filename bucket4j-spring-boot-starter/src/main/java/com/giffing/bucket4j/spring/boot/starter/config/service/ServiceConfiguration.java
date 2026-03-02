@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.service;
 
-import com.giffing.bucket4j.spring.boot.starter.service.ExpressionService;
-import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.core.service.ExpressionService;
+import com.giffing.bucket4j.spring.boot.starter.core.service.RateLimitService;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

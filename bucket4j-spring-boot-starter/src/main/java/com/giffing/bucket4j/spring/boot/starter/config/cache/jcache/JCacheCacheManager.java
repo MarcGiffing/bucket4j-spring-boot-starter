@@ -2,7 +2,7 @@ package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
 import javax.cache.Cache;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
 
 public class JCacheCacheManager<K, V> implements CacheManager<K, V> {
 

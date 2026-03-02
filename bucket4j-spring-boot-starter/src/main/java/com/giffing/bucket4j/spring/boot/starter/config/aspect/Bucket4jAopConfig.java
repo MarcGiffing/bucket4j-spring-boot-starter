@@ -1,14 +1,15 @@
 package com.giffing.bucket4j.spring.boot.starter.config.aspect;
 
+import com.giffing.bucket4j.spring.boot.starter.aop.aspect.RateLimitAspect;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBucket4jEnabled;
 import com.giffing.bucket4j.spring.boot.starter.config.metrics.actuator.SpringBootActuatorConfig;
 import com.giffing.bucket4j.spring.boot.starter.config.service.ServiceConfiguration;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
 import com.giffing.bucket4j.spring.boot.starter.context.metrics.MetricHandler;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JBootProperties;
-import com.giffing.bucket4j.spring.boot.starter.service.RateLimitService;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.service.RateLimitService;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

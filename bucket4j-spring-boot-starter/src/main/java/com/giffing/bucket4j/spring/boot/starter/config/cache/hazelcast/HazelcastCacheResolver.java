@@ -1,9 +1,9 @@
 
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;

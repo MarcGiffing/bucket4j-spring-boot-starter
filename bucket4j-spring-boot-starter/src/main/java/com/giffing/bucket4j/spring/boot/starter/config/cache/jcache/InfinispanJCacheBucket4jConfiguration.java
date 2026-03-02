@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.jcache;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheListener;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheManager;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan.InfinispanCacheResolver;

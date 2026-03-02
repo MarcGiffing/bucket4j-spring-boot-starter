@@ -17,16 +17,22 @@
 	</parent>
 	<modules>
 		<module>bucket4j-spring-boot-starter-context</module>
+		<module>bucket4j-spring-boot-starter-core</module>
+		<module>bucket4j-spring-boot-starter-aop</module>
+		<module>bucket4j-spring-boot-starter-servlet</module>
 		<module>bucket4j-spring-boot-starter</module>
 		<module>examples/general-tests</module>
-        <module>examples/caffeine</module>
-        <module>examples/ehcache</module>
-        <module>examples/hazelcast</module>
-        <module>examples/webflux</module>
-        <module>examples/redis-jedis</module>
+		<module>examples/caffeine</module>
+		<module>examples/ehcache</module>
+		<module>examples/hazelcast</module>
+		<module>examples/webflux</module>
+		<module>examples/redis-jedis</module>
 		<module>examples/redis-lettuce</module>
 		<module>examples/redis-redisson</module>
-        <module>examples/webflux-infinispan</module>
+		<module>examples/webflux-infinispan</module>
+        <module>bucket4j-spring-boot-starter-webflux</module>
+
+
     </modules>
 	<url>https://github.com/MarcGiffing/bucket4j-spring-boot-starter</url>
 	<licenses>
@@ -59,6 +65,26 @@
 			<dependency>
 				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
 				<artifactId>bucket4j-spring-boot-starter-context</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+				<artifactId>bucket4j-spring-boot-starter-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+				<artifactId>bucket4j-spring-boot-starter-aop</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+				<artifactId>bucket4j-spring-boot-starter-servlet</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+				<artifactId>bucket4j-spring-boot-starter-webflux</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

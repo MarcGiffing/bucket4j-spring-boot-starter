@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
 import com.hazelcast.map.IMap;
 
 public class HazelcastCacheManager<K, V> implements CacheManager<K, V> {

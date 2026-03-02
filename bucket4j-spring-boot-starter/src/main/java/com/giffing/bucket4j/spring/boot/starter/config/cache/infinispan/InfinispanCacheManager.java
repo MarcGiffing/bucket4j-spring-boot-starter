@@ -1,6 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
 import org.infinispan.Cache;
 
 public class InfinispanCacheManager<K, V> implements CacheManager<K, V> {

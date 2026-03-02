@@ -1,7 +1,7 @@
 package com.giffing.bucket4j.spring.boot.starter.config.cache.infinispan;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AbstractCacheResolverTemplate;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
 import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
 import org.infinispan.AdvancedCache;

@@ -1,8 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.AsyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.cache.Bucket4jCacheConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.config.condition.ConditionalOnBucket4jEnabled;
 import com.giffing.bucket4j.spring.boot.starter.context.FilterMethod;
 import com.giffing.bucket4j.spring.boot.starter.context.IgnoreRateLimiting;
@@ -36,7 +36,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.giffing.bucket4j.spring.boot.starter.utils.RateLimitAopUtils.getAnnotationFromMethodOrClass;
+import static com.giffing.bucket4j.spring.boot.starter.aop.utils.RateLimitAopUtils.getAnnotationFromMethodOrClass;
 
 @Configuration
 @ConditionalOnBucket4jEnabled
