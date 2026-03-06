@@ -1,8 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.examples.webflux;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.CacheManager;
 import com.giffing.bucket4j.spring.boot.starter.context.properties.Bucket4JConfiguration;
-import com.giffing.bucket4j.spring.boot.starter.utils.Bucket4JUtils;
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheManager;
+import com.giffing.bucket4j.spring.boot.starter.core.utils.Bucket4JUtils;
 import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;

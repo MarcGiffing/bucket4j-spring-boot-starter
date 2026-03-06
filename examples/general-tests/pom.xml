@@ -21,7 +21,17 @@
     <dependencies>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter</artifactId>
+            <artifactId>core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+            <artifactId>cache-jcache</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+            <artifactId>starter-autoconfigure</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -59,7 +69,7 @@
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-context</artifactId>
+            <artifactId>context</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

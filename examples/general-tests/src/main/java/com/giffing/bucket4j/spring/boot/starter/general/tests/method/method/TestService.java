@@ -45,7 +45,7 @@ public class TestService {
             name = "default",
             ratePerMethod = true)
     public String withRatePerMethod2(String cacheKey) {
-        log.info("Method withRatePerMethod1 with Param {} executed", cacheKey);
+        log.info("Method withRatePerMethod2 with Param {} executed", cacheKey);
         return cacheKey;
     }
 

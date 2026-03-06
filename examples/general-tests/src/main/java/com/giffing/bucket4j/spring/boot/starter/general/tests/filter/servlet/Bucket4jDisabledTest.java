@@ -1,5 +1,6 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.filter.servlet;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,17 +38,16 @@ public class Bucket4jDisabledTest {
         IntStream.rangeClosed(1, 50)
                 .boxed()
                 .sorted(Collections.reverseOrder())
-                .forEach(counter -> {
-                    try {
-                        mockMvc
-                                .perform(get(url))
-                                .andExpect(status().isOk())
-                                .andExpect(header().doesNotExist("X-Rate-Limit-Remaining"))
-                                .andExpect(content().string(containsString("Hello World")));
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                .forEach(counter -> performGetRequest(url));
+    }
+
+    @SneakyThrows
+    private void performGetRequest(String url) {
+        mockMvc
+                .perform(get(url))
+                .andExpect(status().isOk())
+                .andExpect(header().doesNotExist("X-Rate-Limit-Remaining"))
+                .andExpect(content().string(containsString("Hello World")));
     }
 
 

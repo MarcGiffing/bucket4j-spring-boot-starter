@@ -69,7 +69,7 @@ public class SkipConditionTest {
                             .header(HEADER_USER, "bilbo")
                     )
                     .andExpect(status().is(HttpStatus.OK.value()))
-                    .andExpect(header().longValue("X-Rate-Limit-Remaining", remainingTries -1))
+                    .andExpect(header().longValue("X-Rate-Limit-Remaining", (remainingTries - 1)))
                     .andExpect(content().string(containsString("Hello World")));
         }
         blockedWebRequestDueToRateLimit(mockMvc, TEST_URL);
