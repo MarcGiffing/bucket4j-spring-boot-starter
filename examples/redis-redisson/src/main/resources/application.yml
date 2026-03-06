@@ -40,8 +40,6 @@ bucket4j:
               refill-speed: interval
 
 spring:
-  main:
-    allow-bean-definition-overriding: true
   data:
     redis:
       host: localhost
