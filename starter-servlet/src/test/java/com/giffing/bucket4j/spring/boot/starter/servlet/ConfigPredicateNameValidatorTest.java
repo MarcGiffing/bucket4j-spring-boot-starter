@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -56,9 +55,9 @@ class ConfigPredicateNameValidatorTest {
     @ParameterizedTest
     @EnumSource(value = FilterMethod.class, names = {"SERVLET"})
     void testValidServletExecutePredicate(FilterMethod filterMethod) {
-        var executePredicates = List.of("PATH=valid-predicate");
+        var executePredicateConfigs = List.of("PATH=valid-predicate");
         var skipPredicates = List.<String>of();
-        var configuration = setupConfiguration(filterMethod, executePredicates, skipPredicates);
+        var configuration = setupConfiguration(filterMethod,  executePredicateConfigs, skipPredicates);
 
         testValidPredicates(configuration);
     }
@@ -69,9 +68,9 @@ class ConfigPredicateNameValidatorTest {
     @ParameterizedTest
     @EnumSource(value = FilterMethod.class, names = {"SERVLET"})
     void testValidServletSkipPredicate(FilterMethod filterMethod) {
-        var executePredicates = List.<String>of();
+        var executePredicateConfigs = List.<String>of();
         var skipPredicates = List.of("PATH=valid-predicate");
-        var configuration = setupConfiguration(filterMethod, executePredicates, skipPredicates);
+        var configuration = setupConfiguration(filterMethod,  executePredicateConfigs, skipPredicates);
 
         testValidPredicates(configuration);
     }
@@ -82,9 +81,9 @@ class ConfigPredicateNameValidatorTest {
     @ParameterizedTest
     @EnumSource(value = FilterMethod.class, names = {"SERVLET"})
     void testMultipleInvalidServletPredicates(FilterMethod filterMethod) {
-        var executePredicates = List.of("INVALID_EXECUTE=invalid");
+        var executePredicateConfigs = List.of("INVALID_EXECUTE=invalid");
         var skipPredicates = List.of("INVALID_SKIP=invalid");
-        var configuration = setupConfiguration(filterMethod, executePredicates, skipPredicates);
+        var configuration = setupConfiguration(filterMethod,  executePredicateConfigs, skipPredicates);
 
         var expectedInvalid = List.of("INVALID_EXECUTE", "INVALID_SKIP");
         testInvalidPredicates(configuration, getInvalidPredicateMessage(expectedInvalid));
@@ -95,9 +94,9 @@ class ConfigPredicateNameValidatorTest {
      */
     @Test
     void testInvalidServletPredicate() {
-        var executePredicates = List.of("PATH=both-methods");
+        var executePredicateConfigs = List.of("PATH=both-methods");
         var skipPredicates = List.of("METHOD=servlet-only");
-        var servletConfiguration = setupConfiguration(FilterMethod.SERVLET, executePredicates, skipPredicates);
+        var servletConfiguration = setupConfiguration(FilterMethod.SERVLET, executePredicateConfigs, skipPredicates);
 
         testValidPredicates(servletConfiguration);
     }
@@ -112,9 +111,9 @@ class ConfigPredicateNameValidatorTest {
 
         var customPredicateValidator = new Bucket4JConfigurationPredicateNameValidator(includingCustomPredicate);
 
-        var executePredicates = List.of("CUSTOM-QUERY=custom-servlet");
+        var executePredicateConfigs = List.of("CUSTOM-QUERY=custom-servlet");
         var skipPredicates = List.<String>of();
-        var configuration = setupConfiguration(FilterMethod.SERVLET, executePredicates, skipPredicates);
+        var configuration = setupConfiguration(FilterMethod.SERVLET, executePredicateConfigs, skipPredicates);
 
         var context = mock(ConstraintValidatorContext.class, Mockito.RETURNS_DEEP_STUBS);
         assertTrue(customPredicateValidator.isValid(configuration, context));
@@ -129,8 +128,8 @@ class ConfigPredicateNameValidatorTest {
         configuration.setFilterMethod(filterMethod);
 
         var rateLimit = new RateLimit();
-        rateLimit.setExecutePredicates(executePredicates.stream().map(ExecutePredicateDefinition::new).collect(Collectors.toList()));
-        rateLimit.setSkipPredicates(skipPredicates.stream().map(ExecutePredicateDefinition::new).collect(Collectors.toList()));
+        rateLimit.setExecutePredicates(executePredicates.stream().map(ExecutePredicateDefinition::new).toList());
+        rateLimit.setSkipPredicates(skipPredicates.stream().map(ExecutePredicateDefinition::new).toList());
         configuration.setRateLimits(Collections.singletonList(rateLimit));
 
         return configuration;

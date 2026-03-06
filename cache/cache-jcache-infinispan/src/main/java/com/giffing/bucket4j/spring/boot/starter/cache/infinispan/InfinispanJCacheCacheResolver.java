@@ -4,7 +4,7 @@ import com.giffing.bucket4j.spring.boot.starter.autoconfigure.exception.JCacheNo
 import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
-import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
+import io.github.bucket4j.grid.infinispan.Bucket4jInfinispan;
 import org.infinispan.Cache;
 import org.infinispan.functional.impl.FunctionalMapImpl;
 import org.infinispan.functional.impl.ReadWriteMapImpl;
@@ -47,6 +47,6 @@ public class InfinispanJCacheCacheResolver extends AbstractCacheResolverTemplate
             throw new JCacheNotFoundException(cacheName);
         }
         FunctionalMapImpl<String, byte[]> functionalMap = FunctionalMapImpl.create(cache.getAdvancedCache());
-        return new InfinispanProxyManager<>(ReadWriteMapImpl.create(functionalMap));
+        return Bucket4jInfinispan.entryProcessorBasedBuilder(ReadWriteMapImpl.create(functionalMap)).build();
     }
 }

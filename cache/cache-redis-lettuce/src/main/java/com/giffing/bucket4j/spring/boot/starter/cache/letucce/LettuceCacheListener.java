@@ -4,9 +4,9 @@ import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 
@@ -53,12 +53,9 @@ public class LettuceCacheListener<K, V> extends RedisPubSubAdapter<String, Strin
         }
     }
 
+    @SneakyThrows
     private void onCacheUpdateEvent(String message) {
-        try {
-            CacheUpdateEvent<K, V> updateEvent = objectMapper.readValue(message, deserializeType);
-            this.eventPublisher.publishEvent(updateEvent);
-        } catch (JacksonException e) {
-            throw new RuntimeException(e);
-        }
+        CacheUpdateEvent<K, V> updateEvent = objectMapper.readValue(message, deserializeType);
+        this.eventPublisher.publishEvent(updateEvent);
     }
 }

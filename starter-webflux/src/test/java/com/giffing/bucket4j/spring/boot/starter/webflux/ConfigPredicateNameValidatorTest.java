@@ -9,7 +9,6 @@ import com.giffing.bucket4j.spring.boot.starter.context.properties.RateLimit;
 import com.giffing.bucket4j.spring.boot.starter.webflux.predicates.WebfluxHeaderExecutePredicate;
 import com.giffing.bucket4j.spring.boot.starter.webflux.predicates.WebfluxPathExecutePredicate;
 import jakarta.validation.ConstraintValidatorContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,10 +19,9 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 class ConfigPredicateNameValidatorTest {
 
@@ -54,9 +52,9 @@ class ConfigPredicateNameValidatorTest {
     @ParameterizedTest
     @EnumSource(value = FilterMethod.class, names = {"WEBFLUX"})
     void testValidWebfluxExecutePredicate(FilterMethod filterMethod) {
-        var executePredicates = List.of("PATH=valid-predicate");
+        var executePredicateConfigs = List.of("PATH=valid-predicate");
         var skipPredicates = List.<String>of();
-        var configuration = setupConfiguration(filterMethod, executePredicates, skipPredicates);
+        var configuration = setupConfiguration(filterMethod, executePredicateConfigs, skipPredicates);
 
         testValidPredicates(configuration);
     }
@@ -67,9 +65,9 @@ class ConfigPredicateNameValidatorTest {
     @ParameterizedTest
     @EnumSource(value = FilterMethod.class, names = {"WEBFLUX"})
     void testValidWebfluxSkipPredicate(FilterMethod filterMethod) {
-        var executePredicates = List.<String>of();
+        var executePredicateConfigs = List.<String>of();
         var skipPredicates = List.of("PATH=valid-predicate");
-        var configuration = setupConfiguration(filterMethod, executePredicates, skipPredicates);
+        var configuration = setupConfiguration(filterMethod, executePredicateConfigs, skipPredicates);
 
         testValidPredicates(configuration);
     }
@@ -81,11 +79,11 @@ class ConfigPredicateNameValidatorTest {
     @ParameterizedTest
     @EnumSource(value = FilterMethod.class, names = {"WEBFLUX"})
     void testMultipleInvalidWebfluxPredicates(FilterMethod filterMethod) {
-        List<String> executePredicates = List.of("INVALID_EXECUTE=invalid");
-        List<String> skipPredicates = List.of("INVALID_SKIP=invalid");
-        Bucket4JConfiguration configuration = setupConfiguration(filterMethod, executePredicates, skipPredicates);
+        var executePredicateConfigs = List.of("INVALID_EXECUTE=invalid");
+        var skipPredicates = List.of("INVALID_SKIP=invalid");
+        var configuration = setupConfiguration(filterMethod, executePredicateConfigs, skipPredicates);
 
-        List<String> expectedInvalid = List.of("INVALID_EXECUTE", "INVALID_SKIP");
+        var expectedInvalid = List.of("INVALID_EXECUTE", "INVALID_SKIP");
         testInvalidPredicates(configuration, getInvalidPredicateMessage(expectedInvalid));
     }
 
@@ -94,9 +92,9 @@ class ConfigPredicateNameValidatorTest {
      */
     @Test
     void testInvalidWebfluxPredicate() {
-        var executePredicates = List.of("PATH=both-methods");
+        var executePredicateConfigs = List.of("PATH=both-methods");
         var skipPredicates = List.of("HEADER=webflux-only");
-        var webfluxConfiguration = setupConfiguration(FilterMethod.WEBFLUX, executePredicates, skipPredicates);
+        var webfluxConfiguration = setupConfiguration(FilterMethod.WEBFLUX, executePredicateConfigs, skipPredicates);
 
         testValidPredicates(webfluxConfiguration);
     }
@@ -106,9 +104,9 @@ class ConfigPredicateNameValidatorTest {
      */
     @Test
     void testInvalidWebfluxWithServletPredicate() {
-        var executePredicates = List.of("PATH=both-methods");
+        var executePredicateConfigs = List.of("PATH=both-methods");
         var skipPredicates = List.of("METHOD=servlet-only");
-        var webfluxConfiguration = setupConfiguration(FilterMethod.WEBFLUX, executePredicates, skipPredicates);
+        var webfluxConfiguration = setupConfiguration(FilterMethod.WEBFLUX, executePredicateConfigs, skipPredicates);
 
         var expectedInvalid = List.of("METHOD");
         testInvalidPredicates(webfluxConfiguration, getInvalidPredicateMessage(expectedInvalid));
@@ -116,15 +114,15 @@ class ConfigPredicateNameValidatorTest {
 
     private Bucket4JConfiguration setupConfiguration(
             FilterMethod filterMethod,
-            List<String> executePredicates,
+            List<String> executePredicateConfigs,
             List<String> skipPredicates
     ) {
         var configuration = new Bucket4JConfiguration();
         configuration.setFilterMethod(filterMethod);
 
         var rateLimit = new RateLimit();
-        rateLimit.setExecutePredicates(executePredicates.stream().map(ExecutePredicateDefinition::new).collect(Collectors.toList()));
-        rateLimit.setSkipPredicates(skipPredicates.stream().map(ExecutePredicateDefinition::new).collect(Collectors.toList()));
+        rateLimit.setExecutePredicates(executePredicateConfigs.stream().map(ExecutePredicateDefinition::new).toList());
+        rateLimit.setSkipPredicates(skipPredicates.stream().map(ExecutePredicateDefinition::new).toList());
         configuration.setRateLimits(Collections.singletonList(rateLimit));
 
         return configuration;
@@ -136,16 +134,16 @@ class ConfigPredicateNameValidatorTest {
     }
 
     private void testValidPredicates(Bucket4JConfiguration configuration) {
-        ConstraintValidatorContext context = Mockito.mock(ConstraintValidatorContext.class, Mockito.RETURNS_DEEP_STUBS);
+        var context = Mockito.mock(ConstraintValidatorContext.class, Mockito.RETURNS_DEEP_STUBS);
         assertTrue(this.validator.isValid(configuration, context));
     }
 
     private void testInvalidPredicates(Bucket4JConfiguration configuration, String expectedError) {
-        ConstraintValidatorContext context = Mockito.mock(ConstraintValidatorContext.class, Mockito.RETURNS_DEEP_STUBS);
-        Assertions.assertFalse(this.validator.isValid(configuration, context));
+        var context = Mockito.mock(ConstraintValidatorContext.class, Mockito.RETURNS_DEEP_STUBS);
+        assertFalse(this.validator.isValid(configuration, context));
 
-        ArgumentCaptor<String> contextCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(context).buildConstraintViolationWithTemplate(contextCaptor.capture());
+        var contextCaptor = ArgumentCaptor.forClass(String.class);
+        verify(context).buildConstraintViolationWithTemplate(contextCaptor.capture());
 
         assertEquals(expectedError, contextCaptor.getValue());
     }

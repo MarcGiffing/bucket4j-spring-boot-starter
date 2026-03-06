@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.cache.ignite;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
-import io.github.bucket4j.grid.ignite.thick.IgniteProxyManager;
+import io.github.bucket4j.grid.ignite.thick.Bucket4jIgniteThick;
 import org.apache.ignite.Ignite;
 
 public class IgniteCacheResolver extends AbstractCacheResolverTemplate<String> implements AsyncCacheResolver {
@@ -27,6 +27,6 @@ public class IgniteCacheResolver extends AbstractCacheResolverTemplate<String> i
     @Override
     public AbstractProxyManager<String> getProxyManager(String cacheName) {
         org.apache.ignite.IgniteCache<String, byte[]> cache = ignite.cache(cacheName);
-        return new IgniteProxyManager<>(cache);
+        return new Bucket4jIgniteThick.IgniteProxyManagerBuilder<>(cache).build();
     }
 }

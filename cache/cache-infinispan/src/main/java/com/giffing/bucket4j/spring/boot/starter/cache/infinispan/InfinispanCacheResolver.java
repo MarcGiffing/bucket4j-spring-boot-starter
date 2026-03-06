@@ -3,7 +3,7 @@ package com.giffing.bucket4j.spring.boot.starter.cache.infinispan;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.AbstractCacheResolverTemplate;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
-import io.github.bucket4j.grid.infinispan.InfinispanProxyManager;
+import io.github.bucket4j.grid.infinispan.Bucket4jInfinispan;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.functional.FunctionalMap;
@@ -32,7 +32,7 @@ public class InfinispanCacheResolver extends AbstractCacheResolverTemplate<Strin
     @Override
     public AbstractProxyManager<String> getProxyManager(String cacheName) {
         Cache<String, byte[]> cache = cacheContainer.getCache(cacheName);
-        return new InfinispanProxyManager<>(toMap(cache));
+        return Bucket4jInfinispan.entryProcessorBasedBuilder(toMap(cache)).build();
     }
 
     private static FunctionalMap.ReadWriteMap<String, byte[]> toMap(Cache<String, byte[]> cache) {

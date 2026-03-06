@@ -64,6 +64,8 @@ public class ServletRateLimitTest {
 
     public static final String NONEXISTENT_FILTER_ID = "nonexistent";
 
+    private static final String FILTER_ID = "filter1";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -72,13 +74,6 @@ public class ServletRateLimitTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private final String FILTER_ID = "filter1";
-
-    @BeforeEach
-    public void setup() {
-
-    }
 
     @Test
     @Order(1)

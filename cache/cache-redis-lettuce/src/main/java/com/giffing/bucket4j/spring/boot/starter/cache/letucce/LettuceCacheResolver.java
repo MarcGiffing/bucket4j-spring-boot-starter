@@ -5,7 +5,7 @@ import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheResolver;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
-import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
+import io.github.bucket4j.redis.lettuce.Bucket4jLettuce;
 import io.lettuce.core.RedisClient;
 
 import java.time.Duration;
@@ -30,8 +30,8 @@ public class LettuceCacheResolver extends AbstractCacheResolverTemplate<byte[]> 
 
     @Override
     public AbstractProxyManager<byte[]> getProxyManager(String cacheName) {
-        return LettuceBasedProxyManager.builderFor(redisClient)
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
+        return Bucket4jLettuce.casBasedBuilder(redisClient)
+                .expirationAfterWrite(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
                 .build();
     }
 

@@ -59,7 +59,7 @@ class WebfluxRateLimitFilterTest {
     private ServerHttpResponse serverHttpResponse;
 
     @BeforeEach
-    public void setup() throws URISyntaxException {
+    void setup() throws URISyntaxException {
         var serverHttpRequest = mock(ServerHttpRequest.class);
         var uri = new URI("url");
         when(serverHttpRequest.getURI()).thenReturn(uri);
@@ -85,7 +85,7 @@ class WebfluxRateLimitFilterTest {
 
         AtomicBoolean hasRateLimitError = new AtomicBoolean(false);
         Mono<Void> result = filter.filter(exchange, chain)
-                .onErrorResume(ReactiveRateLimitException.class, (e) -> {
+                .onErrorResume(ReactiveRateLimitException.class, e -> {
                     hasRateLimitError.set(true);
                     return Mono.<Void>empty();
                 });
@@ -94,7 +94,7 @@ class WebfluxRateLimitFilterTest {
     }
 
     @Test
-    void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All() throws URISyntaxException {
+    void should_execute_all_checks_when_using_RateLimitConditionMatchingStrategy_All()  {
 
         configuration.setStrategy(RateLimitConditionMatchingStrategy.ALL);
 
@@ -102,10 +102,8 @@ class WebfluxRateLimitFilterTest {
         rateLimitConfig(0L, rateLimitCheck2);
         rateLimitConfig(0L, rateLimitCheck3);
 
-        assertThrows(ReactiveRateLimitException.class, () -> {
-            Mono<Void> result = filter.filter(exchange, chain);
-            result.block();
-        });
+        Mono<Void> result = filter.filter(exchange, chain);
+        assertThrows(ReactiveRateLimitException.class, result::block);
 
         verify(rateLimitCheck1).rateLimit(any(), any());
         verify(rateLimitCheck2).rateLimit(any(), any());

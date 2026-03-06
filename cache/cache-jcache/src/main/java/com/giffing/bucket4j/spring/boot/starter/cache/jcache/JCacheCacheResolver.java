@@ -6,6 +6,7 @@ import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.grid.jcache.Bucket4jJCache;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 
 import javax.cache.Cache;
@@ -40,6 +41,6 @@ public class JCacheCacheResolver extends AbstractCacheResolverTemplate<String> i
         if (springCache == null) {
             throw new JCacheNotFoundException(cacheName);
         }
-        return new JCacheProxyManager<>(springCache);
+        return Bucket4jJCache.entryProcessorBasedBuilder(springCache).build();
     }
 }

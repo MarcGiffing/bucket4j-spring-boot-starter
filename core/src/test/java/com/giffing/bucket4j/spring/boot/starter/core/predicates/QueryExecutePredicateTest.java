@@ -17,7 +17,7 @@ class QueryExecutePredicateTest {
     private ExecutePredicate<Set<String>> predicate;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         predicate = new QueryExecutePredicate<>() {
             @Override
             public boolean test(Set<String> queryList) {

@@ -9,7 +9,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 @Component
 public class TestServiceImpl implements TestService {
 
-    private static final String name = "Horst";
+    private static final String NAME = "Horst";
 
     @RateLimiting(
             name = "method_test",
@@ -19,12 +19,12 @@ public class TestServiceImpl implements TestService {
     )
     @Override
     public String greetings() {
-        return "Hello %s!".formatted(name);
+        return "Hello %s!".formatted(NAME);
     }
 
     @SuppressWarnings("unused")
     public String greetingsFallback() {
-        return "You are not welcome %s!".formatted(name);
+        return "You are not welcome %s!".formatted(NAME);
     }
 
     @SuppressWarnings("unused")

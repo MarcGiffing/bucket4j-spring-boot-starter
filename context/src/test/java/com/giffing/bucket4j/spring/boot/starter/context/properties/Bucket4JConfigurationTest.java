@@ -16,21 +16,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
-public class Bucket4JConfigurationTest {
+class Bucket4JConfigurationTest {
 
     private static Validator validator;
 
     Bucket4JConfiguration config;
 
     @BeforeAll
-    public static void setupValidator() {
+    static void setupValidator() {
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             validator = factory.getValidator();
         }
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         config = new Bucket4JConfiguration();
     }
 

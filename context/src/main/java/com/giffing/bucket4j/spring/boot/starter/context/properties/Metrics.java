@@ -21,7 +21,7 @@ public class Metrics implements Serializable {
     private List<MetricTag> tags = new ArrayList<>();
 
     public Metrics(List<MetricTag> metricTags) {
-        Optional.ofNullable(metricTags).ifPresent(tags -> tags.forEach(tag -> {
+        Optional.ofNullable(metricTags).ifPresent(t -> t.forEach(tag -> {
             this.tags.add(tag);
             tag.getTypes().forEach(type -> {
                 if (!types.contains(type)) {

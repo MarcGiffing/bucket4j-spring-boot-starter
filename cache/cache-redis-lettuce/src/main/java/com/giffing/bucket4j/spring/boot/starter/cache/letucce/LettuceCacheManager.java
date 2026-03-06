@@ -57,7 +57,7 @@ public class LettuceCacheManager<K, V> implements CacheManager<K, V> {
             }
         } catch (JacksonException e) {
             log.warn("Exception occurred while setting key '{}' in cache '{}'. Message: {}", key, cacheName, e.getMessage());
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

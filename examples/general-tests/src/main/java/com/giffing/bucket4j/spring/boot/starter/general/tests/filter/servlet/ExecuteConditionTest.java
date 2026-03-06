@@ -39,11 +39,10 @@ public class ExecuteConditionTest {
     @Test
     @DirtiesContext
     void request_is_blocked_when_header_username_is_not_admin() throws Exception {
-        String url = TEST_URL;
         IntStream.rangeClosed(1, 5)
                 .boxed()
                 .sorted(Collections.reverseOrder())
-                .forEach(counter -> webRequestWithStatus(mockMvc, url, HttpStatus.OK, counter - 1));
+                .forEach(counter -> webRequestWithStatus(mockMvc, TEST_URL, HttpStatus.OK, counter - 1));
         blockedWebRequestDueToRateLimit(mockMvc, TEST_URL);
     }
 

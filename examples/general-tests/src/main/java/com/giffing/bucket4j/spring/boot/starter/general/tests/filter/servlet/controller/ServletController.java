@@ -24,130 +24,133 @@ import java.util.Set;
 @RestController
 public class ServletController {
 
-	private final Validator validator;
+    public static final String HELLO_WORLD = "Hello World";
 
-	private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
+    private final Validator validator;
 
-	public ServletController(Validator validator, @Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
-		this.validator = validator;
-		this.configCacheManager = configCacheManager;
-	}
+    private final CacheManager<String, Bucket4JConfiguration> configCacheManager;
 
-	@GetMapping("unsecure")
-	public ResponseEntity unsecure() {
-		return ResponseEntity.ok().build();
-	}
+    public ServletController(Validator validator, @Nullable CacheManager<String, Bucket4JConfiguration> configCacheManager) {
+        this.validator = validator;
+        this.configCacheManager = configCacheManager;
+    }
 
-	@GetMapping("hello")
-	public ResponseEntity<String> hello() {
-		return ResponseEntity.ok("Hello World");
-	}
+    @GetMapping("unsecure")
+    public ResponseEntity unsecure() {
+        return ResponseEntity.ok().build();
+    }
 
-	@GetMapping("world")
-	public ResponseEntity<String> world() {
-		return ResponseEntity.ok("Hello World");
-	}
+    @GetMapping("hello")
+    public ResponseEntity<String> hello() {
+        return ResponseEntity.ok(HELLO_WORLD);
+    }
 
-	@GetMapping("secure")
-	public ResponseEntity<String> secure() {
-		return ResponseEntity.ok("Hello World");
-	}
+    @GetMapping("world")
+    public ResponseEntity<String> world() {
+        return ResponseEntity.ok(HELLO_WORLD);
+    }
 
-	/**
-	 * Example of how a filter configuration can be updated during runtime
-	 * @param filterId id of the filter to update
-	 * @param newConfig the new filter configuration
-	 * @param bindingResult the result of the Jakarta validation
-	 * @return
-	 */
-	@PostMapping("filters/{filterId}")
-	public ResponseEntity<?> updateConfig(
-			@PathVariable String filterId,
-			@RequestBody @Valid Bucket4JConfiguration newConfig,
-			BindingResult bindingResult) {
-		if(configCacheManager == null) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
+    @GetMapping("secure")
+    public ResponseEntity<String> secure() {
+        return ResponseEntity.ok(HELLO_WORLD);
+    }
 
-		//validate that the path id matches the body
-		if (!newConfig.getId().equals(filterId)) {
-			return ResponseEntity.badRequest().body("The id in the path does not match the id in the request body.");
-		}
+    /**
+     * Example of how a filter configuration can be updated during runtime
+     *
+     * @param filterId      id of the filter to update
+     * @param newConfig     the new filter configuration
+     * @param bindingResult the result of the Jakarta validation
+     */
+    @PostMapping("filters/{filterId}")
+    public ResponseEntity<?> updateConfig(
+            @PathVariable String filterId,
+            @RequestBody @Valid Bucket4JConfiguration newConfig,
+            BindingResult bindingResult) {
+        if (configCacheManager == null)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
 
-		//validate that there are no errors by the Jakarta validation
-		if (bindingResult.hasErrors()) {
-			List<String> errors = bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
-			return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
-		}
+        //validate that the path id matches the body
+        if (!newConfig.getId().equals(filterId)) {
+            return ResponseEntity.badRequest().body("The id in the path does not match the id in the request body.");
+        }
 
-		//retrieve the old config and validate that it can be replaced by the new config
-		Bucket4JConfiguration oldConfig = configCacheManager.getValue(filterId);
-		ResponseEntity<String> validationResponse = Bucket4JUtils.validateConfigurationUpdate(oldConfig, newConfig);
-		if (validationResponse != null) {
-			return validationResponse;
-		}
+        //validate that there are no errors by the Jakarta validation
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
+            return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
+        }
 
-		//insert the new config into the cache, so it will trigger the cacheUpdateListeners
-		configCacheManager.setValue(filterId, newConfig);
+        //retrieve the old config and validate that it can be replaced by the new config
+        Bucket4JConfiguration oldConfig = configCacheManager.getValue(filterId);
+        ResponseEntity<String> validationResponse = Bucket4JUtils.validateConfigurationUpdate(oldConfig, newConfig);
+        if (validationResponse != null) {
+            return validationResponse;
+        }
 
-		return ResponseEntity.ok().build();
-	}
+        //insert the new config into the cache, so it will trigger the cacheUpdateListeners
+        configCacheManager.setValue(filterId, newConfig);
 
-	/**
-	 * note: The recommended way of updating rate limits is by sending the whole Bucket4JConfiguration (see above).
-	 *
-	 * This endpoint is added as an example how partial data of a configuration could be updated.
-	 * This should only be done if you know what you are doing, since it requires additional checks
-	 * and configuring to prevent corrupting the cache. If unsure, use the example above.
-	 *
-	 * @param filterId The id of the filter to update
-	 * @param limitIndex The index number of the RateLimit (these don't have an id, so has to be index based)
-	 * @param bandwidthId The id of the bandwidth to update
-	 * @param bandWidth The new BandWidth configuration
-	 * @return
-	 */
-	@PostMapping("filters/{filterId}/ratelimits/{limitIndex}/bandwidths/{bandwidthId}")
-	public ResponseEntity<?> updateBandwidth(
-			@PathVariable String filterId,
-			@PathVariable int limitIndex,
-			@PathVariable String bandwidthId,
-			@RequestBody BandWidth bandWidth) {
+        return ResponseEntity.ok().build();
+    }
 
-		//validate that the path matches the body
-		if (!bandWidth.getId().equals(bandwidthId)) {
-			return ResponseEntity.badRequest().body("Bandwidth id in the path does not match the request body.");
-		}
+    /**
+     * note: The recommended way of updating rate limits is by sending the whole Bucket4JConfiguration (see above).
+     * <p>
+     * This endpoint is added as an example how partial data of a configuration could be updated.
+     * This should only be done if you know what you are doing, since it requires additional checks
+     * and configuring to prevent corrupting the cache. If unsure, use the example above.
+     *
+     * @param filterId    The id of the filter to update
+     * @param limitIndex  The index number of the RateLimit (these don't have an id, so has to be index based)
+     * @param bandwidthId The id of the bandwidth to update
+     * @param bandWidth   The new BandWidth configuration
+     */
+    @PostMapping("filters/{filterId}/ratelimits/{limitIndex}/bandwidths/{bandwidthId}")
+    public ResponseEntity<?> updateBandwidth(
+            @PathVariable String filterId,
+            @PathVariable int limitIndex,
+            @PathVariable String bandwidthId,
+            @RequestBody BandWidth bandWidth) {
 
-		//validate that the filter, ratelimit and bandwidth all exist
-		Bucket4JConfiguration config = configCacheManager.getValue(filterId);
-		if (config == null) {
-			String errorMessage = "No filter with id '" + filterId + "' could be found.";
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HtmlUtils.htmlEscape(errorMessage));
-		}
-		RateLimit rl = config.getRateLimits().get(limitIndex);
-		if (rl == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No ratelimit with index " + limitIndex + " could be found.");
-		}
-		Optional<BandWidth> bw = rl.getBandwidths().stream().filter(x -> Objects.equals(x.getId(), bandwidthId)).findFirst();
-		if (bw.isEmpty()) {
-			String errorMessage = "No bandwidth with id '" + bandwidthId + "' could be found.";
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HtmlUtils.htmlEscape(errorMessage));
-		}
+        //validate that the path matches the body
+        if (!bandWidth.getId().equals(bandwidthId)) {
+            return ResponseEntity.badRequest().body("Bandwidth id in the path does not match the request body.");
+        }
 
-		//replace the bandwidth
-		rl.getBandwidths().set(rl.getBandwidths().indexOf(bw.get()), bandWidth);
+        //validate that the filter, ratelimit and bandwidth all exist
+        Bucket4JConfiguration config = configCacheManager.getValue(filterId);
+        if (config == null) {
+            String errorMessage = "No filter with id '" + filterId + "' could be found.";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HtmlUtils.htmlEscape(errorMessage));
+        }
+        RateLimit rl = config.getRateLimits().get(limitIndex);
+        if (rl == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No ratelimit with index " + limitIndex + " could be found.");
+        }
+        Optional<BandWidth> bw = rl.getBandwidths().stream().filter(x -> Objects.equals(x.getId(), bandwidthId)).findFirst();
+        if (bw.isEmpty()) {
+            String errorMessage = "No bandwidth with id '" + bandwidthId + "' could be found.";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HtmlUtils.htmlEscape(errorMessage));
+        }
 
-		//validate that the changed config is still valid
-		Set<ConstraintViolation<Bucket4JConfiguration>> violations = this.validator.validate(config);
-		if (!violations.isEmpty()) {
-			List<String> errors = violations.stream().map(ConstraintViolation::getMessage).toList();
-			return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
-		}
+        //replace the bandwidth
+        rl.getBandwidths().set(rl.getBandwidths().indexOf(bw.get()), bandWidth);
 
-		//update the version number and insert the updated config into the cache, so it will trigger the cacheUpdateListeners
-		config.setMinorVersion(config.getMinorVersion() + 1);
-		configCacheManager.setValue(filterId, config);
+        //validate that the changed config is still valid
+        Set<ConstraintViolation<Bucket4JConfiguration>> violations = this.validator.validate(config);
+        if (!violations.isEmpty()) {
+            List<String> errors = violations.stream().map(ConstraintViolation::getMessage).toList();
+            return ResponseEntity.badRequest().body(new ValidationErrorResponse("Configuration validation failed", errors));
+        }
 
-		return ResponseEntity.ok().build();
-	}
+        //update the version number and insert the updated config into the cache, so it will trigger the cacheUpdateListeners
+        config.setMinorVersion(config.getMinorVersion() + 1);
+        configCacheManager.setValue(filterId, config);
 
-	private record ValidationErrorResponse(String message, List<String> errors) {}
+        return ResponseEntity.ok().build();
+    }
+
+    private record ValidationErrorResponse(String message, List<String> errors) {
+    }
 }

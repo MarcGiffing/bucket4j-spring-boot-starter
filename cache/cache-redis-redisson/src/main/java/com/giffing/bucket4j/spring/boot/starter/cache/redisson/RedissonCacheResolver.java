@@ -5,7 +5,7 @@ import com.giffing.bucket4j.spring.boot.starter.core.cache.AsyncCacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheResolver;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
-import io.github.bucket4j.redis.redisson.cas.RedissonBasedProxyManager;
+import io.github.bucket4j.redis.redisson.Bucket4jRedisson;
 import org.redisson.command.CommandAsyncExecutor;
 
 import java.time.Duration;
@@ -33,8 +33,8 @@ public class RedissonCacheResolver extends AbstractCacheResolverTemplate<String>
 
     @Override
     public AbstractProxyManager<String> getProxyManager(String cacheName) {
-        return RedissonBasedProxyManager.builderFor(commandExecutor)
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
+        return Bucket4jRedisson.casBasedBuilder(commandExecutor)
+                .expirationAfterWrite(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
                 .build();
     }
 }

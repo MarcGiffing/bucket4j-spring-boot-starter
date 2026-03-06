@@ -8,6 +8,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.grid.hazelcast.Bucket4jHazelcast;
 import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
 
 /**
@@ -39,6 +40,6 @@ public class HazelcastCacheResolver extends AbstractCacheResolverTemplate<String
     @Override
     public AbstractProxyManager<String> getProxyManager(String cacheName) {
         IMap<String, byte[]> map = hazelcastInstance.getMap(cacheName);
-        return new HazelcastProxyManager<>(map);
+        return Bucket4jHazelcast.entryProcessorBasedBuilder(map).build();
     }
 }

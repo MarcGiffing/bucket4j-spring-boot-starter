@@ -17,7 +17,7 @@ class HeaderExecutePredicateTest {
     private ExecutePredicate<List<String>> predicate;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         predicate = new HeaderExecutePredicate<>() {
             @Override
             public boolean test(List<String> t) {

@@ -1,8 +1,12 @@
 package com.giffing.bucket4j.spring.boot.starter.core.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RateLimitAopUtils {
 
     public static <R extends Annotation> R getAnnotationFromMethodOrClass(Method method, Class<R> rateLimitingAnnotation) {

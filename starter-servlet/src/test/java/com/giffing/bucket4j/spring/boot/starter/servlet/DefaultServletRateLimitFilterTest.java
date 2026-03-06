@@ -37,7 +37,7 @@ class DefaultServletRateLimitFilterTest {
     @Mock private RateLimitResult rateLimitResult;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(rateLimitResult.isConsumed()).thenReturn(true);
         when(rateLimitResultWrapper.getRateLimitResult()).thenReturn(rateLimitResult);
 

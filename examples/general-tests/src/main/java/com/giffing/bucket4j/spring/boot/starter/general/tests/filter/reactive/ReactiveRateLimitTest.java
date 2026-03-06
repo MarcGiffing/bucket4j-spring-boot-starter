@@ -101,7 +101,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidNonMatchingIdReplaceConfigTest() throws Exception {
+    void invalidNonMatchingIdReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         updateFilterCache(NONEXISTENT_FILTER_ID, objectMapper.writeValueAsString(filter))
                 .expectStatus().isBadRequest()
@@ -112,7 +112,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidNonExistingReplaceConfigTest() throws Exception {
+    void invalidNonExistingReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.setId(NONEXISTENT_FILTER_ID);
         updateFilterCache(filter)
@@ -124,7 +124,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidVersionReplaceConfigTest() throws Exception {
+    void invalidVersionReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         updateFilterCache(filter)
                 .expectStatus().isBadRequest()
@@ -135,7 +135,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidMethodReplaceConfigTest() throws Exception {
+    void invalidMethodReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.setMinorVersion(filter.getMinorVersion() + 1);
         filter.setFilterMethod(FilterMethod.SERVLET);
@@ -148,7 +148,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidOrderReplaceConfigTest() throws Exception {
+    void invalidOrderReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.setMinorVersion(filter.getMinorVersion() + 1);
         filter.setFilterOrder(filter.getFilterOrder() + 1);
@@ -161,7 +161,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidCacheNameReplaceConfigTest() throws Exception {
+    void invalidCacheNameReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.setMinorVersion(filter.getMinorVersion() + 1);
         filter.setCacheName(NONEXISTENT_FILTER_ID);
@@ -174,7 +174,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidPredicateReplaceConfigTest() throws Exception {
+    void invalidPredicateReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-EXEC=TEST"));
         filter.setMinorVersion(filter.getMinorVersion() + 1);
@@ -188,7 +188,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(1)
-    void invalidPredicatesReplaceConfigTest() throws Exception {
+    void invalidPredicatesReplaceConfigTest() {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-EXEC=TEST"));
         filter.getRateLimits().get(0).getExecutePredicates().add(new ExecutePredicateDefinition("INVALID-SKIP=TEST"));
@@ -202,7 +202,7 @@ public class ReactiveRateLimitTest {
 
     @Test
     @Order(2)
-    void replaceConfigTest() throws Exception {
+    void replaceConfigTest() {
         String url = "/hello";
         int newFilterCapacity = 10000;
 
@@ -227,7 +227,7 @@ public class ReactiveRateLimitTest {
         return objectMapper.readValue(objectMapper.writeValueAsString(config), Bucket4JConfiguration.class);
     }
 
-    private WebTestClient.ResponseSpec updateFilterCache(Bucket4JConfiguration filter) throws Exception {
+    private WebTestClient.ResponseSpec updateFilterCache(Bucket4JConfiguration filter) {
         return updateFilterCache(filter.getId(), objectMapper.writeValueAsString(filter));
     }
 

@@ -5,7 +5,7 @@ import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheResolver;
 import com.giffing.bucket4j.spring.boot.starter.core.cache.SyncCacheResolver;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.AbstractProxyManager;
-import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager;
+import io.github.bucket4j.redis.jedis.Bucket4jJedis;
 import redis.clients.jedis.JedisPool;
 
 import java.time.Duration;
@@ -36,8 +36,8 @@ public class JedisCacheResolver extends AbstractCacheResolverTemplate<byte[]> im
 
     @Override
     public AbstractProxyManager<byte[]> getProxyManager(String cacheName) {
-        return JedisBasedProxyManager.builderFor(pool)
-                .withExpirationStrategy(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
+        return Bucket4jJedis.casBasedBuilder(pool)
+                .expirationAfterWrite(ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(10)))
                 .build();
     }
 }

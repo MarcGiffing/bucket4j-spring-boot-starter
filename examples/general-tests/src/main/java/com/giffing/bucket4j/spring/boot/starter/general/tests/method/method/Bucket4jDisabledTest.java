@@ -8,6 +8,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+
 @SpringBootTest(properties = {
         "bucket4j.enabled=false",
         "bucket4j.methods[0].name=default",
