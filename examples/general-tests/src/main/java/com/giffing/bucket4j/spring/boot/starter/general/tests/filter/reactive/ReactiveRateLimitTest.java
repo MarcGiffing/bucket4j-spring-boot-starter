@@ -49,7 +49,7 @@ import static org.awaitility.Awaitility.await;
         "bucket4j.filters[2].url=^(/secure).*"
 })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DirtiesContext
+@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 public class ReactiveRateLimitTest {
 
     private static final String NONEXISTENT_FILTER_ID = "nonexistent";
@@ -129,7 +129,7 @@ public class ReactiveRateLimitTest {
         updateFilterCache(filter)
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath("$").value(val ->
-                        assertThat(val.toString()).contains("The new configuration should have a higher version than the current configuration.")
+                        assertThat(val.toString()).contains("The new configuration (100000000001) should have a higher version  than the current configuration (100000000001).")
                 );
     }
 
@@ -138,7 +138,7 @@ public class ReactiveRateLimitTest {
     void invalidMethodReplaceConfigTest() throws Exception {
         Bucket4JConfiguration filter = getFilterConfigClone(FILTER_ID);
         filter.setMinorVersion(filter.getMinorVersion() + 1);
-        filter.setFilterMethod(FilterMethod.GATEWAY);
+        filter.setFilterMethod(FilterMethod.SERVLET);
         updateFilterCache(filter)
                 .expectStatus().isBadRequest()
                 .expectBody().jsonPath("$").value(val ->

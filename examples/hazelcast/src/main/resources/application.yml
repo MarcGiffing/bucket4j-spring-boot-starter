@@ -1,8 +1,4 @@
 spring:
-  cache:
-    type: jcache
-    jcache:
-      provider: com.hazelcast.cache.impl.HazelcastServerCachingProvider
   main:
     allow-bean-definition-overriding: true
 bucket4j:

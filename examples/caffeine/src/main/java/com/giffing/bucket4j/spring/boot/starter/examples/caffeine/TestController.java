@@ -113,7 +113,7 @@ public class TestController {
      * @return
      */
     @PostMapping("filters/{filterId}/ratelimits/{limitIndex}/bandwidths/{bandwidthId}")
-    public ResponseEntity<String> updateBandwidth(
+    public ResponseEntity<?> updateBandwidth(
             @PathVariable String filterId,
             @PathVariable int limitIndex,
             @PathVariable String bandwidthId,

@@ -1,0 +1,64 @@
+package com.giffing.bucket4j.spring.boot.starter.cache.letucce;
+
+import com.giffing.bucket4j.spring.boot.starter.core.cache.CacheUpdateEvent;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.pubsub.RedisPubSubAdapter;
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+
+/**
+ * This class is intended to be used as bean.
+ * <p>
+ * It will listen to Lettuce events on the {cacheName}:update channel, parse them to  {@code CacheUpdateEvent<K, V>}
+ * and publish these to the Spring ApplicationEventPublisher
+ *
+ * @param <K> Type of the cache key
+ * @param <V> Type of the cache value
+ */
+@Slf4j
+public class LettuceCacheListener<K, V> extends RedisPubSubAdapter<String, String> {
+
+    private final String cacheUpdateChannel;
+    private final ObjectMapper objectMapper;
+    private final JavaType deserializeType;
+    private final ApplicationEventPublisher eventPublisher;
+
+    /**
+     * @param redisClient The RedisClient to use for publishing/subscribing to events.
+     * @param cacheName   The name of the cache. This is used as prefix for the event channels
+     * @param keyType     The type of the key. This is required for parsing events and should match the K of this class.
+     * @param valueType   The type of the value. This is required for parsing events and should match the V of this class.
+     */
+    public LettuceCacheListener(RedisClient redisClient, String cacheName, Class<K> keyType, Class<V> valueType, ApplicationEventPublisher eventPublisher) {
+        this.cacheUpdateChannel = cacheName.concat(":update");
+        this.objectMapper = new ObjectMapper();
+        this.deserializeType = objectMapper.getTypeFactory().constructParametricType(CacheUpdateEvent.class, keyType, valueType);
+        this.eventPublisher = eventPublisher;
+
+        StatefulRedisPubSubConnection<String, String> subConnection = redisClient.connectPubSub();
+        subConnection.addListener(this);
+        subConnection.async().subscribe(cacheUpdateChannel);
+    }
+
+    @Override
+    public void message(String channel, String message) {
+        if (channel.equals(cacheUpdateChannel)) {
+            onCacheUpdateEvent(message);
+        } else {
+            log.debug("Unsupported cache event received on channel '{}'", channel);
+        }
+    }
+
+    private void onCacheUpdateEvent(String message) {
+        try {
+            CacheUpdateEvent<K, V> updateEvent = objectMapper.readValue(message, deserializeType);
+            this.eventPublisher.publishEvent(updateEvent);
+        } catch (JacksonException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}

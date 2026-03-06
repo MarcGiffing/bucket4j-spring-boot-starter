@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter</artifactId>
+            <artifactId>bucket4j-spring-boot-starter-cache-redis-redisson</artifactId>
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>

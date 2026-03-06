@@ -11,7 +11,6 @@
     <artifactId>bucket4j-spring-boot-starter-example-webflux-infinispan</artifactId>
 
     <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
         <micrometer-registry-prometheus.version>1.16.3</micrometer-registry-prometheus.version>
         <infinispan-spring-boot4-starter-embedded.version>16.1.0</infinispan-spring-boot4-starter-embedded.version>
     </properties>
@@ -19,7 +18,12 @@
     <dependencies>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter</artifactId>
+            <artifactId>bucket4j-spring-boot-starter-cache-infinispan</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-spring-boot4-starter-embedded</artifactId>
+            <version>${infinispan-spring-boot4-starter-embedded.version}</version>
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
@@ -58,12 +62,6 @@
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j_jdk17-infinispan</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-spring-boot4-starter-embedded</artifactId>
-            <version>${infinispan-spring-boot4-starter-embedded.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
