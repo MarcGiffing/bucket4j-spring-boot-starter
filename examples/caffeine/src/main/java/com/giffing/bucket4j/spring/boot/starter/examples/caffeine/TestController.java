@@ -72,8 +72,9 @@ public class TestController {
             @PathVariable String filterId,
             @RequestBody @Valid Bucket4JConfiguration newConfig,
             BindingResult bindingResult) {
-        if (configCacheManager == null)
+        if (configCacheManager == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Dynamic updating is disabled");
+        }
 
         //validate that the path id matches the body
         if (!newConfig.getId().equals(filterId)) {

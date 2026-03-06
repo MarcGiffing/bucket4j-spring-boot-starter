@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RateLimitService {
 
-    private final com.giffing.bucket4j.spring.boot.starter.core.service.ExpressionService expressionService;
+    private final ExpressionService expressionService;
 
     @Builder
     @Data

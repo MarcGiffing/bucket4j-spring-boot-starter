@@ -49,7 +49,7 @@ import static org.awaitility.Awaitility.await;
         "bucket4j.filters[2].url=^(/secure).*"
 })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+@DirtiesContext
 public class ReactiveRateLimitTest {
 
     private static final String NONEXISTENT_FILTER_ID = "nonexistent";
