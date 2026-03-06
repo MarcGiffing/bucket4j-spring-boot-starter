@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>bucket4j-spring-boot-starter-core</artifactId>
+    <artifactId>core</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-context</artifactId>
+            <artifactId>context</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bucket4j</groupId>

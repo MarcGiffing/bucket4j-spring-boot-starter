@@ -69,67 +69,67 @@
         <dependencies>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-context</artifactId>
+                <artifactId>context</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-core</artifactId>
+                <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-autoconfigure</artifactId>
+                <artifactId>starter-autoconfigure</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-aop</artifactId>
+                <artifactId>starter-aop</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-servlet</artifactId>
+                <artifactId>starter-servlet</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-webflux</artifactId>
+                <artifactId>starter-webflux</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-jcache</artifactId>
+                <artifactId>cache-jcache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-hatzelcast</artifactId>
+                <artifactId>cache-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-redis-jedis</artifactId>
+                <artifactId>cache-redis-jedis</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-redis-lettuce</artifactId>
+                <artifactId>cache-redis-lettuce</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-redis-redisson</artifactId>
+                <artifactId>cache-redis-redisson</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-infinispan</artifactId>
+                <artifactId>cache-infinispan</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-                <artifactId>bucket4j-spring-boot-starter-cache-jcache-infinispan</artifactId>
+                <artifactId>cache-jcache-infinispan</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

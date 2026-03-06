@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>bucket4j-spring-boot-starter-aop</artifactId>
+    <artifactId>starter-aop</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,11 +28,11 @@
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-core</artifactId>
+            <artifactId>core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-autoconfigure</artifactId>
+            <artifactId>starter-autoconfigure</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

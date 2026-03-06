@@ -6,7 +6,7 @@
 		<version>${revision}</version>
 	</parent>
 	<name>bucket4j-spring-boot-starter-context</name>
-	<artifactId>bucket4j-spring-boot-starter-context</artifactId>
+	<artifactId>context</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

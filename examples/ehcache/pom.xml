@@ -8,7 +8,7 @@
         <version>${revision}</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>bucket4j-spring-boot-starter-example-ehcache</artifactId>
+    <artifactId>example-ehcache</artifactId>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -19,11 +19,11 @@
     <dependencies>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-cache-jcache</artifactId>
+            <artifactId>cache-jcache</artifactId>
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-servlet</artifactId>
+            <artifactId>starter-servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

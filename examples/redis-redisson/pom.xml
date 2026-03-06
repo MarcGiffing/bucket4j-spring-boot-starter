@@ -10,7 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>bucket4j-spring-boot-starter-example-redis-redisson</artifactId>
+    <artifactId>example-redis-redisson</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -23,11 +23,11 @@
     <dependencies>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-cache-redis-redisson</artifactId>
+            <artifactId>cache-redis-redisson</artifactId>
         </dependency>
         <dependency>
             <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-            <artifactId>bucket4j-spring-boot-starter-webflux</artifactId>
+            <artifactId>starter-webflux</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
