@@ -65,7 +65,6 @@ public class TestController {
      * @param filterId      id of the filter to update
      * @param newConfig     the new filter configuration
      * @param bindingResult the result of the Jakarta validation
-     * @return
      */
     @PostMapping("filters/{filterId}")
     public ResponseEntity<?> updateConfig(
@@ -111,7 +110,6 @@ public class TestController {
      * @param limitIndex  The index number of the RateLimit (these don't have an id, so has to be index based)
      * @param bandwidthId The id of the bandwidth to update
      * @param bandWidth   The new BandWidth configuration
-     * @return
      */
     @PostMapping("filters/{filterId}/ratelimits/{limitIndex}/bandwidths/{bandwidthId}")
     public ResponseEntity<?> updateBandwidth(

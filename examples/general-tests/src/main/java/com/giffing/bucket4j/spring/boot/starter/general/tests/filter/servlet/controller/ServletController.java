@@ -36,7 +36,7 @@ public class ServletController {
     }
 
     @GetMapping("unsecure")
-    public ResponseEntity unsecure() {
+    public ResponseEntity<?> unsecure() {
         return ResponseEntity.ok().build();
     }
 
