@@ -9,7 +9,8 @@ image:{url-repo}/actions/workflows/pmd.yml/badge.svg[Build Status,link={url-repo
 
 Project version overview:
 
-* > 0.14.0 - Bucket4j 8.15.x - Spring Boot 4.0.0 - Problems with Spring Gateway and Infinispan
+* > 0.20.0 - Bucket4j 8.16.x - Spring Boot 4.0.0 - Restructure in Maven Modules
+* > 0.14.0 - Bucket4j 8.15.x - Spring Boot 4.0.0 - Spring Gateway Support dropped
 * > 0.13.0 - Bucket4j 8.14.x - Spring Boot 3.5.x - Bucket4j Deps have _jdk17 in the artifactId
 * > 0.12.9 - Bucket4j 8.10.x - Spring Boot 3.4.x
 * > 0.12.8 - Bucket4j 8.10.x - Spring Boot 3.3.x
@@ -599,6 +600,15 @@ bucket4j:
 
 This section is meant to help you migrate your application to new version of this starter project.
 
+==== Spring Boot Starter Bucket4j 0.20
+
+* Introduces a restructured Maven module architecture that requires explicit definition of dependencies for different use cases.
+
+==== Spring Boot Starter Bucket4j 0.14
+
+* Upgrade to Spring Boot 4
+
+
 ==== Spring Boot Starter Bucket4j 0.12
 
 * Removed deprecated 'bucket4j.filters[x].rate-limits[x].expression' property.
@@ -821,15 +831,254 @@ bucket4j:
 [[installation]]
 == Installation
 
-Adding `bucket4j-spring-boot-starter` to your project.
-
 https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter[Maven Central]
+
+=== Overview
+
+Installing Bucket4j Spring Boot Starter requires **two dependencies**:
+
+1. **Feature Module** - Defines how rate limiting is applied (e.g., servlet filter, webflux, method annotations)
+2. **Cache Module** - Defines where the token bucket state is persisted (e.g., Redis, Hazelcast, JCache)
+
+Both dependencies must be explicitly defined in your `pom.xml`. The cache module is no longer automatically included.
+
+==== Processing Models
+
+The starter supports different processing models depending on the feature module:
+
+* *Synchronous* - Blocking operations using traditional servlet filters or method-level AOP interception
+  - `bucket4j-spring-boot-starter-servlet` - Servlet Filter (blocking)
+  - `bucket4j-spring-boot-starter-aop` - Method Annotations via AOP (blocking)
+
+* *Asynchronous/Reactive* - Non-blocking operations for reactive applications
+  - `bucket4j-spring-boot-starter-webflux` - Webflux WebFilter (non-blocking)
+
+===== Feature Modules
+
+==== Servlet Filter (Synchronous/Blocking)
+
+Use this for traditional Spring Boot applications with servlet-based request handling.
 
 [source,xml]
 ----
 <dependency>
     <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-    <artifactId>bucket4j-spring-boot-starter</artifactId>
+    <artifactId>starter-servlet</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Webflux Filter (Asynchronous/Reactive)
+
+Use this for reactive Spring Boot applications with Spring WebFlux.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>starter-webflux</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Method-level Annotations via AOP (Synchronous/Blocking)
+
+Use this for fine-grained rate limiting on individual methods using the `@RateLimiting` annotation.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>starter-aop</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+===== Cache Implementation Modules
+
+In addition to the feature module above, you must explicitly choose and add a cache implementation.
+The cache module is responsible for storing the token bucket state and is independent of the feature module.
+
+==== JCache (JSR 107) - Synchronous
+
+Supports both synchronous processing models.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-jcache</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Hazelcast - Synchronous and Asynchronous
+
+Supports both synchronous and asynchronous processing models with distributed caching.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-hazelcast</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Redis (Jedis) - Synchronous Only
+
+Use for synchronous applications requiring Redis-based caching.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-redis-jedis</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Redis (Lettuce) - Asynchronous
+
+Supports reactive applications requiring Redis-based caching. Recommended for reactive applications.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-redis-lettuce</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Redis (Redisson) - Asynchronous
+
+Supports reactive applications with advanced Redis features.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-redis-redisson</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Infinispan - Asynchronous
+
+Supports asynchronous processing models with Infinispan distributed caching.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-infinispan</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+==== Ignite - Asynchronous
+
+Supports asynchronous processing models with Apache Ignite distributed caching.
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-ignite</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+===== Example Configurations
+
+====== Example 1: Synchronous Servlet Filter with Redis
+
+Rate limiting on incoming servlet requests using synchronous processing with Redis caching:
+
+[source,xml]
+----
+<!-- Feature Module: Servlet Filter (Synchronous) -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>servlet</artifactId>
+    <version>${version}</version>
+</dependency>
+
+<!-- Cache Module: Redis with Jedis -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-redis-jedis</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+====== Example 2: Asynchronous Webflux Filter with Redis
+
+Rate limiting on incoming reactive requests using asynchronous processing with Redis caching:
+
+[source,xml]
+----
+<!-- Feature Module: Webflux Filter (Asynchronous/Reactive) -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>webflux</artifactId>
+    <version>${version}</version>
+</dependency>
+
+<!-- Cache Module: Redis with Lettuce (supports reactive) -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-redis-lettuce</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+====== Example 3: Synchronous Method Annotations with Hazelcast
+
+Rate limiting on individual methods using synchronous AOP interception with Hazelcast caching:
+
+[source,xml]
+----
+<!-- Feature Module: AOP for Method Annotations (Synchronous) -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>aop</artifactId>
+    <version>${version}</version>
+</dependency>
+
+<!-- Cache Module: Hazelcast -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-hazelcast</artifactId>
+    <version>${version}</version>
+</dependency>
+----
+
+====== Example 4: Combined Synchronous Features
+
+Using both servlet filter and method annotations (both synchronous) with JCache:
+
+[source,xml]
+----
+<!-- Feature Module: Servlet Filter (Synchronous) -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>servlet</artifactId>
+    <version>${version}</version>
+</dependency>
+
+<!-- Feature Module: AOP for Method Annotations (Synchronous) -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+    <artifactId>aop</artifactId>
+    <version>${version}</version>
+</dependency>
+
+<!-- Cache Module: JCache -->
+<dependency>
+    <groupId>com.giffing.bucket4j.spring.boot.starter.cache</groupId>
+    <artifactId>cache-jcache</artifactId>
     <version>${version}</version>
 </dependency>
 ----
