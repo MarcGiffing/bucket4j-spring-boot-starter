@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-    <artifactId>bucket4j-spring-boot-starter-parent</artifactId>
+    <artifactId>parent</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <name>bucket4j-spring-boot-starter-parent</name>
@@ -56,14 +56,13 @@
         <connection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git</connection>
         <developerConnection>scm:git:https://github.com/MarcGiffing/bucket4j-spring-boot-starter.git
         </developerConnection>
-        <tag>bucket4j-spring-boot-starter-parent-0.3.4</tag>
     </scm>
     <properties>
-        <revision>0.14.0</revision>
+        <revision>0.20.0-RC1</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
-        <bucket4j.version>8.15.0</bucket4j.version>
+        <bucket4j.version>8.17.0</bucket4j.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -77,6 +76,7 @@
                 <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- Bucket4j Starter -->
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
                 <artifactId>starter-autoconfigure</artifactId>
@@ -97,6 +97,7 @@
                 <artifactId>starter-webflux</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- Bucket4j Caches -->
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
                 <artifactId>cache-jcache</artifactId>
@@ -130,6 +131,12 @@
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
                 <artifactId>cache-jcache-infinispan</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- Bucket4j Tests -->
+            <dependency>
+                <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+                <artifactId>general-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

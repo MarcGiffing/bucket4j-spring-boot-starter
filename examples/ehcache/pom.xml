@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-        <artifactId>bucket4j-spring-boot-starter-parent</artifactId>
+        <artifactId>parent</artifactId>
         <version>${revision}</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -12,7 +12,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <jaxb-core.version>4.0.5</jaxb-core.version>
+        <jaxb-core.version>4.0.6</jaxb-core.version>
         <wiremock-standalone.version>3.13.2</wiremock-standalone.version>
     </properties>
 

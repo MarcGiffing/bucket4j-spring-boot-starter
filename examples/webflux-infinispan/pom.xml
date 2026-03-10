@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
-        <artifactId>bucket4j-spring-boot-starter-parent</artifactId>
+        <artifactId>parent</artifactId>
         <version>${revision}</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
