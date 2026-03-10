@@ -9,7 +9,7 @@ image:{url-repo}/actions/workflows/pmd.yml/badge.svg[Build Status,link={url-repo
 
 Project version overview:
 
-* > 0.20.0 - Bucket4j 8.16.x - Spring Boot 4.0.0 - Restructure in Maven Modules
+* > 0.20.0 - Bucket4j 8.16.x - Spring Boot 4.0.0 - Restructure Maven Modules. See <<configuration>>
 * > 0.14.0 - Bucket4j 8.15.x - Spring Boot 4.0.0 - Spring Gateway Support dropped
 * > 0.13.0 - Bucket4j 8.14.x - Spring Boot 3.5.x - Bucket4j Deps have _jdk17 in the artifactId
 * > 0.12.9 - Bucket4j 8.10.x - Spring Boot 3.4.x
@@ -19,6 +19,7 @@ Project version overview:
 [[table_of_contents]]
 == Table of Contents
 
+* <<configuration>>
 * <<introduction>>
 ** <<introduction_filter>>
 ** <<introduction_method>>
@@ -40,7 +41,6 @@ Project version overview:
 ** <<examples>>
 ** <<property_configuration_examples>>
 
-* <<Installation>>
 
 [[introduction]]
 == Spring Boot Starter for Bucket4j
@@ -828,14 +828,14 @@ bucket4j:
           unit: minutes
 ----
 
-[[installation]]
-== Installation
+[[configuration]]
+== Configuration
 
 https://mvnrepository.com/artifact/com.giffing.bucket4j.spring.boot.starter/bucket4j-spring-boot-starter[Maven Central]
 
 === Overview
 
-Installing Bucket4j Spring Boot Starter requires **two dependencies**:
+Using Bucket4j Spring Boot Starter requires **two dependencies**:
 
 1. **Feature Module** - Defines how rate limiting is applied (e.g., servlet filter, webflux, method annotations)
 2. **Cache Module** - Defines where the token bucket state is persisted (e.g., Redis, Hazelcast, JCache)
@@ -847,11 +847,11 @@ Both dependencies must be explicitly defined in your `pom.xml`. The cache module
 The starter supports different processing models depending on the feature module:
 
 * *Synchronous* - Blocking operations using traditional servlet filters or method-level AOP interception
-  - `bucket4j-spring-boot-starter-servlet` - Servlet Filter (blocking)
-  - `bucket4j-spring-boot-starter-aop` - Method Annotations via AOP (blocking)
+  - `starter-servlet` - Servlet Filter (blocking)
+  - `starter-aop` - Method Annotations via AOP (blocking)
 
 * *Asynchronous/Reactive* - Non-blocking operations for reactive applications
-  - `bucket4j-spring-boot-starter-webflux` - Webflux WebFilter (non-blocking)
+  - `starter-webflux` - Webflux WebFilter (non-blocking)
 
 ===== Feature Modules
 
