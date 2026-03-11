@@ -1,9 +1,8 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.method.failures;
 
+import com.giffing.bucket4j.spring.boot.starter.autoconfigure.exception.*;
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting;
-import com.giffing.bucket4j.spring.boot.starter.exception.*;
 import lombok.NoArgsConstructor;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,8 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class RateLimitConfigurationStartupFailuresTest {
@@ -50,7 +48,7 @@ public class RateLimitConfigurationStartupFailuresTest {
         Properties properties = getValidBucket4jProperties();
         springApplication.setDefaultProperties(properties);
 
-        var unknownParameterException = Assertions.assertThrows(RateLimitUnknownParameterException.class, springApplication::run);
+        var unknownParameterException = assertThrows(RateLimitUnknownParameterException.class, springApplication::run);
         assertNotNull(unknownParameterException);
         assertEquals(expression, unknownParameterException.getExpression());
         assertEquals(className, unknownParameterException.getClassName());
@@ -70,7 +68,7 @@ public class RateLimitConfigurationStartupFailuresTest {
         Properties properties = getValidBucket4jProperties();
         springApplication.setDefaultProperties(properties);
 
-        var methodNameNotConfiguredException = Assertions.assertThrows(RateLimitingMethodNameNotConfiguredException.class, springApplication::run);
+        var methodNameNotConfiguredException = assertThrows(RateLimitingMethodNameNotConfiguredException.class, springApplication::run);
         assertEquals("invalid_name", methodNameNotConfiguredException.getName());
         assertEquals(InvalidMethodNameExpression.class.getName(), methodNameNotConfiguredException.getClassName());
         assertEquals("testInvalidMethodName", methodNameNotConfiguredException.getMethodName());
@@ -88,7 +86,7 @@ public class RateLimitConfigurationStartupFailuresTest {
         Properties properties = getValidBucket4jProperties();
         springApplication.setDefaultProperties(properties);
 
-        var exception = Assertions.assertThrows(RateLimitingFallbackMethodNotFoundException.class, springApplication::run);
+        var exception = assertThrows(RateLimitingFallbackMethodNotFoundException.class, springApplication::run);
         assertEquals("doesNotExist", exception.getFallbakcMethodName());
         assertEquals(InvalidFallbackMethodName.class.getName(), exception.getClassName());
         assertEquals("testFallbackMethodNotExists", exception.getMethodName());
@@ -106,7 +104,7 @@ public class RateLimitConfigurationStartupFailuresTest {
         Properties properties = getValidBucket4jProperties();
         springApplication.setDefaultProperties(properties);
 
-        var exception = Assertions.assertThrows(RateLimitingMultipleFallbackMethodsFoundException.class, springApplication::run);
+        var exception = assertThrows(RateLimitingMultipleFallbackMethodsFoundException.class, springApplication::run);
         assertEquals("myFallbackMethod", exception.getFallbakcMethodName());
         assertEquals(MultipleFallbackMethods.class.getName(), exception.getClassName());
         assertEquals("testMultipleFallbackMethods", exception.getMethodName());
@@ -124,7 +122,7 @@ public class RateLimitConfigurationStartupFailuresTest {
         Properties properties = getValidBucket4jProperties();
         springApplication.setDefaultProperties(properties);
 
-        var exception = Assertions.assertThrows(RateLimitingFallbackReturnTypesMismatchException.class, springApplication::run);
+        var exception = assertThrows(RateLimitingFallbackReturnTypesMismatchException.class, springApplication::run);
         assertEquals("fallback", exception.getFallbackMethodName());
         assertEquals(InvalidFallbackMethodReturnType.class.getName(), exception.getClassName());
         assertEquals("testFallbackMethodReturnTypeDiffers", exception.getMethodName());
@@ -144,7 +142,7 @@ public class RateLimitConfigurationStartupFailuresTest {
         Properties properties = getValidBucket4jProperties();
         springApplication.setDefaultProperties(properties);
 
-        var exception = Assertions.assertThrows(RateLimitingFallbackMethodParameterMismatchException.class, springApplication::run);
+        var exception = assertThrows(RateLimitingFallbackMethodParameterMismatchException.class, springApplication::run);
         assertEquals("fallback", exception.getFallbackMethodName());
         assertEquals(InvalidFallbackMethodParameter.class.getName(), exception.getClassName());
         assertEquals("testFallbackMethodReturnTypeDiffers", exception.getMethodName());

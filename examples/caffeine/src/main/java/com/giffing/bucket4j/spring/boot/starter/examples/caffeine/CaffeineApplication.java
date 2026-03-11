@@ -10,8 +10,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 public class CaffeineApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CaffeineApplication.class, args);
-	}
-	
+    public static void main(String[] args) {
+        SpringApplication.run(CaffeineApplication.class, args);
+    }
+
 }

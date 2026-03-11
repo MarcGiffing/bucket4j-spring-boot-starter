@@ -1,15 +1,13 @@
 package com.giffing.bucket4j.spring.boot.starter.general.tests.method.method;
 
-import com.giffing.bucket4j.spring.boot.starter.exception.NoCacheConfiguredException;
-import org.junit.jupiter.api.Assertions;
+import com.giffing.bucket4j.spring.boot.starter.autoconfigure.exception.NoCacheConfiguredException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext
 public class NoCacheFoundTest {
@@ -17,7 +15,7 @@ public class NoCacheFoundTest {
     @Test
     public void assert_startup_failure_when_cache_not_configured() {
         SpringApplication springApplication = new SpringApplication(MethodTestApplication.class);
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put("bucket4j.cache-to-use", "does_not_exist");
         properties.put("bucket4j.methods[0].name", "default");
         properties.put("bucket4j.methods[0].cache-name", "buckets");
@@ -27,7 +25,7 @@ public class NoCacheFoundTest {
         properties.put("bucket4j.methods[0].rate-limit.bandwidths[0].refill-speed", "greedy");
         springApplication.setDefaultProperties(properties);
 
-        var noCacheConfiguredException = Assertions.assertThrows(NoCacheConfiguredException.class, springApplication::run);
+        var noCacheConfiguredException = assertThrows(NoCacheConfiguredException.class, springApplication::run);
         assertNotNull(noCacheConfiguredException);
         assertEquals("does_not_exist", noCacheConfiguredException.getCacheToUse());
     }

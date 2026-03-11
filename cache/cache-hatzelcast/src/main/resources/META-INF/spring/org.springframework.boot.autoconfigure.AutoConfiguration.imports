@@ -1,0 +1,2 @@
+com.giffing.bucket4j.spring.boot.starter.cache.hazelcast.HazelcastReactiveBucket4jCacheConfiguration
+com.giffing.bucket4j.spring.boot.starter.cache.hazelcast.HazelcastSpringBucket4jCacheConfiguration

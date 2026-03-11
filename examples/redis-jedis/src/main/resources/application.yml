@@ -62,8 +62,6 @@ bucket4j:
         - INTERRUPTED_COUNTER
         - DELAYED_COUNTER
 spring:
-  main:
-    allow-bean-definition-overriding: true
   data:
     redis:
       host: localhost
