@@ -28,6 +28,7 @@
         <module>cache/cache-jcache-infinispan</module>
         <module>cache/cache-infinispan</module>
         <module>cache/cache-ignite</module>
+        <module>cache/cache-postgresql</module>
         <!-- Starter -->
         <module>starter-aop</module>
         <module>starter-servlet</module>
@@ -36,6 +37,7 @@
         <module>examples/general-tests</module>
         <module>examples/caffeine</module>
         <module>examples/ehcache</module>
+        <module>examples/postgresql</module>
         <module>examples/hazelcast</module>
         <module>examples/webflux</module>
         <module>examples/redis-jedis</module>
@@ -133,6 +135,11 @@
                 <artifactId>cache-jcache-infinispan</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+                <artifactId>cache-postgresql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- Bucket4j Tests -->
             <dependency>
                 <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
@@ -187,6 +194,11 @@
             <dependency>
                 <groupId>com.bucket4j</groupId>
                 <artifactId>bucket4j_jdk17-infinispan</artifactId>
+                <version>${bucket4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bucket4j</groupId>
+                <artifactId>bucket4j_jdk17-postgresql</artifactId>
                 <version>${bucket4j.version}</version>
             </dependency>
         </dependencies>
