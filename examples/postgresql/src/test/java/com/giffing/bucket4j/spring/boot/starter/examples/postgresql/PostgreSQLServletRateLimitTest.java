@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "bucket4j.filters[0].url=^(/hello).*",
         "bucket4j.filters[1].cache-name=buckets",
         "bucket4j.filters[1].id=filter2",
-        "bucket4j.filters[1].rate-limits[0].bandwidths[0].capacity=10",
+        "bucket4j.filters[1].rate-limits[0].bandwidths[0].capacity=5",
         "bucket4j.filters[1].rate-limits[0].bandwidths[0].time=10",
         "bucket4j.filters[1].rate-limits[0].bandwidths[0].unit=seconds",
 })
