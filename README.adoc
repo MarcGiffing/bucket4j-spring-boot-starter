@@ -1,7 +1,7 @@
 :url-repo: https://github.com/MarcGiffing/bucket4j-spring-boot-starter
 :url: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/tree/master
 :url-examples: {url}/examples
-:url-config-cache: {url}/bucket4j-spring-boot-starter/src/main/java/com/giffing/bucket4j/spring/boot/starter/config/cache
+:url-config-cache: {url}/cache/
 
 image:{url-repo}/actions/workflows/maven.yml/badge.svg[Build Status,link={url-repo}/actions/workflows/maven.yml]
 image:{url-repo}/actions/workflows/codeql.yml/badge.svg[Build Status,link={url-repo}/actions/workflows/codeql.yml]
@@ -684,35 +684,40 @@ The following list contains the Caching implementation which will be autoconfigu
 |*cache-to-use*
 
 |N
-|{url-config-cache}/jcache/JCacheBucket4jConfiguration.java[JSR 107 -JCache]
+|{url-config-cache}/cache-jcache[JSR 107 -JCache]
 |jcache
 
 |Yes
-|{url-config-cache}/ignite/IgniteBucket4jCacheConfiguration.java[Ignite]
+|{url-config-cache}/cache-ignite[Ignite]
 |jcache-ignite
 
+|N
+|{url-config-cache}/cache-postgresql[PostgreSQL]
+|jcache
+
+
 |no
-|{url-config-cache}/hazelcast/HazelcastSpringBucket4jCacheConfiguration.java[Hazelcast]
+|{url-config-cache}/cache-hazelcast[Hazelcast]
 |hazelcast-spring
 
 |yes
-|{url-config-cache}/hazelcast/HazelcastReactiveBucket4jCacheConfiguration.java[Hazelcast]
+|{url-config-cache}/cache-hazelcast[Hazelcast]
 |hazelcast-reactive
 
 |Yes
-|{url-config-cache}/infinispan/InfinispanBucket4jCacheConfiguration.java[Infinispan]
+|{url-config-cache}/cache-infinispan[Infinispan]
 |infinispan
 
 |No
-|{url-config-cache}/redis/jedis/JedisBucket4jConfiguration.java[Redis-Jedis]
+|{url-config-cache}/cache-redis-jedis[Redis-Jedis]
 |redis-jedis
 
 |Yes
-|{url-config-cache}/redis/lettuce/LettuceBucket4jConfiguration.java[Redis-Lettuce]
+|{url-config-cache}/cache-lettuce[Redis-Lettuce]
 |redis-lettuce
 
 |Yes
-|{url-config-cache}/redis/redisson/RedissonBucket4jConfiguration.java[Redis-Redisson]
+|{url-config-cache}/cache-redis-resdisson[Redis-Redisson]
 |redis-redisson
 
 |===

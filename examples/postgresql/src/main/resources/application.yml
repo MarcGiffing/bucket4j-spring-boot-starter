@@ -1,0 +1,62 @@
+debug: false
+logging:
+  level:
+    com.giffing.bucket4j: debug
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+bucket4j:
+  enabled: true
+  cache-to-use: postgresql
+  filters:
+    - cache-name: buckets_test
+      major-version: 2
+      url: ^(/hello).*
+      id: filter1
+      rate-limits:
+        - tokens-inheritance-strategy: reset
+          bandwidths:
+            - capacity: 5
+              time: 10
+              unit: seconds
+              refill-speed: interval
+    - cache-name: buckets_test
+      url: ^(/world).*
+      id: filter2
+      rate-limits:
+        - tokens-inheritance-strategy: reset
+          bandwidths:
+            - capacity: 10
+              time: 10
+              unit: seconds
+              refill-speed: interval
+  methods:
+    - name: method_test
+      cache-name: greetings
+      rate-limit:
+        bandwidths:
+          - capacity: 5
+            time: 30
+            unit: seconds
+            refill-speed: interval
+  default-metric-tags:
+    - key: IP
+      expression: "getRemoteAddr()"
+      types:
+        - REJECTED_COUNTER
+        - CONSUMED_COUNTER
+        - PARKED_COUNTER
+        - INTERRUPTED_COUNTER
+        - DELAYED_COUNTER
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:15-alpine:///testdb
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: test
+    password: test
+    show-sql: true
+  sql:
+    init:
+      mode: always  # Ensures that schema.sql is executed to create the bucket4j_tokens table
