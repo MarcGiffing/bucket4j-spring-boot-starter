@@ -9,7 +9,7 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
+    <name>bucket4j-spring-boot-starter-core</name>
     <artifactId>core</artifactId>
 
     <properties>

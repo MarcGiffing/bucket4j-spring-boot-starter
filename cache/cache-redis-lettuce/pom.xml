@@ -9,7 +9,7 @@
         <version>${revision}</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
+    <name>bucket4j-spring-boot-starter-cache-redis-lettuce</name>
     <artifactId>cache-redis-lettuce</artifactId>
 
     <properties>

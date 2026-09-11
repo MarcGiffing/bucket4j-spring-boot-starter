@@ -9,7 +9,7 @@
         <version>${revision}</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
+    <name>bucket4j-spring-boot-starter-cache-jcache</name>
     <artifactId>cache-jcache</artifactId>
 
     <properties>
