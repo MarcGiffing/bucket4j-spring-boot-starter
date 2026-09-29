@@ -47,8 +47,7 @@ public class Bucket4JBootProperties {
     /**
      * Configuration for the {@link RateLimiting} annotation on method level.
      */
-    @Valid
-    private List<MethodProperties> methods = new ArrayList<>();
+    private List<@Valid MethodProperties> methods = new ArrayList<>();
 
     private boolean filterConfigCachingEnabled = false;
 
@@ -59,8 +58,7 @@ public class Bucket4JBootProperties {
     private String filterConfigCacheName = "filterConfigCache";
 
 
-    @Valid
-    private List<Bucket4JConfiguration> filters = new ArrayList<>();
+    private List<@Valid Bucket4JConfiguration> filters = new ArrayList<>();
 
     @AssertTrue(message = "FilterConfiguration caching is enabled, but not all filters have an identifier configured")
     public boolean isValidFilterIds() {
@@ -70,16 +68,14 @@ public class Bucket4JBootProperties {
     /**
      * A list of default metric tags which should be applied to all filters
      */
-    @Valid
-    private List<MetricTag> defaultMetricTags = new ArrayList<>();
+    private List<@Valid MetricTag> defaultMetricTags = new ArrayList<>();
 
     /**
      * A list of default metric tags which should be applied to all methods.
      * Additional configuration is necessary as the evaluation context for resolving
      * tag expression is different from filters.
      */
-    @Valid
-    private List<MetricTag> defaultMethodMetricTags = new ArrayList<>();
+    private List<@Valid MetricTag> defaultMethodMetricTags = new ArrayList<>();
 
     @NotBlank
     private String defaultHttpContentType = "application/json";

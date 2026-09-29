@@ -32,16 +32,14 @@ public class RateLimit implements Serializable {
      */
     private String postExecuteCondition;
 
-    @Valid
-    private List<ExecutePredicateDefinition> executePredicates = new ArrayList<>();
+    private List<@Valid ExecutePredicateDefinition> executePredicates = new ArrayList<>();
 
     /**
      * SpEl condition to check if the rate-limit should apply. If null there is no check.
      */
     private String skipCondition;
 
-    @Valid
-    private List<ExecutePredicateDefinition> skipPredicates = new ArrayList<>();
+    private List<@Valid ExecutePredicateDefinition> skipPredicates = new ArrayList<>();
 
     /**
      * SPEL expression to dynamic evaluate filter key
@@ -57,8 +55,7 @@ public class RateLimit implements Serializable {
     private Integer numTokens = 1;
 
     @NotEmpty
-    @Valid
-    private List<BandWidth> bandwidths = new ArrayList<>();
+    private List<@Valid BandWidth> bandwidths = new ArrayList<>();
 
     /**
      * The token inheritance strategy to use when replacing the configuration of a bucket
