@@ -68,8 +68,7 @@ public class Bucket4JConfiguration implements Serializable {
     private Integer filterOrder = Ordered.HIGHEST_PRECEDENCE + 10;
 
     @NotEmpty
-    @Valid
-    private List<RateLimit> rateLimits = new ArrayList<>();
+    private List<@Valid RateLimit> rateLimits = new ArrayList<>();
 
     /**
      * The HTTP Content-Type which should be returned
